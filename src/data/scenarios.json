@@ -176,5 +176,440 @@
         ]
       }
     ]
+  },
+  {
+    "id": "scenario_svb_panic",
+    "title": "Silicon Valley Bank Run & Regional Banking Crisis (March 2023)",
+    "description": "Examine the unhedged bond duration crisis that led to the fastest bank run in US financial history.",
+    "category": "Crash",
+    "difficulty": "Advanced",
+    "ticker": "JPM",
+    "startDate": "2023-03-06",
+    "endDate": "2023-04-15",
+    "initialCash": 50000,
+    "lessonsLearned": [
+      "Unrealized held-to-maturity bond losses become acute solvency crises during rapid deposit outflows.",
+      "Too-big-to-fail mega-cap banks often benefit from flight-to-safety deposit inflows during regional bank turmoil.",
+      "Government backstops like the Bank Term Funding Program (BTFP) contain systemic contagion."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2023-03-10",
+        "title": "SVB Enters FDIC Receivership",
+        "narrative": "Silicon Valley Bank fails after depositors withdraw $42 billion in 24 hours. Regional bank shares plunge 30% across the board.",
+        "prompt": "Where do you allocate defensive capital in the financial sector?",
+        "options": [
+          { "text": "Concentrate in Fortress Balance Sheet banks like JPMorgan Chase.", "feedback": "JPMorgan received tens of billions in flight-to-safety deposits and later acquired First Republic at favorable terms." },
+          { "text": "Aggressively buy distressed regional lenders relying on uninsured wholesale deposits.", "feedback": "Several regional banks collapsed before regulatory intervention stabilized the system." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_negative_oil",
+    "title": "Negative Crude Oil Day: -$37.63/bbl (April 2020)",
+    "description": "Understand physical storage constraints and futures contract expiry mechanics when demand vanished.",
+    "category": "Crash",
+    "difficulty": "Advanced",
+    "ticker": "SPY",
+    "startDate": "2020-04-15",
+    "endDate": "2020-05-15",
+    "initialCash": 30000,
+    "lessonsLearned": [
+      "Commodity futures contracts require physical settlement unless rolled prior to contract expiration.",
+      "When storage capacity reaches 100%, commodity prices can turn negative to incentivize immediate disposal.",
+      "Extreme commodity dislocations create generational buying opportunities in integrated energy producers."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2020-04-20",
+        "title": "May WTI Contract Drops Below Zero",
+        "narrative": "Expiring May crude futures fall to -$37.63 as traders with no storage access pay buyers to take physical delivery.",
+        "prompt": "How do you capitalize on the unprecedented energy dislocation?",
+        "options": [
+          { "text": "Invest in major integrated energy producers with strong balance sheets and storage capacity.", "feedback": "Major oil companies recovered strongly as OPEC production cuts and global demand normalized." },
+          { "text": "Buy front-month expiring futures contracts without delivery capabilities.", "feedback": "Holding expiring physically settled futures contracts without storage resulted in catastrophic financial liabilities." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_brexit_vote",
+    "title": "The Brexit Referendum Shock (June 2016)",
+    "description": "Manage political event risk and international currency volatility during Britain's vote to leave the European Union.",
+    "category": "Crash",
+    "difficulty": "Intermediate",
+    "ticker": "SPY",
+    "startDate": "2016-06-15",
+    "endDate": "2016-07-31",
+    "initialCash": 35000,
+    "lessonsLearned": [
+      "Betting markets and polling data can misprice binary political outcomes.",
+      "Initial geopolitical panic frequently creates short-lived buying opportunities for resilient multinational indices.",
+      "Currency devaluations provide export competitiveness tailwinds to multinational corporations."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2016-06-24",
+        "title": "Leave Wins the Referendum",
+        "narrative": "UK votes 52% to 48% to leave the EU. British pound plunges 10% and global equities drop 3% in two sessions.",
+        "prompt": "Global markets are in shock. What is your trade?",
+        "options": [
+          { "text": "Buy the dip in high-quality US and global equities.", "feedback": "The S&P 500 recovered all Brexit losses within seven trading sessions and reached new all-time highs within a month." },
+          { "text": "Liquidate long-term holdings expecting prolonged global recession.", "feedback": "Exiting on political headlines locked in unnecessary losses as markets quickly looked through the policy timeline." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_christmas_eve_2018",
+    "title": "The Christmas Eve 2018 Market Capitulation",
+    "description": "Experience the culmination of the 2018 fourth-quarter bear market and the famous Powell Pivot.",
+    "category": "Crash",
+    "difficulty": "Intermediate",
+    "ticker": "SPY",
+    "startDate": "2018-12-15",
+    "endDate": "2019-02-15",
+    "initialCash": 45000,
+    "lessonsLearned": [
+      "Low-volume holiday trading can exacerbate selling pressure into technical capitulation bottoms.",
+      "Central bank communication shifts from hawkish to dovish trigger powerful equity reversals.",
+      "Year-end tax-loss selling often exhausts by late December, setting up strong January effect rallies."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2018-12-24",
+        "title": "Worst Christmas Eve in Wall Street History",
+        "narrative": "The S&P 500 falls 2.7% in a shortened session, bringing the quarterly decline to nearly 20%. Sentiment reaches extreme despair.",
+        "prompt": "How do you handle your portfolio on Christmas Eve?",
+        "options": [
+          { "text": "Maintain discipline and prepare to buy oversold quality names.", "feedback": "December 26 saw the Dow surge 1,086 points (record one-day point gain) kicking off a 30% rally in 2019." },
+          { "text": "Panic sell at the closing bell.", "feedback": "Selling on Christmas Eve marked the exact bottom tick of the entire 2018 correction." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_btc_2017",
+    "title": "Bitcoin Mania & CME Futures Launch (December 2017)",
+    "description": "Trade the retail crypto mania of 2017 as Bitcoin climbed to $20,000 before CME futures opened two-way institutional trading.",
+    "category": "Bubble",
+    "difficulty": "Intermediate",
+    "ticker": "BTC",
+    "startDate": "2017-10-01",
+    "endDate": "2018-03-31",
+    "initialCash": 15000,
+    "lessonsLearned": [
+      "The launch of institutional futures contracts allows institutional capital to short parabolic speculative bubbles for the first time.",
+      "Retail parabolic runs driven by Google search volume and mainstream media coverage signal late-stage exhaustion.",
+      "Taking initial principal off the table in high-beta speculative assets protects against 80%+ crypto drawdowns."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2017-12-17",
+        "title": "Bitcoin Hits $19,800 Ahead of CME Launch",
+        "narrative": "Bitcoin reaches all-time highs as CME launches Bitcoin futures trading.",
+        "prompt": "What risk management protocol do you apply?",
+        "options": [
+          { "text": "Take substantial profits and harvest original capital.", "feedback": "Bitcoin declined by 70% over the following six months. Taking profits secured massive realized returns." },
+          { "text": "Hold 100% expecting immediate continuation to $100,000.", "feedback": "Holding through late-stage parabolic exhaustion resulted in an 84% drawdown during the 2018 crypto winter." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_tsla_sp500",
+    "title": "Tesla's S&P 500 Inclusion Squeeze (December 2020)",
+    "description": "Capitalize on index fund mandatory buying as Tesla enters the benchmark S&P 500.",
+    "category": "Earnings",
+    "difficulty": "Beginner",
+    "ticker": "TSLA",
+    "startDate": "2020-11-15",
+    "endDate": "2021-01-31",
+    "initialCash": 20000,
+    "lessonsLearned": [
+      "Index additions of mega-cap companies force passive index funds to buy tens of billions of dollars in shares regardless of valuation.",
+      "Pre-inclusion momentum often culminates on the actual effective date (buy the rumor, sell the news).",
+      "Understanding passive ETF flows is a critical edge in modern financial markets."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2020-11-16",
+        "title": "S&P Dow Jones Announces Tesla Addition",
+        "narrative": "Tesla will be added to the S&P 500 on December 21. Index funds must acquire over $80 billion in stock.",
+        "prompt": "How do you trade the mechanical index rebalancing dynamic?",
+        "options": [
+          { "text": "Ride the front-running momentum into the inclusion date.", "feedback": "Tesla stock rallied over 50% between announcement and the December 21 inclusion date." },
+          { "text": "Short Tesla immediately based on fundamental P/E multiple.", "feedback": "Fighting structural index fund buying flows proved disastrous for short sellers in late 2020." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_pfizer_vaccine",
+    "title": "Vaccine Monday: The Great Rotation (November 2020)",
+    "description": "Witness the single greatest style factor rotation in stock market history from tech to recovery cyclicals.",
+    "category": "Earnings",
+    "difficulty": "Intermediate",
+    "ticker": "SPY",
+    "startDate": "2020-11-01",
+    "endDate": "2021-01-15",
+    "initialCash": 40000,
+    "lessonsLearned": [
+      "Macro regime shifts cause violent capital rotations between growth and value factors.",
+      "Stay-at-home beneficiaries experience multiple compression when the real economy reopens.",
+      "Cyclical value equities (energy, airlines, financials) outperform during early economic reopenings."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2020-11-09",
+        "title": "Pfizer Announces 90%+ Vaccine Efficacy",
+        "narrative": "Pfizer and BioNTech report positive Phase 3 results. Travel and energy stocks jump 20% while Zoom and stay-at-home tech sell off.",
+        "prompt": "How do you rebalance your equity portfolio?",
+        "options": [
+          { "text": "Rotate capital into cyclical value, industrials, and energy.", "feedback": "Energy and financials led market returns over the subsequent 12 months as economic activity resumed." },
+          { "text": "Stay 100% concentrated in stay-at-home software stocks.", "feedback": "Work-from-home pandemic winners peaked in late 2020 and experienced multi-year valuation de-ratings." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_us_china_tariffs",
+    "title": "The 2018-2019 US-China Trade War",
+    "description": "Navigate tariff escalations, supply chain disruptions, and retaliatory trade policy.",
+    "category": "Crash",
+    "difficulty": "Intermediate",
+    "ticker": "AAPL",
+    "startDate": "2018-03-01",
+    "endDate": "2019-01-31",
+    "initialCash": 30000,
+    "lessonsLearned": [
+      "Companies with complex cross-border supply chains face margin pressure during trade disputes.",
+      "Headline tariff volatility creates high-frequency swings in multinational industrials and hardware tech.",
+      "Focusing on domestic revenue companies provides shelter during international tariff conflicts."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2018-03-22",
+        "title": "Section 301 Tariffs Announced",
+        "narrative": "US proposes tariffs on $50 billion of Chinese imports. Technology and manufacturing stocks fall on retaliation fears.",
+        "prompt": "How do you evaluate hardware manufacturers with Chinese assembly lines?",
+        "options": [
+          { "text": "Hedge exposure and trim vulnerable supply-chain names.", "feedback": "Hardware companies faced multiple quarters of revenue guidance cuts and inventory volatility." },
+          { "text": "Ignore geopolitical risk and maintain maximum allocation.", "feedback": "Semiconductors and hardware stocks experienced 30%+ peak-to-trough drawdowns during the trade escalation." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_yield_curve_inversion",
+    "title": "The August 2019 Yield Curve Inversion",
+    "description": "Analyze the classic recession signal when the 10-year Treasury yield drops below the 2-year yield.",
+    "category": "FedPolicy",
+    "difficulty": "Intermediate",
+    "ticker": "SPY",
+    "startDate": "2019-08-01",
+    "endDate": "2019-12-31",
+    "initialCash": 50000,
+    "lessonsLearned": [
+      "Yield curve inversions are reliable leading recession indicators, but with variable time lags of 12 to 24 months.",
+      "The initial inversion often sparks temporary market panic before a final late-cycle equity push.",
+      "Federal Reserve rate cuts in response to curve inversions support equity multiples in the near term."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2019-08-14",
+        "title": "2s10s Curve Flips Negative",
+        "narrative": "The 10-year yield falls below the 2-year yield for the first time since 2007. The Dow sinks 800 points in a single day.",
+        "prompt": "How do you interpret the inversion signal?",
+        "options": [
+          { "text": "Recognize the signal is a long-term leading indicator, not an immediate sell signal.", "feedback": "Equities went on to rally 15% into early 2020 as the Fed provided liquidity cuts." },
+          { "text": "Liquidate entire equity portfolio the day the curve inverts.", "feedback": "Selling immediately caused investors to miss the entire late-2019 bull market surge." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_inflation_taper",
+    "title": "The Transitory Inflation Debate (Fall 2021)",
+    "description": "Trade the transition from ultra-loose pandemic stimulus to the recognition of persistent inflation.",
+    "category": "FedPolicy",
+    "difficulty": "Intermediate",
+    "ticker": "QQQ",
+    "startDate": "2021-09-01",
+    "endDate": "2022-02-28",
+    "initialCash": 40000,
+    "lessonsLearned": [
+      "Central bank characterization of inflation as 'transitory' can delay necessary policy tightening.",
+      "Speculative unprofitable tech stocks peak months before mega-cap indices reflect macro tightening.",
+      "Cash preservation ahead of quantitative tightening prevents severe drawdowns in growth assets."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2021-11-10",
+        "title": "CPI Jumps 6.2% Year-Over-Year",
+        "narrative": "Inflation hits highest level in 30 years. Speculative tech stocks and ARKK components begin breaking down.",
+        "prompt": "What is your allocation strategy as bond yields rise?",
+        "options": [
+          { "text": "Begin raising cash and trimming high-multiple growth equities.", "feedback": "Raising cash in late 2021 preserved capital before the brutal 2022 bear market." },
+          { "text": "Buy high-multiple software stocks trading at 30x revenue.", "feedback": "High P/S multiples experienced 70%+ declines over the following four quarters." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_debt_ceiling_2023",
+    "title": "The US Debt Ceiling Standoff (May 2023)",
+    "description": "Navigate Treasury cash exhaustion deadlines and sovereign credit rating uncertainty.",
+    "category": "Crash",
+    "difficulty": "Beginner",
+    "ticker": "SPY",
+    "startDate": "2023-05-01",
+    "endDate": "2023-06-30",
+    "initialCash": 35000,
+    "lessonsLearned": [
+      "US debt ceiling standoffs create short-term volatility but historically resolve with a bipartisan agreement.",
+      "Treasury bill yields with maturity near the 'X-date' spike temporarily, creating short-term yield opportunities.",
+      "Post-resolution Treasury General Account (TGA) replenishment temporarily absorbs market liquidity."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2023-05-20",
+        "title": "Approaching the X-Date",
+        "narrative": "Treasury Secretary Janet Yellen warns cash could run out by June 1. Media headlines focus on default risk.",
+        "prompt": "How do you position your portfolio?",
+        "options": [
+          { "text": "Stay invested and use headline dips to accumulate index shares.", "feedback": "A deal was signed on June 3, triggering a multi-month broad market summer rally." },
+          { "text": "Sell all US equity assets expecting an unprecedented US debt default.", "feedback": "US sovereign default did not occur; exiting equities resulted in buying back at higher prices." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_fed_50bps_pivot",
+    "title": "The September 2024 Fed Easing Cycle",
+    "description": "Capitalize on the Federal Reserve's first rate cut in four years with a 50 bps opening move.",
+    "category": "FedPolicy",
+    "difficulty": "Beginner",
+    "ticker": "SPY",
+    "startDate": "2024-09-01",
+    "endDate": "2024-11-30",
+    "initialCash": 50000,
+    "lessonsLearned": [
+      "Rate cuts initiated during economic expansion (non-recessionary cuts) historically propel equities to new highs.",
+      "Small-cap stocks and rate-sensitive sectors benefit from reduced borrowing costs.",
+      "Lower cash yields on money market funds encourage cash rotation into risk assets."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2024-09-18",
+        "title": "Fed Cuts Rates by 50 Basis Points",
+        "narrative": "FOMC delivers a jumbo half-point cut to recalibrate policy toward neutral as inflation cools.",
+        "prompt": "How do you adjust portfolio strategy as the easing cycle begins?",
+        "options": [
+          { "text": "Maintain full equity exposure and diversify into cyclical/rate-sensitive names.", "feedback": "Markets surged to new all-time highs as liquidity conditions eased across global markets." },
+          { "text": "Keep all capital parked in 5% cash instruments.", "feedback": "Cash yields began declining immediately as banks lowered APYs on savings and CDs." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_aapl_trillion_club",
+    "title": "Apple: From $1 Trillion to $3 Trillion",
+    "description": "Track the compounding power of share buybacks, services expansion, and ecosystem lock-in.",
+    "category": "Earnings",
+    "difficulty": "Beginner",
+    "ticker": "AAPL",
+    "startDate": "2018-08-01",
+    "endDate": "2022-01-15",
+    "initialCash": 25000,
+    "lessonsLearned": [
+      "High-return-on-invested-capital (ROIC) companies with massive share repurchase programs generate enormous compound shareholder value.",
+      "Recurring services revenue warrants a higher valuation multiple than cyclical hardware sales.",
+      "Holding elite secular compounders through market cycles beats frequent market timing."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2018-08-02",
+        "title": "Apple Reaches $1 Trillion Market Cap",
+        "narrative": "Apple becomes the first US company to cross $1 trillion. Many commentators claim upside is capped.",
+        "prompt": "Do you buy or hold a company with a $1 trillion valuation?",
+        "options": [
+          { "text": "Hold for long-term compounding driven by services growth and share buybacks.", "feedback": "Apple tripled in value over the next 3.5 years, crossing $3 trillion in January 2022." },
+          { "text": "Sell completely because a trillion-dollar company cannot grow further.", "feedback": "Selling capped upside on one of the greatest corporate compounding stories in history." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_election_2016",
+    "title": "The 2016 US Election Overnight Reversal",
+    "description": "Witness the dramatic transformation from overnight limit-down futures to a massive reflation rally.",
+    "category": "Crash",
+    "difficulty": "Intermediate",
+    "ticker": "JPM",
+    "startDate": "2016-11-01",
+    "endDate": "2016-12-31",
+    "initialCash": 35000,
+    "lessonsLearned": [
+      "Overnight futures limit-down panics often reverse by market open as consensus reassesses policy implications.",
+      "Tax cuts and deregulation expectations trigger rapid sector rotations into financials and industrials.",
+      "Never execute market sell orders during illiquid overnight futures panics."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2016-11-08",
+        "title": "Election Night Futures Plunge",
+        "narrative": "S&P futures drop 5% limit-down as election results roll in. By morning bell, the market opens flat and surges into the close.",
+        "prompt": "How do you position in response to fiscal stimulus and deregulation expectations?",
+        "options": [
+          { "text": "Rotate capital into banks and financial institutions.", "feedback": "Financial stocks surged over 20% in the following six weeks on higher yields and deregulation optimism." },
+          { "text": "Short the market expecting political gridlock.", "feedback": "Short positions suffered immediate losses as the broad Trump reflation trade took hold." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_spot_etf_approval",
+    "title": "Spot Bitcoin ETF Approval (January 2024)",
+    "description": "Analyze institutional adoption, ETF inflows, and structural supply absorption.",
+    "category": "Bubble",
+    "difficulty": "Beginner",
+    "ticker": "BTC",
+    "startDate": "2024-01-01",
+    "endDate": "2024-04-30",
+    "initialCash": 20000,
+    "lessonsLearned": [
+      "Institutional ETF wrappers democratize asset access for wealth managers and retirement accounts.",
+      "Initial 'sell the news' pullbacks provide attractive entry points when backed by strong structural inflows.",
+      "Net ETF inflows create continuous price-inelastic demand for fixed-supply digital assets."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2024-01-10",
+        "title": "SEC Approves 11 Spot Bitcoin ETFs",
+        "narrative": "Historic approval enables spot trading on US exchanges. After an initial surge, Bitcoin dips 15% as GBTC outflows hit the market.",
+        "prompt": "How do you treat the initial 'sell the news' dip?",
+        "options": [
+          { "text": "Accumulate during the temporary GBTC transition dip.", "feedback": "Net ETF inflows exceeded $12 billion in the first three months, sending Bitcoin to new all-time highs above $73,000 in March." },
+          { "text": "Exit because the ETF catalyst has completed.", "feedback": "Exiting early missed the largest institutional capital inflow in exchange-traded fund history." }
+        ]
+      }
+    ]
   }
 ]
