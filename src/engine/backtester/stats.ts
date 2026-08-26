@@ -36,13 +36,11 @@ export function computeBacktestStats(
   const totalReturnPercent = Number((((finalEquity - initialCash) / initialCash) * 100).toFixed(2));
   const benchmarkReturnPercent = Number((((finalBenchmark - initialCash) / initialCash) * 100).toFixed(2));
 
-  // CAGR calculation
   const startTs = new Date(startDate).getTime();
   const endTs = new Date(endDate).getTime();
   const years = Math.max(0.1, (endTs - startTs) / (365.25 * 24 * 3600 * 1000));
   const cagr = (Math.pow(Math.max(0.001, finalEquity / initialCash), 1 / years) - 1) * 100;
 
-  // Trades analytics
   const winningTrades = trades.filter((t) => t.pnl > 0);
   const losingTrades = trades.filter((t) => t.pnl < 0);
 
@@ -65,7 +63,6 @@ export function computeBacktestStats(
     ? Number((losingTrades.reduce((sum, t) => sum + t.pnlPercent, 0) / losingTrades.length).toFixed(2))
     : 0;
 
-  // Holding period in days
   let totalHoldingDays = 0;
   trades.forEach((t) => {
     const d1 = new Date(t.entryDate).getTime();
@@ -75,7 +72,6 @@ export function computeBacktestStats(
   });
   const avgHoldingDays = totalTrades > 0 ? Math.round(totalHoldingDays / totalTrades) : 0;
 
-  // Drawdown and Ratios from daily equity curve
   const equitySeries = equityCurve.map((pt) => ({ date: pt.date, value: pt.strategyValue }));
   const ddResult = calculateMaxDrawdown(equitySeries);
 
@@ -111,27 +107,44 @@ export function computeMonthlyReturns(
 ): { year: number; month: number; returnPercent: number }[] {
   if (equityCurve.length < 2) return [];
 
-  const monthlyBuckets: Record<string, { startVal: number; endVal: number }> = {};
+  // Group equity points by year and month
+  const monthlyMap = new Map<string, BacktestEquityPoint[]>();
 
   equityCurve.forEach((pt) => {
     const d = new Date(pt.date);
     const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
-    if (!monthlyBuckets[key]) {
-      monthlyBuckets[key] = { startVal: pt.strategyValue, endVal: pt.strategyValue };
-    } else {
-      monthlyBuckets[key].endVal = pt.strategyValue;
+    if (!monthlyMap.has(key)) {
+      monthlyMap.set(key, []);
     }
+    monthlyMap.get(key)!.push(pt);
   });
 
-  return Object.entries(monthlyBuckets).map(([key, bucket]) => {
+  const sortedKeys = Array.from(monthlyMap.keys()).sort();
+  const results: { year: number; month: number; returnPercent: number }[] = [];
+
+  let previousMonthEndValue = equityCurve[0].strategyValue;
+
+  sortedKeys.forEach((key, index) => {
+    const points = monthlyMap.get(key)!;
     const [yearStr, monthStr] = key.split('-');
-    const returnPercent = bucket.startVal > 0
-      ? ((bucket.endVal - bucket.startVal) / bucket.startVal) * 100
+    const year = parseInt(yearStr, 10);
+    const month = parseInt(monthStr, 10);
+
+    const monthStartValue = index === 0 ? points[0].strategyValue : previousMonthEndValue;
+    const monthEndValue = points[points.length - 1].strategyValue;
+
+    const returnPercent = monthStartValue > 0
+      ? ((monthEndValue - monthStartValue) / monthStartValue) * 100
       : 0;
-    return {
-      year: parseInt(yearStr, 10),
-      month: parseInt(monthStr, 10),
+
+    results.push({
+      year,
+      month,
       returnPercent: Number(returnPercent.toFixed(2)),
-    };
+    });
+
+    previousMonthEndValue = monthEndValue;
   });
+
+  return results;
 }

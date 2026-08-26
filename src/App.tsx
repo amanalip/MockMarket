@@ -9,6 +9,8 @@ import { TradeHistory } from './components/portfolio/TradeHistory';
 import { OrderManagement } from './components/trading/OrderManagement';
 import { SimulationBar } from './components/timeline/SimulationBar';
 import { RiskDashboard } from './components/portfolio/RiskDashboard';
+import { BacktestConfigPanel } from './components/backtester/BacktestConfigPanel';
+import { BacktestResults } from './components/backtester/BacktestResults';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -78,31 +80,40 @@ export const App: React.FC = () => {
           </div>
         </div>
 
-        <SimulationBar candles={candles} />
-
         {mode === 'trade' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
-              <CandlestickChart
-                candles={candles}
-                ticker={selectedTicker}
-                theme={theme}
-                simulationDate={simulationDate}
-                loading={loading}
-              />
-              <TradePanel currentCandle={activeCandle} />
+          <>
+            <SimulationBar candles={candles} />
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
+                <CandlestickChart
+                  candles={candles}
+                  ticker={selectedTicker}
+                  theme={theme}
+                  simulationDate={simulationDate}
+                  loading={loading}
+                />
+                <TradePanel currentCandle={activeCandle} />
+              </div>
+
+              <PortfolioDashboard />
+
+              <RiskDashboard />
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+                <OrderManagement />
+                <TradeHistory />
+              </div>
+
+              <StockScreener />
             </div>
+          </>
+        )}
 
-            <PortfolioDashboard />
-
-            <RiskDashboard />
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
-              <OrderManagement />
-              <TradeHistory />
-            </div>
-
-            <StockScreener />
+        {mode === 'backtest' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <BacktestConfigPanel />
+            <BacktestResults />
           </div>
         )}
       </div>
