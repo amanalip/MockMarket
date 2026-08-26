@@ -15,6 +15,7 @@ import { ETFBuilderForm } from './components/etf/ETFBuilderForm';
 import { ETFAnalyticsDashboard } from './components/etf/ETFAnalyticsDashboard';
 import { SavedETFsList } from './components/etf/SavedETFsList';
 import { NewsFeed } from './components/timeline/NewsFeed';
+import { TimeMachineCalculator } from './components/timemachine/TimeMachineCalculator';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -90,14 +91,14 @@ export const App: React.FC = () => {
               {mode === 'backtest' && 'Strategy Backtester'}
               {mode === 'etf' && 'Custom ETF Builder'}
               {mode === 'scenarios' && 'Educational Scenarios'}
-              {mode === 'timeline' && 'News & Market Events'}
+              {mode === 'timeline' && 'News, Time Machine & Events'}
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               {mode === 'trade' && `${selectedTicker} (${selectedInfo?.name || 'Instrument'}) | ${selectedInfo?.sector || ''}`}
               {mode === 'backtest' && 'Define algorithmic trading rules and test them against historical candles.'}
               {mode === 'etf' && 'Construct custom weighted portfolios and track weight drift.'}
               {mode === 'scenarios' && 'Interactive financial lessons with real market data.'}
-              {mode === 'timeline' && 'Explore pivotal macroeconomic shocks, Fed decisions, and corporate catalysts.'}
+              {mode === 'timeline' && 'Explore macroeconomic shocks, calculate what-if investment returns, and browse the catalyst feed.'}
             </p>
           </div>
         </div>
@@ -150,6 +151,7 @@ export const App: React.FC = () => {
         {mode === 'timeline' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <SimulationBar candles={candles} />
+            <TimeMachineCalculator />
             <NewsFeed />
           </div>
         )}
