@@ -31,6 +31,7 @@ interface CandlestickChartProps {
   candles: Candle[];
   ticker: string;
   theme: ThemeMode;
+  simulationDate?: string;
   loading?: boolean;
 }
 
@@ -38,6 +39,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   candles,
   ticker,
   theme,
+  simulationDate,
   loading = false,
 }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -67,19 +69,25 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     volumeMA: true,
   });
 
+  // Filter candles strictly up to simulation date (prevent looking into future data)
+  const simulationCandles = useMemo(() => {
+    if (!simulationDate) return candles;
+    return candles.filter((c) => c.time <= simulationDate);
+  }, [candles, simulationDate]);
+
   // Precompute indicator values
   const indicatorData = useMemo(() => {
-    if (candles.length === 0) return null;
+    if (simulationCandles.length === 0) return null;
     return {
-      sma20: calculateSMA(candles, 20),
-      sma50: calculateSMA(candles, 50),
-      sma200: calculateSMA(candles, 200),
-      ema12: calculateEMA(candles, 12),
-      ema26: calculateEMA(candles, 26),
-      bollinger: calculateBollingerBands(candles, 20, 2),
-      volumeMA: calculateVolumeMA(candles, 20),
+      sma20: calculateSMA(simulationCandles, 20),
+      sma50: calculateSMA(simulationCandles, 50),
+      sma200: calculateSMA(simulationCandles, 200),
+      ema12: calculateEMA(simulationCandles, 12),
+      ema26: calculateEMA(simulationCandles, 26),
+      bollinger: calculateBollingerBands(simulationCandles, 20, 2),
+      volumeMA: calculateVolumeMA(simulationCandles, 20),
     };
-  }, [candles]);
+  }, [simulationCandles]);
 
   // Initialize chart
   useEffect(() => {
@@ -151,7 +159,6 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
       },
     });
 
-    // Setup line series for technical indicators
     sma20SeriesRef.current = chart.addSeries(LineSeries, { color: '#38bdf8', lineWidth: 2, title: 'SMA 20' });
     sma50SeriesRef.current = chart.addSeries(LineSeries, { color: '#fb923c', lineWidth: 2, title: 'SMA 50' });
     sma200SeriesRef.current = chart.addSeries(LineSeries, { color: '#a855f7', lineWidth: 2, title: 'SMA 200' });
@@ -233,9 +240,9 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
 
   // Update data & indicator series when candles, timeframe, or active indicators change
   useEffect(() => {
-    if (!candleSeriesRef.current || !volumeSeriesRef.current || candles.length === 0) return;
+    if (!candleSeriesRef.current || !volumeSeriesRef.current || simulationCandles.length === 0) return;
 
-    const visibleCandles = filterCandlesByTimeframe(candles, timeframe);
+    const visibleCandles = filterCandlesByTimeframe(simulationCandles, timeframe, simulationDate);
     const minTime = visibleCandles[0].time;
     const maxTime = visibleCandles[visibleCandles.length - 1].time;
 
@@ -251,7 +258,6 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     volumeSeriesRef.current.setData(volumeData as any);
 
-    // Filter indicator data to visible range
     const filterRange = <T extends { time: string }>(items: T[]): T[] => {
       return items.filter((item) => item.time >= minTime && item.time <= maxTime);
     };
@@ -281,10 +287,10 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     if (chartInstanceRef.current) {
       chartInstanceRef.current.timeScale().fitContent();
     }
-  }, [candles, timeframe, theme, indicatorData, activeIndicators]);
+  }, [simulationCandles, timeframe, theme, indicatorData, activeIndicators, simulationDate]);
 
-  const latestCandle = candles[candles.length - 1];
-  const previousCandle = candles.length > 1 ? candles[candles.length - 2] : undefined;
+  const latestCandle = simulationCandles[simulationCandles.length - 1];
+  const previousCandle = simulationCandles.length > 1 ? simulationCandles[simulationCandles.length - 2] : undefined;
   const currentPrice = hoveredCandle?.close ?? latestCandle?.close ?? 0;
   const prevClose = previousCandle?.close ?? currentPrice;
   const priceDiff = currentPrice - prevClose;
