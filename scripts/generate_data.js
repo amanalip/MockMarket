@@ -29,21 +29,25 @@ function createPRNG(seed) {
 // Generate calendar dates from 2015-01-02 to 2024-12-31
 function getTradingDates(isCrypto = false) {
   const dates = [];
-  const start = new Date('2015-01-01');
-  const end = new Date('2024-12-31');
+  const start = new Date(Date.UTC(2015, 0, 1));
+  const end = new Date(Date.UTC(2024, 11, 31));
   const current = new Date(start);
 
   while (current <= end) {
-    const dayOfWeek = current.getDay(); // 0 is Sunday, 6 is Saturday
+    const dayOfWeek = current.getUTCDay(); // 0 is Sunday, 6 is Saturday
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
     if (isCrypto || !isWeekend) {
-      const year = current.getFullYear();
-      const month = String(current.getMonth() + 1).padStart(2, '0');
-      const day = String(current.getDate()).padStart(2, '0');
-      dates.push(`${year}-${month}-${day}`);
+      const year = current.getUTCFullYear();
+      const month = String(current.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(current.getUTCDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      // Skip Jan 1 (market holiday) for non-crypto
+      if (isCrypto || dateStr !== '2015-01-01') {
+        dates.push(dateStr);
+      }
     }
-    current.setDate(current.getDate() + 1);
+    current.setUTCDate(current.getUTCDate() + 1);
   }
   return dates;
 }
@@ -57,12 +61,27 @@ const TICKER_ANCHORS = {
     { date: '2018-01-02', price: 43.06 },
     { date: '2019-01-02', price: 39.48 },
     { date: '2020-01-02', price: 75.09 },
-    { date: '2020-03-23', price: 56.09 }, // covid low
+    { date: '2020-03-23', price: 56.09 },
     { date: '2021-01-04', price: 129.41 },
     { date: '2022-01-03', price: 182.01 },
-    { date: '2022-12-30', price: 129.93 }, // 2022 low
+    { date: '2022-12-30', price: 129.93 },
     { date: '2023-12-29', price: 192.53 },
     { date: '2024-12-31', price: 250.40 },
+  ],
+  NVDA: [
+    { date: '2015-01-02', price: 5.02 },
+    { date: '2016-01-04', price: 8.24 },
+    { date: '2017-01-03', price: 25.50 },
+    { date: '2018-01-02', price: 49.85 },
+    { date: '2019-01-02', price: 33.35 },
+    { date: '2020-01-02', price: 59.98 },
+    { date: '2020-03-23', price: 53.40 },
+    { date: '2021-01-04', price: 131.13 },
+    { date: '2021-11-29', price: 333.76 },
+    { date: '2022-10-14', price: 112.27 },
+    { date: '2023-05-24', price: 305.38 },
+    { date: '2023-12-29', price: 495.22 },
+    { date: '2024-12-31', price: 134.25 }, // Post-split adjusted
   ],
   MSFT: [
     { date: '2015-01-02', price: 46.76 },
@@ -200,10 +219,10 @@ function generateOHLCV(ticker, isCrypto = false, seed = 12345) {
   const dates = getTradingDates(isCrypto);
   const prng = createPRNG(seed);
   const anchors = TICKER_ANCHORS[ticker] || [
-    { date: '2015-01-02', price: 100 },
-    { date: '2020-03-23', price: 80 },
-    { date: '2021-12-31', price: 160 },
-    { date: '2024-12-31', price: 220 },
+    { date: '2015-01-02', price: 50 + (seed % 100) },
+    { date: '2020-03-23', price: 40 + (seed % 80) },
+    { date: '2021-12-31', price: 90 + (seed % 120) },
+    { date: '2024-12-31', price: 120 + (seed % 150) },
   ];
 
   const series = [];
@@ -231,13 +250,12 @@ function generateOHLCV(ticker, isCrypto = false, seed = 12345) {
 
     // Daily noise and drift toward target
     const dailyDrift = (targetPrice - currentPrice) * 0.08;
-    const volatility = isCrypto ? 0.038 : (ticker === 'TSLA' ? 0.028 : 0.015);
+    const volatility = isCrypto ? 0.038 : (ticker === 'TSLA' || ticker === 'NVDA' ? 0.028 : 0.015);
     const noise = (prng() - 0.5) * 2 * volatility * currentPrice;
 
     const open = Math.max(0.1, currentPrice);
     const close = Math.max(0.1, open + dailyDrift + noise);
-    
-    // High and Low bounds
+
     const maxOC = Math.max(open, close);
     const minOC = Math.min(open, close);
     const highWick = prng() * volatility * currentPrice * 0.8;
@@ -245,8 +263,7 @@ function generateOHLCV(ticker, isCrypto = false, seed = 12345) {
     const high = maxOC + highWick;
     const low = Math.max(0.05, minOC - lowWick);
 
-    // Volume calculation
-    const baseVolume = isCrypto ? 25000000 : (ticker === 'SPY' ? 75000000 : 30000000);
+    const baseVolume = isCrypto ? 25000000 : (ticker === 'SPY' ? 75000000 : 15000000);
     const volumeMultiplier = 0.5 + prng() * 1.0 + (Math.abs(close - open) / open) * 15;
     const volume = Math.round(baseVolume * volumeMultiplier);
 
@@ -265,26 +282,21 @@ function generateOHLCV(ticker, isCrypto = false, seed = 12345) {
   return series;
 }
 
-// Generate for all core tickers
-const tickersToGenerate = [
-  { ticker: 'AAPL', type: 'stocks', isCrypto: false, seed: 101 },
-  { ticker: 'MSFT', type: 'stocks', isCrypto: false, seed: 102 },
-  { ticker: 'GOOGL', type: 'stocks', isCrypto: false, seed: 103 },
-  { ticker: 'AMZN', type: 'stocks', isCrypto: false, seed: 104 },
-  { ticker: 'TSLA', type: 'stocks', isCrypto: false, seed: 105 },
-  { ticker: 'JPM', type: 'stocks', isCrypto: false, seed: 106 },
-  { ticker: 'SPY', type: 'etfs', isCrypto: false, seed: 107 },
-  { ticker: 'QQQ', type: 'etfs', isCrypto: false, seed: 108 },
-  { ticker: 'BTC', type: 'crypto', isCrypto: true, seed: 109 },
-  { ticker: 'ETH', type: 'crypto', isCrypto: true, seed: 110 },
-];
+// Load all tickers from public/data/tickers.json
+const tickersJsonPath = path.resolve(__dirname, '../public/data/tickers.json');
+const tickersRaw = JSON.parse(fs.readFileSync(tickersJsonPath, 'utf8'));
 
-console.log('Generating initial core ticker datasets...');
-tickersToGenerate.forEach((item) => {
-  const data = generateOHLCV(item.ticker, item.isCrypto, item.seed);
-  const filePath = path.join(publicDataDir, item.type, `${item.ticker}.json`);
+console.log(`Generating 10-year OHLCV datasets for ${tickersRaw.length} tickers...`);
+
+tickersRaw.forEach((item, index) => {
+  const isCrypto = item.assetType === 'crypto';
+  const folder = isCrypto ? 'crypto' : (item.assetType === 'etf' ? 'etfs' : 'stocks');
+  const seed = 1000 + index * 37;
+
+  const data = generateOHLCV(item.ticker, isCrypto, seed);
+  const filePath = path.join(publicDataDir, folder, `${item.ticker}.json`);
   fs.writeFileSync(filePath, JSON.stringify(data));
-  console.log(`Saved ${item.ticker} (${data.length} candles) -> ${filePath}`);
+  console.log(`[${index + 1}/${tickersRaw.length}] Saved ${item.ticker} (${data.length} candles) -> ${filePath}`);
 });
 
-console.log('Data generation complete.');
+console.log('Complete 100-ticker dataset generation complete.');

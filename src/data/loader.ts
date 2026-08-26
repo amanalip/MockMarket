@@ -5,7 +5,7 @@ const candleCache = new Map<string, Candle[]>();
 
 export async function fetchTickers(): Promise<TickerInfo[]> {
   try {
-    const baseUrl = import.meta.env.BASE_URL || '/';
+    const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
     const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
     const res = await fetch(`${cleanBase}data/tickers.json`);
     if (res.ok) {
@@ -33,34 +33,41 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
     subfolder = 'crypto';
   }
 
-  const baseUrl = import.meta.env.BASE_URL || '/';
+  const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
   const url = `${cleanBase}data/${subfolder}/${upperTicker}.json`;
 
   try {
     const res = await fetch(url);
-    if (!res.ok) {
-      // Try alternative subfolders if not found
-      for (const fallback of ['stocks', 'etfs', 'crypto']) {
-        if (fallback === subfolder) continue;
-        const fallbackUrl = `${cleanBase}data/${fallback}/${upperTicker}.json`;
-        const fbRes = await fetch(fallbackUrl);
-        if (fbRes.ok) {
-          const candles: Candle[] = await fbRes.json();
+    if (res && res.ok) {
+      const candles: Candle[] = await res.json();
+      candleCache.set(upperTicker, candles);
+      return candles;
+    }
+  } catch {
+    // Attempt local Node fs fallback for testing environments
+    const globalObj = globalThis as unknown as { process?: { cwd?: () => string; versions?: { node?: string } } };
+    if (globalObj.process?.versions?.node) {
+      try {
+        const fsModule = 'node:fs';
+        const pathModule = 'node:path';
+        const fs = await import(/* @vite-ignore */ fsModule);
+        const path = await import(/* @vite-ignore */ pathModule);
+        const cwd = globalObj.process.cwd?.() || '.';
+        const filePath = path.resolve(cwd, `public/data/${subfolder}/${upperTicker}.json`);
+        if (fs.existsSync(filePath)) {
+          const raw = fs.readFileSync(filePath, 'utf8');
+          const candles: Candle[] = JSON.parse(raw);
           candleCache.set(upperTicker, candles);
           return candles;
         }
+      } catch {
+        // Fall through to error
       }
-      throw new Error(`Data file not found for ticker: ${upperTicker}`);
     }
-
-    const candles: Candle[] = await res.json();
-    candleCache.set(upperTicker, candles);
-    return candles;
-  } catch (err) {
-    console.error(`Failed to load historical data for ${upperTicker}:`, err);
-    throw err;
   }
+
+  throw new Error(`Data file not found for ticker: ${upperTicker}`);
 }
 
 export function filterCandlesByDate(
@@ -77,10 +84,11 @@ export function filterCandlesByDate(
 
 export function getLatestCandleOnOrBefore(
   candles: Candle[],
-  date: string
+  targetDate: string
 ): Candle | undefined {
+  if (candles.length === 0) return undefined;
   for (let i = candles.length - 1; i >= 0; i--) {
-    if (candles[i].time <= date) {
+    if (candles[i].time <= targetDate) {
       return candles[i];
     }
   }
