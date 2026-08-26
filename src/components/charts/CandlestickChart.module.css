@@ -1,0 +1,117 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tickerInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.tickerSymbol {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.priceTag {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.priceChange {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.up {
+  color: var(--up-green);
+}
+
+.down {
+  color: var(--down-red);
+}
+
+.timeframeGroup {
+  display: flex;
+  gap: 4px;
+  background-color: var(--bg-card);
+  padding: 3px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.timeframeBtn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.timeframeBtn:hover {
+  color: var(--text-primary);
+}
+
+.timeframeBtnActive {
+  background-color: var(--accent);
+  color: #ffffff;
+}
+
+.chartContainer {
+  width: 100%;
+  height: 420px;
+  position: relative;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(11, 15, 25, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  z-index: 10;
+}
+
+.tooltip {
+  display: flex;
+  gap: 16px;
+  padding: 6px 16px;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+  flex-wrap: wrap;
+}
+
+.tooltipItem strong {
+  color: var(--text-primary);
+  margin-left: 4px;
+}
