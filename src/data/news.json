@@ -1,0 +1,479 @@
+[
+  {
+    "id": "news_2015_01",
+    "date": "2015-01-22",
+    "headline": "ECB Announces Massive Quantitative Easing Program",
+    "summary": "The European Central Bank reveals a 1.1 trillion euro bond-buying program to revive inflation and stimulate European economic growth.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "JPM", "GS"]
+  },
+  {
+    "id": "news_2015_02",
+    "date": "2015-03-09",
+    "headline": "Apple Unveils Apple Watch and ResearchKit",
+    "summary": "Apple announces its entry into wearable computing with the Apple Watch and releases medical research software framework.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL"]
+  },
+  {
+    "id": "news_2015_03",
+    "date": "2015-08-11",
+    "headline": "People's Bank of China Devalues Yuan",
+    "summary": "China shocks global financial markets by devaluing the yuan by nearly 2%, stoking fears of an economic slowdown.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL"]
+  },
+  {
+    "id": "news_2015_04",
+    "date": "2015-08-24",
+    "headline": "Black Monday 2015 Global Market Selloff",
+    "summary": "The Dow plunges 1,000 points in opening minutes as Asian stock turbulence spreads across global bourses.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT"]
+  },
+  {
+    "id": "news_2015_05",
+    "date": "2015-12-16",
+    "headline": "Federal Reserve Hikes Interest Rates for First Time in Nearly a Decade",
+    "summary": "Fed Chair Janet Yellen announces a 25 basis point rate increase, concluding seven years of near-zero policy.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "JPM", "BAC"]
+  },
+  {
+    "id": "news_2016_01",
+    "date": "2016-02-11",
+    "headline": "Crude Oil Plunges Below $27 per Barrel",
+    "summary": "Global energy glut sends crude oil prices to twelve-year lows, pressuring financial and energy equities.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["XOM", "CVX", "JPM"]
+  },
+  {
+    "id": "news_2016_02",
+    "date": "2016-06-23",
+    "headline": "United Kingdom Votes to Leave European Union (Brexit)",
+    "summary": "British voters support exiting the EU in a landmark referendum, triggering a sharp decline in sterling and global equity shockwaves.",
+    "category": "geopolitical",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "JPM", "GS"]
+  },
+  {
+    "id": "news_2016_03",
+    "date": "2016-11-08",
+    "headline": "Donald Trump Elected 45th President of the United States",
+    "summary": "US presidential election results trigger an initial futures selloff followed by a strong rotation into financials and industrials.",
+    "category": "geopolitical",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "JPM", "CAT", "GS"]
+  },
+  {
+    "id": "news_2016_04",
+    "date": "2016-12-14",
+    "headline": "Fed Raises Benchmark Rate to 0.75%",
+    "summary": "Federal Open Market Committee increases rates for the second time in the cycle and projects faster pace of rate increases.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "JPM", "BAC"]
+  },
+  {
+    "id": "news_2017_01",
+    "date": "2017-06-16",
+    "headline": "Amazon Announces Acquisition of Whole Foods Market for $13.7 Billion",
+    "summary": "Amazon enters physical grocery retail in a blockbuster deal that disrupts traditional supermarket operators.",
+    "category": "earnings",
+    "sentiment": "bullish",
+    "affectedTickers": ["AMZN", "WMT", "COST"]
+  },
+  {
+    "id": "news_2017_02",
+    "date": "2017-09-12",
+    "headline": "Apple Unveils iPhone X with OLED Display and Face ID",
+    "summary": "Apple commemorates the tenth anniversary of the iPhone with a bezel-free design and $999 flagship pricing.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL", "NVDA"]
+  },
+  {
+    "id": "news_2017_03",
+    "date": "2017-12-17",
+    "headline": "Bitcoin Reaches All-Time High Near $20,000 as Futures Launch",
+    "summary": "CME and CBOE launch Bitcoin futures contracts as retail cryptocurrency enthusiasm reaches record volume.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["BTC", "ETH", "NVDA"]
+  },
+  {
+    "id": "news_2017_04",
+    "date": "2017-12-22",
+    "headline": "Tax Cuts and Jobs Act Signed into Law",
+    "summary": "US corporate tax rate lowered permanently from 35% to 21%, boosting corporate earnings forecasts.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "JPM", "AAPL", "MSFT"]
+  },
+  {
+    "id": "news_2018_01",
+    "date": "2018-02-05",
+    "headline": "Volmageddon: VIX Spikes 115% as Short-Volatility Products Collapse",
+    "summary": "Sudden surge in market volatility causes inverse VIX exchange-traded products to lose over 90% of their value overnight.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ"]
+  },
+  {
+    "id": "news_2018_02",
+    "date": "2018-03-22",
+    "headline": "US Imposes First Round of Tariffs on Chinese Imports",
+    "summary": "President Trump announces plans for 25% tariffs on $50 billion of Chinese goods, sparking trade war concerns.",
+    "category": "geopolitical",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "AAPL", "CAT", "BA"]
+  },
+  {
+    "id": "news_2018_03",
+    "date": "2018-08-02",
+    "headline": "Apple Becomes First Public US Company to Reach $1 Trillion Market Cap",
+    "summary": "Strong quarterly services and iPhone ASP growth propel Apple stock across historical trillion-dollar milestone.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL", "QQQ"]
+  },
+  {
+    "id": "news_2018_04",
+    "date": "2018-10-03",
+    "headline": "Fed Chair Jerome Powell Declares Rates are 'Long Way From Neutral'",
+    "summary": "Hawkish comments on future monetary tightening spark a rapid rise in 10-year Treasury yields and equity pullbacks.",
+    "category": "fed",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "MSFT", "AMZN"]
+  },
+  {
+    "id": "news_2018_05",
+    "date": "2018-12-24",
+    "headline": "Christmas Eve Market Plunge Amid Government Shutdown and Fed Criticism",
+    "summary": "S&P 500 enters bear market territory on low-volume Christmas Eve trading session before historic relief rally.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "GOOGL"]
+  },
+  {
+    "id": "news_2019_01",
+    "date": "2019-01-04",
+    "headline": "Fed Chair Powell Signals Flexibility and Patience on Balance Sheet",
+    "summary": "The Powell Pivot sparks a powerful rebound across risk assets as monetary policy tightening is paused.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT"]
+  },
+  {
+    "id": "news_2019_02",
+    "date": "2019-05-10",
+    "headline": "US Increases Tariffs on $200 Billion of Chinese Goods to 25%",
+    "summary": "Trade talks stall as tariff rates escalate, dampening global manufacturing sentiment.",
+    "category": "geopolitical",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "AAPL", "NVDA"]
+  },
+  {
+    "id": "news_2019_03",
+    "date": "2019-07-31",
+    "headline": "Federal Reserve Cuts Interest Rates for First Time Since 2008 Crisis",
+    "summary": "Fed lowers benchmark rate by 25 basis points in what Powell characterizes as a mid-cycle policy adjustment.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "JPM", "GLD"]
+  },
+  {
+    "id": "news_2019_04",
+    "date": "2019-08-14",
+    "headline": "US 2-Year and 10-Year Treasury Yield Curve Inverts",
+    "summary": "Classic recession indicator flashes as 10-year yield falls below 2-year yield for the first time since 2007.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "JPM", "BAC"]
+  },
+  {
+    "id": "news_2020_01",
+    "date": "2020-01-15",
+    "headline": "United States and China Sign Phase One Trade Agreement",
+    "summary": "Trade tensions ease as China commits to purchasing $200 billion in US goods and services over two years.",
+    "category": "geopolitical",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "AAPL", "BA", "CAT"]
+  },
+  {
+    "id": "news_2020_02",
+    "date": "2020-02-24",
+    "headline": "Global Markets Drop Sharply on Coronavirus Outbreak Concerns Outside China",
+    "summary": "Cases accelerate across Italy, South Korea, and Iran, leading to sharp declines across global stock indices.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "TSLA", "BA"]
+  },
+  {
+    "id": "news_2020_03",
+    "date": "2020-03-03",
+    "headline": "Fed Cuts Rates by 50 bps in Emergency Inter-Meeting Action",
+    "summary": "Federal Reserve announces emergency rate cut to combat economic risks posed by the spreading coronavirus.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "JPM", "GLD"]
+  },
+  {
+    "id": "news_2020_04",
+    "date": "2020-03-12",
+    "headline": "Dow Suffers Worst Single-Day Drop Since 1987 as Trading Halts",
+    "summary": "Level 1 circuit breakers triggered across US exchanges as travel bans and lockdowns take effect worldwide.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT", "TSLA"]
+  },
+  {
+    "id": "news_2020_05",
+    "date": "2020-03-15",
+    "headline": "Fed Slashes Rates to Zero and Launches $700 Billion QE Program",
+    "summary": "Sunday emergency action cuts benchmark rate to 0%-0.25% and opens international dollar swap lines.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "JPM", "GLD"]
+  },
+  {
+    "id": "news_2020_06",
+    "date": "2020-03-23",
+    "headline": "Fed Announces Unlimited QE as Congress Debates $2 Trillion CARES Act",
+    "summary": "Federal Reserve pledges open-ended asset purchases including corporate bond facilities, marking market bottom.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT", "AMZN"]
+  },
+  {
+    "id": "news_2020_07",
+    "date": "2020-04-20",
+    "headline": "WTI Crude Oil Futures Crash into Negative Territory (-$37.63/bbl)",
+    "summary": "Severe storage shortages in Cushing, Oklahoma cause expiring May oil contract to trade below zero for first time.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["XOM", "CVX"]
+  },
+  {
+    "id": "news_2020_08",
+    "date": "2020-08-31",
+    "headline": "Apple and Tesla Complete Stock Splits",
+    "summary": "Apple executes 4-for-1 split and Tesla executes 5-for-1 split, driving retail investor participation to record highs.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL", "TSLA"]
+  },
+  {
+    "id": "news_2020_09",
+    "date": "2020-11-09",
+    "headline": "Pfizer and BioNTech Announce Over 90% Vaccine Efficacy in Phase 3 Trial",
+    "summary": "Breakthrough clinical trial results spark massive market rotation from stay-at-home tech into travel and energy.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "JPM", "BA", "XOM", "PFE"]
+  },
+  {
+    "id": "news_2020_10",
+    "date": "2020-12-21",
+    "headline": "Tesla Officially Added to the S&P 500 Index",
+    "summary": "Tesla joins the benchmark index with a market cap exceeding $600 billion, resulting in massive index rebalancing volume.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["TSLA", "SPY"]
+  },
+  {
+    "id": "news_2021_01",
+    "date": "2021-01-27",
+    "headline": "Meme Stock Phenomenon: GameStop Surges as Retail Short Squeeze Unfolds",
+    "summary": "Retail traders organize on Reddit to trigger historic short squeezes across heavily shorted retail and tech stocks.",
+    "category": "macro",
+    "sentiment": "neutral",
+    "affectedTickers": ["GME", "AMC", "SPY"]
+  },
+  {
+    "id": "news_2021_02",
+    "date": "2021-03-11",
+    "headline": "President Biden Signs $1.9 Trillion American Rescue Plan into Law",
+    "summary": "Direct stimulus checks and expanded child tax credits provide direct fiscal liquidity to US consumers.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "AMZN", "AAPL"]
+  },
+  {
+    "id": "news_2021_03",
+    "date": "2021-04-14",
+    "headline": "Coinbase Goes Public on Nasdaq via Direct Listing",
+    "summary": "First major US cryptocurrency exchange lists publicly at valuation exceeding $85 billion as Bitcoin tops $64,000.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["COIN", "BTC", "ETH"]
+  },
+  {
+    "id": "news_2021_04",
+    "date": "2021-11-03",
+    "headline": "Federal Reserve Announces Tapering of Monthly Asset Purchases",
+    "summary": "Fed will reduce bond purchases by $15 billion per month as inflation readings reach 30-year highs.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "QQQ", "JPM"]
+  },
+  {
+    "id": "news_2021_05",
+    "date": "2021-11-10",
+    "headline": "US Consumer Price Index Jumps 6.2% Year-Over-Year",
+    "summary": "Highest inflation rate since 1990 pressures tech valuations as interest rate expectations rise rapidly.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["QQQ", "MSFT", "AMZN", "NVDA"]
+  },
+  {
+    "id": "news_2022_01",
+    "date": "2022-01-03",
+    "headline": "Apple Briefly Crosses $3 Trillion Market Valuation",
+    "summary": "Apple becomes first company to trade at a $3 trillion market cap on the first trading day of 2022.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL", "QQQ"]
+  },
+  {
+    "id": "news_2022_02",
+    "date": "2022-02-24",
+    "headline": "Russia Invades Ukraine Sparking Global Commodity Shocks",
+    "summary": "Geopolitical conflict triggers severe spikes in oil, natural gas, wheat, and nickel while equities sell off.",
+    "category": "geopolitical",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "XOM", "CVX", "GLD"]
+  },
+  {
+    "id": "news_2022_03",
+    "date": "2022-03-16",
+    "headline": "Fed Hikes Rates by 25 bps to Initiate Aggressive Tightening Cycle",
+    "summary": "Fed starts campaign to tame inflation, projecting rate hikes at every remaining meeting in 2022.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "QQQ", "JPM"]
+  },
+  {
+    "id": "news_2022_04",
+    "date": "2022-06-15",
+    "headline": "Federal Reserve Delivers First 75 Basis Point Rate Hike in 28 Years",
+    "summary": "Accelerating CPI data forces central bank into larger rate moves, raising target range to 1.50%-1.75%.",
+    "category": "fed",
+    "sentiment": "bearish",
+    "affectedTickers": ["SPY", "QQQ", "NVDA", "AMZN"]
+  },
+  {
+    "id": "news_2022_05",
+    "date": "2022-10-13",
+    "headline": "CPI Hits 8.2% but Markets Stage Dramatic Midday Reversal",
+    "summary": "Equities open down 2% on hot inflation data before staging a massive 5% intraday rally as sellers exhaust.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT"]
+  },
+  {
+    "id": "news_2022_06",
+    "date": "2022-11-30",
+    "headline": "OpenAI Releases ChatGPT Sparking Generative AI Boom",
+    "summary": "Conversational AI model achieves 100 million users in two months, igniting global investment in GPUs and data centers.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["MSFT", "NVDA", "GOOGL"]
+  },
+  {
+    "id": "news_2023_01",
+    "date": "2023-03-10",
+    "headline": "Silicon Valley Bank Collapses in Largest Bank Failure Since 2008",
+    "summary": "Rapid deposit run triggered by bond portfolio duration losses leads to FDIC receivership and regional banking turmoil.",
+    "category": "macro",
+    "sentiment": "bearish",
+    "affectedTickers": ["JPM", "BAC", "SPY"]
+  },
+  {
+    "id": "news_2023_02",
+    "date": "2023-03-12",
+    "headline": "Federal Reserve and Treasury Announce Bank Term Funding Program (BTFP)",
+    "summary": "Emergency liquidity facility created to guarantee all uninsured deposits and backstop banking system liquidity.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["JPM", "SPY", "QQQ"]
+  },
+  {
+    "id": "news_2023_03",
+    "date": "2023-05-24",
+    "headline": "Nvidia Surpasses Forecasts by 50% with Massive AI Data Center Guidance",
+    "summary": "Historic earnings report propels Nvidia stock up 25% overnight, establishing the company as the backbone of generative AI.",
+    "category": "earnings",
+    "sentiment": "bullish",
+    "affectedTickers": ["NVDA", "QQQ", "MSFT", "GOOGL", "AMZN"]
+  },
+  {
+    "id": "news_2023_04",
+    "date": "2023-07-26",
+    "headline": "Federal Reserve Raises Rates to 5.25%-5.50% (22-Year High)",
+    "summary": "FOMC implements eleventh rate increase of the cycle while maintaining a data-dependent stance.",
+    "category": "fed",
+    "sentiment": "neutral",
+    "affectedTickers": ["SPY", "JPM", "GLD"]
+  },
+  {
+    "id": "news_2023_05",
+    "date": "2023-12-13",
+    "headline": "Fed Signals End of Rate Hikes and Projects 75 bps of Cuts in 2024",
+    "summary": "Dovish policy pivot ignites year-end broad market rally across equities, bonds, and real estate.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "AAPL", "MSFT", "TSLA"]
+  },
+  {
+    "id": "news_2024_01",
+    "date": "2024-01-10",
+    "headline": "SEC Approves First Spot Bitcoin Exchange-Traded Funds (ETFs)",
+    "summary": "Historic regulatory milestone opens spot cryptocurrency access to institutional and retirement accounts in the US.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["BTC", "ETH", "COIN"]
+  },
+  {
+    "id": "news_2024_02",
+    "date": "2024-03-01",
+    "headline": "S&P 500 Closes Above 5,100 Driven by Magnificent Seven Earnings Strength",
+    "summary": "Strong margins and cloud computing revenues push benchmark US equity index to record consecutive highs.",
+    "category": "macro",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "NVDA", "MSFT", "AAPL"]
+  },
+  {
+    "id": "news_2024_03",
+    "date": "2024-06-10",
+    "headline": "Apple Introduces Apple Intelligence at WWDC 2024",
+    "summary": "Apple announces on-device and private cloud generative AI architecture integrated into iOS and macOS.",
+    "category": "tech",
+    "sentiment": "bullish",
+    "affectedTickers": ["AAPL", "QQQ"]
+  },
+  {
+    "id": "news_2024_04",
+    "date": "2024-09-18",
+    "headline": "Federal Reserve Cuts Interest Rates by 50 Basis Points to 4.75%-5.00%",
+    "summary": "Fed initiates long-awaited easing cycle with an aggressive half-point cut to preserve labor market strength.",
+    "category": "fed",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "JPM", "GLD"]
+  },
+  {
+    "id": "news_2024_05",
+    "date": "2024-11-06",
+    "headline": "US Equities Surge to Record Highs Following Presidential Election",
+    "summary": "Major US indices advance over 2.5% in broad-based post-election rally as political uncertainty resolves.",
+    "category": "geopolitical",
+    "sentiment": "bullish",
+    "affectedTickers": ["SPY", "QQQ", "JPM", "TSLA", "BTC"]
+  }
+]

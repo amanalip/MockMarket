@@ -157,6 +157,19 @@ export interface MarketEvent {
   sp500WeekChangePercent?: number;
 }
 
+export type NewsCategory = 'macro' | 'earnings' | 'fed' | 'geopolitical' | 'tech';
+export type NewsSentiment = 'bullish' | 'bearish' | 'neutral';
+
+export interface HistoricalNewsEvent {
+  id: string;
+  date: string;
+  headline: string;
+  summary: string;
+  category: NewsCategory;
+  sentiment: NewsSentiment;
+  affectedTickers: string[];
+}
+
 export interface ScenarioStep {
   stepIndex: number;
   title: string;

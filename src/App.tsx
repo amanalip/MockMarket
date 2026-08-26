@@ -14,6 +14,7 @@ import { BacktestResults } from './components/backtester/BacktestResults';
 import { ETFBuilderForm } from './components/etf/ETFBuilderForm';
 import { ETFAnalyticsDashboard } from './components/etf/ETFAnalyticsDashboard';
 import { SavedETFsList } from './components/etf/SavedETFsList';
+import { NewsFeed } from './components/timeline/NewsFeed';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -96,7 +97,7 @@ export const App: React.FC = () => {
               {mode === 'backtest' && 'Define algorithmic trading rules and test them against historical candles.'}
               {mode === 'etf' && 'Construct custom weighted portfolios and track weight drift.'}
               {mode === 'scenarios' && 'Interactive financial lessons with real market data.'}
-              {mode === 'timeline' && 'Explore pivotal macroeconomic shocks and market milestones.'}
+              {mode === 'timeline' && 'Explore pivotal macroeconomic shocks, Fed decisions, and corporate catalysts.'}
             </p>
           </div>
         </div>
@@ -143,6 +144,13 @@ export const App: React.FC = () => {
             <ETFBuilderForm onSimulationComplete={setEtfResult} />
             <SavedETFsList onSelect={handleLoadSavedETF} />
             {etfResult && <ETFAnalyticsDashboard result={etfResult} />}
+          </div>
+        )}
+
+        {mode === 'timeline' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <SimulationBar candles={candles} />
+            <NewsFeed />
           </div>
         )}
       </div>
