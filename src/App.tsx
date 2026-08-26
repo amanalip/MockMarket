@@ -16,6 +16,7 @@ import { ETFAnalyticsDashboard } from './components/etf/ETFAnalyticsDashboard';
 import { SavedETFsList } from './components/etf/SavedETFsList';
 import { NewsFeed } from './components/timeline/NewsFeed';
 import { TimeMachineCalculator } from './components/timemachine/TimeMachineCalculator';
+import { ScenarioCatalog } from './components/scenarios/ScenarioCatalog';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -90,14 +91,14 @@ export const App: React.FC = () => {
               {mode === 'trade' && 'Paper Trading'}
               {mode === 'backtest' && 'Strategy Backtester'}
               {mode === 'etf' && 'Custom ETF Builder'}
-              {mode === 'scenarios' && 'Educational Scenarios'}
+              {mode === 'scenarios' && 'Educational Market Scenarios'}
               {mode === 'timeline' && 'News, Time Machine & Events'}
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               {mode === 'trade' && `${selectedTicker} (${selectedInfo?.name || 'Instrument'}) | ${selectedInfo?.sector || ''}`}
               {mode === 'backtest' && 'Define algorithmic trading rules and test them against historical candles.'}
               {mode === 'etf' && 'Construct custom weighted portfolios and track weight drift.'}
-              {mode === 'scenarios' && 'Interactive financial lessons with real market data.'}
+              {mode === 'scenarios' && 'Interactive case studies guiding you through historical market shocks, earnings beats, and short squeezes.'}
               {mode === 'timeline' && 'Explore macroeconomic shocks, calculate what-if investment returns, and browse the catalyst feed.'}
             </p>
           </div>
@@ -145,6 +146,12 @@ export const App: React.FC = () => {
             <ETFBuilderForm onSimulationComplete={setEtfResult} />
             <SavedETFsList onSelect={handleLoadSavedETF} />
             {etfResult && <ETFAnalyticsDashboard result={etfResult} />}
+          </div>
+        )}
+
+        {mode === 'scenarios' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <ScenarioCatalog />
           </div>
         )}
 

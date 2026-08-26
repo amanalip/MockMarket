@@ -1,0 +1,161 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stepProgress {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background-color: var(--bg-card);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.narrativeBox {
+  background-color: var(--bg-card);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.narrativeTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.narrativeText {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.decisionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.promptText {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.optionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.optionBtn {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.optionBtn:hover {
+  border-color: var(--accent);
+  background-color: var(--bg-card-hover);
+}
+
+.optionBtnSelected {
+  border-color: var(--accent);
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--accent);
+}
+
+.feedbackBox {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.feedbackTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.feedbackText {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.actionsRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.nextBtn {
+  background-color: var(--accent);
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.nextBtn:hover {
+  background-color: var(--accent-hover);
+}
+
+.lessonsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.lessonItem {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}

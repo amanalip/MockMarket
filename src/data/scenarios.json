@@ -1,0 +1,180 @@
+[
+  {
+    "id": "scenario_covid_crash",
+    "title": "The COVID-19 Liquidity Shock (March 2020)",
+    "description": "Navigate the fastest 30% drop in US market history and the historic Federal Reserve liquidity response.",
+    "category": "Crash",
+    "difficulty": "Intermediate",
+    "ticker": "SPY",
+    "startDate": "2020-02-19",
+    "endDate": "2020-04-30",
+    "initialCash": 50000,
+    "lessonsLearned": [
+      "Panic selling during peak volatility often locks in permanent losses right before policy interventions.",
+      "Federal Reserve liquidity facilities can establish market bottoms long before economic data recovers.",
+      "Dollar-cost averaging during extreme market drawdowns reduces average cost basis."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2020-02-19",
+        "title": "All-Time Highs Before the Storm",
+        "narrative": "The S&P 500 closes at record highs. Reports of a novel virus in Wuhan and northern Italy begin surfacing in financial news.",
+        "prompt": "How do you position your $50,000 cash balance?",
+        "options": [
+          { "text": "Keep 100% invested in index equities.", "feedback": "Equities are at all-time valuations. When the shock hits, full exposure creates immediate paper drawdowns." },
+          { "text": "Hold 50% in cash reserves and set stop losses.", "feedback": "Maintaining cash reserves gives dry powder to capitalize when valuations correct sharply." }
+        ]
+      },
+      {
+        "stepIndex": 2,
+        "date": "2020-03-16",
+        "title": "Black Monday and Trading Halts",
+        "narrative": "Global lockdowns trigger historic circuit breakers. The S&P 500 drops 12% in a single session amid severe liquidity constraints.",
+        "prompt": "Markets are down 25% from highs. What is your action?",
+        "options": [
+          { "text": "Sell everything into cash to protect against further declines.", "feedback": "Selling at peak panic crystallizes deep losses right before massive central bank intervention." },
+          { "text": "Begin phased scale-in purchases of index funds.", "feedback": "Systematic buying during peak capitulation establishes positions at multi-year valuation discounts." }
+        ]
+      },
+      {
+        "stepIndex": 3,
+        "date": "2020-03-23",
+        "title": "The Fed Announces Unlimited Quantitative Easing",
+        "narrative": "The Federal Reserve pledges open-ended asset purchases and backstops corporate debt markets. Markets mark their exact cycle bottom.",
+        "prompt": "With unprecedented monetary stimulus announced, how do you react?",
+        "options": [
+          { "text": "Deploy remaining cash reserves into broad market indices.", "feedback": "Following central bank liquidity injections historically produces the strongest early-cycle returns." },
+          { "text": "Wait for economic lockdown data to improve first.", "feedback": "Markets discount the future months ahead of economic headlines. Waiting means missing the steepest part of the rally." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_nvda_ai_boom",
+    "title": "The Generative AI Boom: Nvidia Guidance Shock (May 2023)",
+    "description": "Experience the seminal quarterly earnings report that launched the generative artificial intelligence era.",
+    "category": "Earnings",
+    "difficulty": "Beginner",
+    "ticker": "NVDA",
+    "startDate": "2023-05-01",
+    "endDate": "2023-08-31",
+    "initialCash": 30000,
+    "lessonsLearned": [
+      "Secular technology shifts can sustain premium valuation multiples far longer than traditional cyclical models predict.",
+      "Hardware providers often capture the earliest cash flows during major architectural platform transitions.",
+      "Trailing stop losses allow winners to run while protecting principal against sudden pullbacks."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2023-05-24",
+        "title": "Pre-Earnings Setup",
+        "narrative": "Nvidia trades near $305 with heavy institutional interest following the launch of large language models.",
+        "prompt": "How do you manage position sizing into earnings?",
+        "options": [
+          { "text": "Hold a balanced 30% allocation with defined risk limits.", "feedback": "Sizing properly manages downside gap risk while participating in positive guidance revisions." },
+          { "text": "Sell call options to capture volatility premium.", "feedback": "Short option strategies carry massive uncapped risk during historic earnings beats." }
+        ]
+      },
+      {
+        "stepIndex": 2,
+        "date": "2023-05-25",
+        "title": "The 50% Guidance Surprise",
+        "narrative": "Nvidia guides next-quarter data center revenue 50% above Wall Street estimates. Stock surges 25% overnight to $380.",
+        "prompt": "Nvidia gaps up to all-time highs. What is your strategy?",
+        "options": [
+          { "text": "Let the winning position run with an escalating trailing stop.", "feedback": "Transformational technological inflections often experience multi-quarter institutional accumulation." },
+          { "text": "Immediately sell 100% of holdings to lock in one-day gain.", "feedback": "Taking quick profits on generational growth leaders frequently causes investors to miss subsequent doubling." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_volmageddon",
+    "title": "Volmageddon: The Short-Volatility Cascade (February 2018)",
+    "description": "Witness how crowded financial engineering and inverse volatility products collapsed overnight.",
+    "category": "Crash",
+    "difficulty": "Advanced",
+    "ticker": "SPY",
+    "startDate": "2018-01-25",
+    "endDate": "2018-03-15",
+    "initialCash": 40000,
+    "lessonsLearned": [
+      "Structural feedback loops in derivative products can trigger market dislocations disconnected from fundamentals.",
+      "Shorting volatility provides consistent small yields punctuated by catastrophic tail-risk events.",
+      "Understanding underlying liquidity mechanics is critical when trading complex exchange-traded products."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2018-02-05",
+        "title": "VIX Index Spikes Over 100%",
+        "narrative": "A modest afternoon equity pullback forces inverse VIX products into a mandatory rebalancing squeeze, sending VIX from 17 to 37.",
+        "prompt": "Market volatility is surging violently. How do you respond?",
+        "options": [
+          { "text": "Avoid leveraged inverse instruments and observe market plumbing.", "feedback": "Staying clear of toxic structural products protects capital from total wipeout." },
+          { "text": "Attempt to catch falling knives in inverse volatility notes.", "feedback": "XIV and related ETNs triggered termination clauses and lost 95% of their value in after-hours trading." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_meme_stocks",
+    "title": "The Great Retail Short Squeeze (January 2021)",
+    "description": "Analyze the dynamics of heavily shorted securities, retail options flow, and broker liquidity limits.",
+    "category": "ShortSqueeze",
+    "difficulty": "Intermediate",
+    "ticker": "TSLA",
+    "startDate": "2021-01-15",
+    "endDate": "2021-02-28",
+    "initialCash": 25000,
+    "lessonsLearned": [
+      "Short interest exceeding 100% of float creates extreme vulnerability to coordinated buying pressure.",
+      "Gamma squeezes driven by out-of-the-money call option purchasing force market makers to aggressively buy underlying shares.",
+      "Parabolic price moves invariably end in severe mean reversion once retail buying enthusiasm peaks."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2021-01-26",
+        "title": "Parabolic Momentum Accelerates",
+        "narrative": "Social media trading communities drive unprecedented call option volume across heavily shorted consumer stocks.",
+        "prompt": "How do you evaluate risk in high-volatility momentum environments?",
+        "options": [
+          { "text": "Recognize speculative froth and implement strict stop losses.", "feedback": "Disciplined risk management prevents devastating drawdowns when retail volume fades." },
+          { "text": "Borrow margin to buy at the peak of social media hype.", "feedback": "Using leverage at the climax of a speculative bubble frequently results in margin liquidation." }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "scenario_fed_tightening",
+    "title": "The 2022 Interest Rate Shock",
+    "description": "Manage portfolio duration and valuation compression as the Federal Reserve hikes rates by 425 basis points in nine months.",
+    "category": "FedPolicy",
+    "difficulty": "Intermediate",
+    "ticker": "QQQ",
+    "startDate": "2022-01-03",
+    "endDate": "2022-12-30",
+    "initialCash": 60000,
+    "lessonsLearned": [
+      "Rising discount rates disproportionately compress multiples for high-growth, long-duration equities.",
+      "Cash and short-duration fixed income serve as essential capital preservation buffers during monetary tightening.",
+      "Rebalancing into high-quality profitable companies with pricing power outperforms unprofitable speculative growth."
+    ],
+    "steps": [
+      {
+        "stepIndex": 1,
+        "date": "2022-03-16",
+        "title": "The First Rate Hike of the Cycle",
+        "narrative": "With CPI exceeding 7%, the Fed initiates its first 25 bps rate increase, signaling aggressive balance sheet runoff.",
+        "prompt": "How do you adjust your technology and growth allocations?",
+        "options": [
+          { "text": "Rotate out of unprofitable long-duration tech into cash and value.", "feedback": "Value equities and profitable cash-generative firms proved vastly more resilient throughout 2022." },
+          { "text": "Double down on unprofitable growth equities with high P/S multiples.", "feedback": "Unprofitable growth suffered 70% to 80% valuation compression as risk-free yields climbed toward 5%." }
+        ]
+      }
+    ]
+  }
+]
