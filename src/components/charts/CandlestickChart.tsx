@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import {
   createChart,
   CandlestickSeries,
   HistogramSeries,
+  LineSeries,
+  LineStyle,
   ColorType,
   CrosshairMode,
   IChartApi,
@@ -16,6 +18,13 @@ import {
   toVolumeData,
   filterCandlesByTimeframe,
 } from './chart-utils';
+import {
+  calculateSMA,
+  calculateEMA,
+  calculateBollingerBands,
+  calculateVolumeMA,
+} from '../../engine/indicators';
+import { IndicatorControls, ActiveIndicators } from './IndicatorControls';
 import styles from './CandlestickChart.module.css';
 
 interface CandlestickChartProps {
@@ -36,8 +45,41 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   const candleSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
 
+  const sma20SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const sma50SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const sma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const ema12SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const ema26SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbUpperSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbMiddleSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const bbLowerSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const volumeMASeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+
   const [timeframe, setTimeframe] = useState<Timeframe>('1Y');
   const [hoveredCandle, setHoveredCandle] = useState<Candle | null>(null);
+  const [activeIndicators, setActiveIndicators] = useState<ActiveIndicators>({
+    sma20: true,
+    sma50: false,
+    sma200: false,
+    ema12: false,
+    ema26: false,
+    bollinger: false,
+    volumeMA: true,
+  });
+
+  // Precompute indicator values
+  const indicatorData = useMemo(() => {
+    if (candles.length === 0) return null;
+    return {
+      sma20: calculateSMA(candles, 20),
+      sma50: calculateSMA(candles, 50),
+      sma200: calculateSMA(candles, 200),
+      ema12: calculateEMA(candles, 12),
+      ema26: calculateEMA(candles, 26),
+      bollinger: calculateBollingerBands(candles, 20, 2),
+      volumeMA: calculateVolumeMA(candles, 20),
+    };
+  }, [candles]);
 
   // Initialize chart
   useEffect(() => {
@@ -62,13 +104,13 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
         vertLine: {
           color: colors.chartCrosshair,
           width: 1,
-          style: 3,
+          style: LineStyle.Dotted,
           labelBackgroundColor: colors.bgCard,
         },
         horzLine: {
           color: colors.chartCrosshair,
           width: 1,
-          style: 3,
+          style: LineStyle.Dotted,
           labelBackgroundColor: colors.bgCard,
         },
       },
@@ -103,6 +145,25 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     });
 
     volumeSeries.priceScale().applyOptions({
+      scaleMargins: {
+        top: 0.8,
+        bottom: 0,
+      },
+    });
+
+    // Setup line series for technical indicators
+    sma20SeriesRef.current = chart.addSeries(LineSeries, { color: '#38bdf8', lineWidth: 2, title: 'SMA 20' });
+    sma50SeriesRef.current = chart.addSeries(LineSeries, { color: '#fb923c', lineWidth: 2, title: 'SMA 50' });
+    sma200SeriesRef.current = chart.addSeries(LineSeries, { color: '#a855f7', lineWidth: 2, title: 'SMA 200' });
+    ema12SeriesRef.current = chart.addSeries(LineSeries, { color: '#facc15', lineWidth: 2, title: 'EMA 12' });
+    ema26SeriesRef.current = chart.addSeries(LineSeries, { color: '#ec4899', lineWidth: 2, title: 'EMA 26' });
+
+    bbUpperSeriesRef.current = chart.addSeries(LineSeries, { color: 'rgba(45, 212, 191, 0.7)', lineWidth: 1, lineStyle: LineStyle.Dashed });
+    bbMiddleSeriesRef.current = chart.addSeries(LineSeries, { color: '#2dd4bf', lineWidth: 1 });
+    bbLowerSeriesRef.current = chart.addSeries(LineSeries, { color: 'rgba(45, 212, 191, 0.7)', lineWidth: 1, lineStyle: LineStyle.Dashed });
+
+    volumeMASeriesRef.current = chart.addSeries(LineSeries, { color: '#94a3b8', lineWidth: 1, priceScaleId: '' });
+    volumeMASeriesRef.current.priceScale().applyOptions({
       scaleMargins: {
         top: 0.8,
         bottom: 0,
@@ -156,14 +217,28 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
       resizeObserver.disconnect();
       chart.remove();
       chartInstanceRef.current = null;
+      candleSeriesRef.current = null;
+      volumeSeriesRef.current = null;
+      sma20SeriesRef.current = null;
+      sma50SeriesRef.current = null;
+      sma200SeriesRef.current = null;
+      ema12SeriesRef.current = null;
+      ema26SeriesRef.current = null;
+      bbUpperSeriesRef.current = null;
+      bbMiddleSeriesRef.current = null;
+      bbLowerSeriesRef.current = null;
+      volumeMASeriesRef.current = null;
     };
   }, [theme]);
 
-  // Update data when candles or timeframe changes
+  // Update data & indicator series when candles, timeframe, or active indicators change
   useEffect(() => {
     if (!candleSeriesRef.current || !volumeSeriesRef.current || candles.length === 0) return;
 
     const visibleCandles = filterCandlesByTimeframe(candles, timeframe);
+    const minTime = visibleCandles[0].time;
+    const maxTime = visibleCandles[visibleCandles.length - 1].time;
+
     const candleData = toCandlestickData(visibleCandles);
     const volumeData = toVolumeData(
       visibleCandles,
@@ -176,10 +251,37 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     volumeSeriesRef.current.setData(volumeData as any);
 
+    // Filter indicator data to visible range
+    const filterRange = <T extends { time: string }>(items: T[]): T[] => {
+      return items.filter((item) => item.time >= minTime && item.time <= maxTime);
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const setSeriesData = (seriesRef: React.RefObject<ISeriesApi<'Line'> | null>, isEnabled: boolean, data: any[]) => {
+      if (seriesRef.current) {
+        seriesRef.current.setData(isEnabled ? data : []);
+      }
+    };
+
+    if (indicatorData) {
+      setSeriesData(sma20SeriesRef, activeIndicators.sma20, filterRange(indicatorData.sma20));
+      setSeriesData(sma50SeriesRef, activeIndicators.sma50, filterRange(indicatorData.sma50));
+      setSeriesData(sma200SeriesRef, activeIndicators.sma200, filterRange(indicatorData.sma200));
+      setSeriesData(ema12SeriesRef, activeIndicators.ema12, filterRange(indicatorData.ema12));
+      setSeriesData(ema26SeriesRef, activeIndicators.ema26, filterRange(indicatorData.ema26));
+
+      const bbVisible = filterRange(indicatorData.bollinger);
+      setSeriesData(bbUpperSeriesRef, activeIndicators.bollinger, bbVisible.map((p) => ({ time: p.time, value: p.upper })));
+      setSeriesData(bbMiddleSeriesRef, activeIndicators.bollinger, bbVisible.map((p) => ({ time: p.time, value: p.middle })));
+      setSeriesData(bbLowerSeriesRef, activeIndicators.bollinger, bbVisible.map((p) => ({ time: p.time, value: p.lower })));
+
+      setSeriesData(volumeMASeriesRef, activeIndicators.volumeMA, filterRange(indicatorData.volumeMA));
+    }
+
     if (chartInstanceRef.current) {
       chartInstanceRef.current.timeScale().fitContent();
     }
-  }, [candles, timeframe, theme]);
+  }, [candles, timeframe, theme, indicatorData, activeIndicators]);
 
   const latestCandle = candles[candles.length - 1];
   const previousCandle = candles.length > 1 ? candles[candles.length - 2] : undefined;
@@ -214,6 +316,11 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
           ))}
         </div>
       </div>
+
+      <IndicatorControls
+        indicators={activeIndicators}
+        onChange={setActiveIndicators}
+      />
 
       {displayCandle && (
         <div className={styles.tooltip}>
