@@ -8,6 +8,7 @@ import { PortfolioDashboard } from './components/portfolio/PortfolioDashboard';
 import { TradeHistory } from './components/portfolio/TradeHistory';
 import { OrderManagement } from './components/trading/OrderManagement';
 import { SimulationBar } from './components/timeline/SimulationBar';
+import { RiskDashboard } from './components/portfolio/RiskDashboard';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -93,6 +94,8 @@ export const App: React.FC = () => {
             </div>
 
             <PortfolioDashboard />
+
+            <RiskDashboard />
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
               <OrderManagement />
