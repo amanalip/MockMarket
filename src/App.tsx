@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Layout } from './components/ui/Layout';
 import { useUIStore, usePortfolioStore } from './store';
 import { StockScreener } from './components/stockpicker/StockScreener';
@@ -17,20 +17,40 @@ import { SavedETFsList } from './components/etf/SavedETFsList';
 import { NewsFeed } from './components/timeline/NewsFeed';
 import { TimeMachineCalculator } from './components/timemachine/TimeMachineCalculator';
 import { ScenarioCatalog } from './components/scenarios/ScenarioCatalog';
+import { ShortcutsModal } from './components/ui/ShortcutsModal';
 import { ToastContainer } from './components/ui/Toast';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
 import { Candle, CustomETFConfig } from './model/types';
 import { ETFSimulationResult, simulateETF } from './engine/etf/etf-builder';
 
 export const App: React.FC = () => {
-  const { mode, theme, selectedTicker, simulationDate } = useUIStore();
+  const { mode, theme, selectedTicker, simulationDate, setSimulationDate } = useUIStore();
   const { updateMarketPrices, processCandleForOrders } = usePortfolioStore();
   const selectedInfo = getTickerInfo(selectedTicker);
 
   const [candles, setCandles] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(false);
   const [etfResult, setEtfResult] = useState<ETFSimulationResult | null>(null);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
+  const handleAdvanceOneDay = useCallback(() => {
+    if (candles.length === 0) return;
+    const curIdx = candles.findIndex((c) => c.time === simulationDate);
+    const nextIdx = Math.min(candles.length - 1, (curIdx >= 0 ? curIdx : 0) + 1);
+    const nextCandle = candles[nextIdx];
+    if (nextCandle) {
+      setSimulationDate(nextCandle.time);
+      updateMarketPrices({ [selectedTicker]: nextCandle.close });
+      processCandleForOrders(nextCandle, selectedTicker);
+    }
+  }, [candles, simulationDate, selectedTicker, setSimulationDate, updateMarketPrices, processCandleForOrders]);
+
+  useKeyboardShortcuts({
+    onToggleShortcutsModal: () => setIsShortcutsOpen((prev) => !prev),
+    onAdvanceOneDay: handleAdvanceOneDay,
+  });
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -163,6 +183,10 @@ export const App: React.FC = () => {
           </div>
         )}
       </div>
+      <ShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
       <ToastContainer />
     </Layout>
   );
