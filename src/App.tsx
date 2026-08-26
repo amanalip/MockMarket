@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Layout } from './components/ui/Layout';
-import { useUIStore } from './store';
+import { useUIStore, usePortfolioStore } from './store';
 import { StockScreener } from './components/stockpicker/StockScreener';
 import { CandlestickChart } from './components/charts/CandlestickChart';
+import { TradePanel } from './components/trading/TradePanel';
+import { PortfolioDashboard } from './components/portfolio/PortfolioDashboard';
+import { TradeHistory } from './components/portfolio/TradeHistory';
+import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
-import { loadTickerData } from './data/loader';
+import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
 import { Candle } from './model/types';
 
 export const App: React.FC = () => {
-  const { mode, theme, selectedTicker } = useUIStore();
+  const { mode, theme, selectedTicker, simulationDate } = useUIStore();
+  const { updateMarketPrices } = usePortfolioStore();
   const selectedInfo = getTickerInfo(selectedTicker);
 
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -29,6 +34,10 @@ export const App: React.FC = () => {
         if (isMounted) {
           setCandles(data);
           setLoading(false);
+          const currentCandle = getLatestCandleOnOrBefore(data, simulationDate);
+          if (currentCandle) {
+            updateMarketPrices({ [selectedTicker]: currentCandle.close });
+          }
         }
       })
       .catch((err) => {
@@ -39,7 +48,9 @@ export const App: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [selectedTicker]);
+  }, [selectedTicker, simulationDate, updateMarketPrices]);
+
+  const activeCandle = getLatestCandleOnOrBefore(candles, simulationDate) || candles[candles.length - 1];
 
   return (
     <Layout>
@@ -64,17 +75,27 @@ export const App: React.FC = () => {
         </div>
 
         {mode === 'trade' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <CandlestickChart
-              candles={candles}
-              ticker={selectedTicker}
-              theme={theme}
-              loading={loading}
-            />
-            <StockScreener />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
+              <CandlestickChart
+                candles={candles}
+                ticker={selectedTicker}
+                theme={theme}
+                loading={loading}
+              />
+              <TradePanel currentCandle={activeCandle} />
+            </div>
+
+            <PortfolioDashboard />
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)', gap: '20px' }}>
+              <StockScreener />
+              <TradeHistory />
+            </div>
           </div>
         )}
       </div>
+      <ToastContainer />
     </Layout>
   );
 };

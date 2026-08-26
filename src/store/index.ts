@@ -8,9 +8,18 @@ import {
   BacktestConfig, 
   BacktestResult, 
   CustomETFConfig, 
-  Scenario 
+  Scenario,
+  Candle
 } from '../model/types';
 import { ThemeMode } from '../theme';
+import { TradingEngine } from '../engine/trading/trading-engine';
+import { OrderRequest, ExecutionResult } from '../engine/trading/order-types';
+
+export interface ToastMessage {
+  id: string;
+  message: string;
+  type: 'success' | 'error' | 'info';
+}
 
 interface UIState {
   mode: AppMode;
@@ -18,8 +27,9 @@ interface UIState {
   sidebarOpen: boolean;
   simulationDate: string;
   isPlaying: boolean;
-  playbackSpeed: number; // in milliseconds per step
+  playbackSpeed: number;
   selectedTicker: string;
+  toasts: ToastMessage[];
   setMode: (mode: AppMode) => void;
   toggleTheme: () => void;
   setTheme: (theme: ThemeMode) => void;
@@ -28,7 +38,11 @@ interface UIState {
   setIsPlaying: (playing: boolean) => void;
   setPlaybackSpeed: (speed: number) => void;
   setSelectedTicker: (ticker: string) => void;
+  addToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  removeToast: (id: string) => void;
 }
+
+const tradingEngineInstance = new TradingEngine(100000, 0);
 
 interface PortfolioState {
   startingCash: number;
@@ -39,12 +53,12 @@ interface PortfolioState {
   orders: Order[];
   commission: number;
   setStartingCash: (amount: number) => void;
-  resetPortfolio: (startingCash?: number) => void;
   setCash: (amount: number) => void;
-  addTrade: (trade: Trade) => void;
+  resetPortfolio: (startingCash?: number) => void;
+  executeTrade: (req: OrderRequest, candle: Candle) => ExecutionResult;
+  updateMarketPrices: (priceMap: Record<string, number>) => void;
   addOrder: (order: Order) => void;
   cancelOrder: (orderId: string) => void;
-  updatePositions: (positions: Record<string, Position>) => void;
 }
 
 interface BacktesterState {
@@ -91,6 +105,7 @@ export const useUIStore = create<UIState>((set) => ({
   isPlaying: false,
   playbackSpeed: 500,
   selectedTicker: 'AAPL',
+  toasts: [],
   setMode: (mode) => set({ mode }),
   toggleTheme: () => set((state) => {
     const next = state.theme === 'dark' ? 'light' : 'dark';
@@ -112,6 +127,14 @@ export const useUIStore = create<UIState>((set) => ({
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setPlaybackSpeed: (playbackSpeed) => set({ playbackSpeed }),
   setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
+  addToast: (message, type = 'info') => {
+    const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    set((state) => ({ toasts: [...state.toasts, { id, message, type }] }));
+    setTimeout(() => {
+      set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+    }, 4000);
+  },
+  removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
 
 export const usePortfolioStore = create<PortfolioState>((set) => ({
@@ -122,15 +145,50 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
   trades: [],
   orders: [],
   commission: 0,
-  setStartingCash: (startingCash) => set({ startingCash, cash: startingCash, positions: {}, history: [], trades: [], orders: [] }),
-  resetPortfolio: (startingCash = 100000) => set({ startingCash, cash: startingCash, positions: {}, history: [], trades: [], orders: [] }),
+  setStartingCash: (startingCash) => {
+    tradingEngineInstance.setStartingCash(startingCash);
+    const engineState = tradingEngineInstance.getState();
+    set({
+      startingCash,
+      cash: engineState.cash,
+      positions: engineState.positions,
+      history: [],
+      trades: [],
+      orders: [],
+    });
+  },
   setCash: (cash) => set({ cash }),
-  addTrade: (trade) => set((state) => ({ trades: [trade, ...state.trades] })),
+  resetPortfolio: (startingCash = 100000) => {
+    tradingEngineInstance.setStartingCash(startingCash);
+    const engineState = tradingEngineInstance.getState();
+    set({
+      startingCash,
+      cash: engineState.cash,
+      positions: engineState.positions,
+      history: [],
+      trades: [],
+      orders: [],
+    });
+  },
+  executeTrade: (req, candle) => {
+    const res = tradingEngineInstance.executeMarketOrder(req, candle);
+    const engineState = tradingEngineInstance.getState();
+    set({
+      cash: engineState.cash,
+      positions: engineState.positions,
+      trades: engineState.trades,
+    });
+    return res;
+  },
+  updateMarketPrices: (priceMap) => {
+    tradingEngineInstance.updatePrices(priceMap);
+    const engineState = tradingEngineInstance.getState();
+    set({ positions: engineState.positions });
+  },
   addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
   cancelOrder: (orderId) => set((state) => ({
     orders: state.orders.map((o) => o.id === orderId ? { ...o, status: 'cancelled' as const } : o),
   })),
-  updatePositions: (positions) => set({ positions }),
 }));
 
 export const useBacktesterStore = create<BacktesterState>((set) => ({
