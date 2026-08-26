@@ -71,25 +71,52 @@ MockMarket is a zero-latency, high-fidelity historical market simulation and alg
 ## Mathematical Formulas
 
 ### Sharpe Ratio
-$$\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}$$
-Where $R_p$ is annualized portfolio return, $R_f$ is the risk-free rate ($2.0\%$), and $\sigma_p$ is annualized portfolio volatility ($\sigma_{daily} \times \sqrt{252}$).
+
+```math
+\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}
+```
+
+Where:
+- $R_p$ is the annualized portfolio return
+- $R_f$ is the risk-free benchmark rate ($2.0\%$)
+- $\sigma_p$ is the annualized portfolio volatility ($\sigma_{\text{daily}} \times \sqrt{252}$)
 
 ### Sortino Ratio
-$$\text{Sortino} = \frac{R_p - R_f}{\sigma_d}$$
-Where $\sigma_d$ is annualized downside deviation calculated exclusively from negative return periods.
+
+```math
+\text{Sortino} = \frac{R_p - R_f}{\sigma_d}
+```
+
+Where:
+- $\sigma_d$ is the annualized downside deviation calculated exclusively from negative return periods
 
 ### Parametric Value at Risk (95% 1-Day VaR)
-$$\text{VaR}_{95\%} = 1.645 \times \sigma_{daily} \times \text{Portfolio Value}$$
+
+```math
+\text{VaR}_{0.95} = 1.645 \times \sigma_{\text{daily}} \times \text{Portfolio Value}
+```
+
+Where $\sigma_{\text{daily}}$ is the standard deviation of daily percentage portfolio returns.
 
 ### Maximum Drawdown
-$$\text{MDD} = \max_{t \in [0, T]} \left( \frac{\text{Peak}_t - \text{Trough}_t}{\text{Peak}_t} \right)$$
+
+```math
+\text{MDD} = \max_{t \in [0, T]} \left( \frac{\text{Peak}_t - \text{Trough}_t}{\text{Peak}_t} \right)
+```
 
 ### Beta vs SPY
-$$\beta = \frac{\text{Cov}(R_p, R_{SPY})}{\text{Var}(R_{SPY})}$$
+
+```math
+\beta = \frac{\text{Cov}(R_p, R_{\text{SPY}})}{\text{Var}(R_{\text{SPY}})}
+```
 
 ### Herfindahl-Hirschman Index (HHI)
-$$\text{HHI} = \sum_{i=1}^{N} w_i^2$$
-Where $w_i$ represents the percentage weight of sector $i$. Diversification score is derived as $(1 - \text{HHI}) \times 100$.
+
+```math
+\text{HHI} = \sum_{i=1}^{N} w_i^2
+```
+
+Where $w_i$ represents the fractional weight of sector $i$. The portfolio diversification score is computed as $(1 - \text{HHI}) \times 100$.
 
 ---
 
