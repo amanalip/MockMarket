@@ -55,9 +55,9 @@ interface PortfolioState {
   setStartingCash: (amount: number) => void;
   setCash: (amount: number) => void;
   resetPortfolio: (startingCash?: number) => void;
-  executeTrade: (req: OrderRequest, candle: Candle) => ExecutionResult;
+  executeTrade: (req: OrderRequest, candle?: Candle) => ExecutionResult;
+  processCandleForOrders: (candle: Candle, ticker: string) => Order[];
   updateMarketPrices: (priceMap: Record<string, number>) => void;
-  addOrder: (order: Order) => void;
   cancelOrder: (orderId: string) => void;
 }
 
@@ -171,24 +171,39 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
     });
   },
   executeTrade: (req, candle) => {
-    const res = tradingEngineInstance.executeMarketOrder(req, candle);
+    const res = tradingEngineInstance.placeOrder(req, candle);
     const engineState = tradingEngineInstance.getState();
     set({
       cash: engineState.cash,
       positions: engineState.positions,
       trades: engineState.trades,
+      orders: engineState.orders,
     });
     return res;
+  },
+  processCandleForOrders: (candle, ticker) => {
+    const filled = tradingEngineInstance.processPendingOrders(candle, ticker);
+    if (filled.length > 0) {
+      const engineState = tradingEngineInstance.getState();
+      set({
+        cash: engineState.cash,
+        positions: engineState.positions,
+        trades: engineState.trades,
+        orders: engineState.orders,
+      });
+    }
+    return filled;
   },
   updateMarketPrices: (priceMap) => {
     tradingEngineInstance.updatePrices(priceMap);
     const engineState = tradingEngineInstance.getState();
     set({ positions: engineState.positions });
   },
-  addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
-  cancelOrder: (orderId) => set((state) => ({
-    orders: state.orders.map((o) => o.id === orderId ? { ...o, status: 'cancelled' as const } : o),
-  })),
+  cancelOrder: (orderId) => {
+    tradingEngineInstance.cancelOrder(orderId);
+    const engineState = tradingEngineInstance.getState();
+    set({ orders: engineState.orders });
+  },
 }));
 
 export const useBacktesterStore = create<BacktesterState>((set) => ({

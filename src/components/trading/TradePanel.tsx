@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useUIStore, usePortfolioStore } from '../../store';
-import { Candle, OrderSide } from '../../model/types';
+import { Candle, OrderSide, OrderType } from '../../model/types';
 import styles from './TradePanel.module.css';
 
 interface TradePanelProps {
@@ -12,19 +12,25 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
   const { cash, positions, executeTrade } = usePortfolioStore();
 
   const [side, setSide] = useState<OrderSide>('buy');
+  const [orderType, setOrderType] = useState<OrderType>('market');
   const [sharesInput, setSharesInput] = useState<string>('10');
+  const [priceInput, setPriceInput] = useState<string>('');
 
   const currentPrice = currentCandle?.close || 0;
   const currentPosition = positions[selectedTicker];
   const ownedShares = currentPosition?.shares || 0;
 
   const parsedShares = parseInt(sharesInput, 10) || 0;
-  const estimatedTotal = parsedShares * currentPrice;
+  const targetPrice = orderType === 'market'
+    ? currentPrice
+    : parseFloat(priceInput) || currentPrice;
+
+  const estimatedTotal = parsedShares * targetPrice;
 
   const handlePercentageClick = (percent: number) => {
-    if (currentPrice <= 0) return;
+    if (targetPrice <= 0) return;
     if (side === 'buy') {
-      const maxShares = Math.floor(cash / currentPrice);
+      const maxShares = Math.floor(cash / targetPrice);
       const target = Math.max(1, Math.floor(maxShares * (percent / 100)));
       setSharesInput(String(target));
     } else {
@@ -35,8 +41,8 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
 
   const handleTrade = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentCandle || currentPrice <= 0) {
-      addToast('No candle data available for trade execution.', 'error');
+    if (targetPrice <= 0) {
+      addToast('Price must be greater than zero.', 'error');
       return;
     }
 
@@ -46,7 +52,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
     }
 
     if (side === 'buy' && estimatedTotal > cash) {
-      addToast('Insufficient cash available for this purchase.', 'error');
+      addToast('Insufficient cash available for this order.', 'error');
       return;
     }
 
@@ -59,30 +65,29 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
       {
         ticker: selectedTicker,
         side,
-        type: 'market',
+        type: orderType,
         shares: parsedShares,
+        limitPrice: orderType === 'limit' ? targetPrice : undefined,
+        stopPrice: (orderType === 'stop_loss' || orderType === 'take_profit') ? targetPrice : undefined,
         date: simulationDate,
       },
       currentCandle
     );
 
     if (result.success) {
-      if (side === 'buy') {
+      if (result.filled) {
         addToast(
-          `Bought ${parsedShares} shares of ${selectedTicker} at $${currentPrice.toFixed(2)}`,
+          `${side === 'buy' ? 'Bought' : 'Sold'} ${parsedShares} shares of ${selectedTicker} at $${(result.filledPrice || targetPrice).toFixed(2)}`,
           'success'
         );
       } else {
-        const pnlStr = result.realizedPnL !== undefined
-          ? ` (P&L: ${result.realizedPnL >= 0 ? '+' : ''}$${result.realizedPnL.toFixed(2)})`
-          : '';
         addToast(
-          `Sold ${parsedShares} shares of ${selectedTicker} at $${currentPrice.toFixed(2)}${pnlStr}`,
-          'success'
+          `Placed pending ${orderType.replace('_', ' ')} order for ${parsedShares} shares of ${selectedTicker} at $${targetPrice.toFixed(2)}`,
+          'info'
         );
       }
     } else {
-      addToast(result.error || 'Failed to execute trade.', 'error');
+      addToast(result.error || 'Failed to execute order.', 'error');
     }
   };
 
@@ -111,6 +116,49 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
       </div>
 
       <form onSubmit={handleTrade} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div className={styles.formGroup}>
+          <label className={styles.label}>Order Type</label>
+          <div className={styles.inputGroup}>
+            <select
+              className={styles.input}
+              value={orderType}
+              onChange={(e) => {
+                const val = e.target.value as OrderType;
+                setOrderType(val);
+                if (val !== 'market' && !priceInput) {
+                  setPriceInput(currentPrice ? currentPrice.toFixed(2) : '');
+                }
+              }}
+            >
+              <option value="market">Market Order</option>
+              <option value="limit">Limit Order</option>
+              <option value="stop_loss">Stop Loss</option>
+              <option value="take_profit">Take Profit</option>
+            </select>
+          </div>
+        </div>
+
+        {orderType !== 'market' && (
+          <div className={styles.formGroup}>
+            <label className={styles.label}>
+              {orderType === 'limit' && 'Limit Price ($)'}
+              {orderType === 'stop_loss' && 'Stop Price ($)'}
+              {orderType === 'take_profit' && 'Take Profit Target ($)'}
+            </label>
+            <div className={styles.inputGroup}>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                className={styles.input}
+                value={priceInput}
+                onChange={(e) => setPriceInput(e.target.value)}
+                placeholder="Target Price"
+              />
+            </div>
+          </div>
+        )}
+
         <div className={styles.formGroup}>
           <label className={styles.label}>Shares</label>
           <div className={styles.inputGroup}>
@@ -144,11 +192,11 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
         <div className={styles.summary}>
           <div className={styles.summaryRow}>
             <span>Order Type:</span>
-            <strong>Market Order</strong>
+            <strong>{orderType.replace('_', ' ').toUpperCase()}</strong>
           </div>
           <div className={styles.summaryRow}>
-            <span>Execution Price:</span>
-            <strong>${currentPrice.toFixed(2)}</strong>
+            <span>Target Price:</span>
+            <strong>${targetPrice.toFixed(2)}</strong>
           </div>
           <div className={styles.summaryRow}>
             <span>Owned Position:</span>
@@ -163,9 +211,9 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
         <button
           type="submit"
           className={`${styles.submitBtn} ${side === 'buy' ? styles.btnBuy : styles.btnSell}`}
-          disabled={parsedShares <= 0 || currentPrice <= 0 || (side === 'buy' && estimatedTotal > cash) || (side === 'sell' && parsedShares > ownedShares)}
+          disabled={parsedShares <= 0 || targetPrice <= 0 || (side === 'buy' && estimatedTotal > cash) || (side === 'sell' && parsedShares > ownedShares)}
         >
-          {side === 'buy' ? `Buy ${selectedTicker}` : `Sell ${selectedTicker}`}
+          {side === 'buy' ? `Submit Buy ${selectedTicker}` : `Submit Sell ${selectedTicker}`}
         </button>
       </form>
     </div>

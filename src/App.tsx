@@ -6,6 +6,7 @@ import { CandlestickChart } from './components/charts/CandlestickChart';
 import { TradePanel } from './components/trading/TradePanel';
 import { PortfolioDashboard } from './components/portfolio/PortfolioDashboard';
 import { TradeHistory } from './components/portfolio/TradeHistory';
+import { OrderManagement } from './components/trading/OrderManagement';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -13,7 +14,7 @@ import { Candle } from './model/types';
 
 export const App: React.FC = () => {
   const { mode, theme, selectedTicker, simulationDate } = useUIStore();
-  const { updateMarketPrices } = usePortfolioStore();
+  const { updateMarketPrices, processCandleForOrders } = usePortfolioStore();
   const selectedInfo = getTickerInfo(selectedTicker);
 
   const [candles, setCandles] = useState<Candle[]>([]);
@@ -37,6 +38,7 @@ export const App: React.FC = () => {
           const currentCandle = getLatestCandleOnOrBefore(data, simulationDate);
           if (currentCandle) {
             updateMarketPrices({ [selectedTicker]: currentCandle.close });
+            processCandleForOrders(currentCandle, selectedTicker);
           }
         }
       })
@@ -48,7 +50,7 @@ export const App: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [selectedTicker, simulationDate, updateMarketPrices]);
+  }, [selectedTicker, simulationDate, updateMarketPrices, processCandleForOrders]);
 
   const activeCandle = getLatestCandleOnOrBefore(candles, simulationDate) || candles[candles.length - 1];
 
@@ -88,10 +90,12 @@ export const App: React.FC = () => {
 
             <PortfolioDashboard />
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)', gap: '20px' }}>
-              <StockScreener />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+              <OrderManagement />
               <TradeHistory />
             </div>
+
+            <StockScreener />
           </div>
         )}
       </div>
