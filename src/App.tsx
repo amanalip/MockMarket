@@ -11,10 +11,14 @@ import { SimulationBar } from './components/timeline/SimulationBar';
 import { RiskDashboard } from './components/portfolio/RiskDashboard';
 import { BacktestConfigPanel } from './components/backtester/BacktestConfigPanel';
 import { BacktestResults } from './components/backtester/BacktestResults';
+import { ETFBuilderForm } from './components/etf/ETFBuilderForm';
+import { ETFAnalyticsDashboard } from './components/etf/ETFAnalyticsDashboard';
+import { SavedETFsList } from './components/etf/SavedETFsList';
 import { ToastContainer } from './components/ui/Toast';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
-import { Candle } from './model/types';
+import { Candle, CustomETFConfig } from './model/types';
+import { ETFSimulationResult, simulateETF } from './engine/etf/etf-builder';
 
 export const App: React.FC = () => {
   const { mode, theme, selectedTicker, simulationDate } = useUIStore();
@@ -23,6 +27,7 @@ export const App: React.FC = () => {
 
   const [candles, setCandles] = useState<Candle[]>([]);
   const [loading, setLoading] = useState(false);
+  const [etfResult, setEtfResult] = useState<ETFSimulationResult | null>(null);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -55,6 +60,22 @@ export const App: React.FC = () => {
       isMounted = false;
     };
   }, [selectedTicker, simulationDate, updateMarketPrices, processCandleForOrders]);
+
+  const handleLoadSavedETF = async (etf: CustomETFConfig) => {
+    try {
+      const tickerList = etf.tickers.map((t) => t.ticker);
+      const candlesMap: Record<string, Candle[]> = {};
+      await Promise.all(
+        tickerList.map(async (sym) => {
+          candlesMap[sym] = await loadTickerData(sym);
+        })
+      );
+      const res = simulateETF(etf, candlesMap);
+      setEtfResult(res);
+    } catch (err) {
+      console.error('Failed to load saved ETF', err);
+    }
+  };
 
   const activeCandle = getLatestCandleOnOrBefore(candles, simulationDate) || candles[candles.length - 1];
 
@@ -114,6 +135,14 @@ export const App: React.FC = () => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <BacktestConfigPanel />
             <BacktestResults />
+          </div>
+        )}
+
+        {mode === 'etf' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <ETFBuilderForm onSimulationComplete={setEtfResult} />
+            <SavedETFsList onSelect={handleLoadSavedETF} />
+            {etfResult && <ETFAnalyticsDashboard result={etfResult} />}
           </div>
         )}
       </div>
