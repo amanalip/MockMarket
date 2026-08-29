@@ -61,7 +61,8 @@ export function calculateTimeMachine(
   const growthCurve: TimeMachineGrowthPoint[] = [];
   const milestones: TimeMachineMilestone[] = [];
 
-  let lastDcaMonth = new Date(filtered[0].time).getMonth();
+  let lastDcaMonth = new Date(filtered[0].time).getUTCMonth();
+  let lastDcaYear = new Date(filtered[0].time).getUTCFullYear();
   let lastDcaWeek = Math.floor(new Date(filtered[0].time).getTime() / (7 * 24 * 3600 * 1000));
   let peakValue = config.initialAmount;
   let maxDrawdown = 0;
@@ -78,10 +79,12 @@ export function calculateTimeMachine(
       let isDcaTime = false;
 
       if (config.dcaInterval === 'monthly') {
-        const curMonth = curDate.getMonth();
-        if (curMonth !== lastDcaMonth) {
+        const curMonth = curDate.getUTCMonth();
+        const curYear = curDate.getUTCFullYear();
+        if (curMonth !== lastDcaMonth || curYear !== lastDcaYear) {
           isDcaTime = true;
           lastDcaMonth = curMonth;
+          lastDcaYear = curYear;
         }
       } else if (config.dcaInterval === 'weekly') {
         const curWeek = Math.floor(curDate.getTime() / (7 * 24 * 3600 * 1000));
