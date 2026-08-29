@@ -171,12 +171,13 @@ export function runBacktest(
         const sharesToBuy = Math.floor(allocatedCash / candle.close);
         if (sharesToBuy > 0) {
           const cost = sharesToBuy * candle.close;
-          if (cost > cash) return;
-          cash -= cost;
-          shares = sharesToBuy;
-          entryPrice = candle.close;
-          entryDate = candle.time;
-          entryIndex = i;
+          if (cost <= cash) {
+            cash -= cost;
+            shares = sharesToBuy;
+            entryPrice = candle.close;
+            entryDate = candle.time;
+            entryIndex = i;
+          }
         }
       }
     }
