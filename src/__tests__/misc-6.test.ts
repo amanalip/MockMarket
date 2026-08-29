@@ -31,4 +31,13 @@ describe('Misc 6 - Final 550', () => {
   it('light theme accent', () => {
     expect(lightTheme.accent).toBe('#2563eb');
   });
+
+  it('dark theme light contrast', () => {
+    expect(darkTheme.textPrimary).not.toBe(lightTheme.textPrimary);
+  });
+
+  it('store UI mode trade', () => {
+    useUIStore.getState().setMode('trade');
+    expect(useUIStore.getState().mode).toBe('trade');
+  });
 });
