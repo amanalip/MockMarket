@@ -1,6 +1,7 @@
 export function calculateBeta(portfolioReturns: number[], benchmarkReturns: number[]): number {
   const n = Math.min(portfolioReturns.length, benchmarkReturns.length);
-  if (n < 2) return 1.0;
+  if (n < 2) return 0;
+  if (portfolioReturns.some((v) => !Number.isFinite(v)) || benchmarkReturns.some((v) => !Number.isFinite(v))) return 0;
 
   const portSlice = portfolioReturns.slice(0, n);
   const benchSlice = benchmarkReturns.slice(0, n);
@@ -18,7 +19,7 @@ export function calculateBeta(portfolioReturns: number[], benchmarkReturns: numb
     benchVariance += diffBench * diffBench;
   }
 
-  if (benchVariance === 0) return 1.0;
+  if (benchVariance === 0) return 0;
 
   const beta = covariance / benchVariance;
   return Number(beta.toFixed(2));

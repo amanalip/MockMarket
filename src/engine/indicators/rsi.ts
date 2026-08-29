@@ -2,7 +2,8 @@ import { Candle } from '../../model/types';
 import { IndicatorPoint } from './sma';
 
 export function calculateRSI(candles: Candle[], period = 14): IndicatorPoint[] {
-  if (candles.length <= period || period <= 0) return [];
+  if (!Number.isFinite(period) || !Number.isInteger(period) || period <= 0) return [];
+  if (candles.length <= period) return [];
 
   const results: IndicatorPoint[] = [];
   const gains: number[] = [];
@@ -24,8 +25,19 @@ export function calculateRSI(candles: Candle[], period = 14): IndicatorPoint[] {
   avgGain /= period;
   avgLoss /= period;
 
-  let rs = avgLoss === 0 ? 100 : avgGain / avgLoss;
-  let rsi = avgLoss === 0 ? 100 : 100 - 100 / (1 + rs);
+  // Flat price (both avgGain and avgLoss 0) should be 50 neutral, not 100
+  let rsi: number;
+  let rs: number;
+  if (avgGain === 0 && avgLoss === 0) {
+    rsi = 50;
+    rs = 1;
+  } else if (avgLoss === 0) {
+    rsi = 100;
+    rs = 100;
+  } else {
+    rs = avgGain / avgLoss;
+    rsi = 100 - 100 / (1 + rs);
+  }
 
   results.push({
     time: candles[period].time,
@@ -37,7 +49,9 @@ export function calculateRSI(candles: Candle[], period = 14): IndicatorPoint[] {
     avgGain = (avgGain * (period - 1) + gains[i]) / period;
     avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
 
-    if (avgLoss === 0) {
+    if (avgGain === 0 && avgLoss === 0) {
+      rsi = 50;
+    } else if (avgLoss === 0) {
       rsi = 100;
     } else {
       rs = avgGain / avgLoss;

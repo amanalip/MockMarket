@@ -243,6 +243,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
     if (!candleSeriesRef.current || !volumeSeriesRef.current || simulationCandles.length === 0) return;
 
     const visibleCandles = filterCandlesByTimeframe(simulationCandles, timeframe, simulationDate);
+    if (visibleCandles.length === 0) return;
     const minTime = visibleCandles[0].time;
     const maxTime = visibleCandles[visibleCandles.length - 1].time;
 

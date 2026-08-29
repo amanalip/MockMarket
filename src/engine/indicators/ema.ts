@@ -2,7 +2,8 @@ import { Candle } from '../../model/types';
 import { IndicatorPoint } from './sma';
 
 export function calculateEMA(candles: Candle[], period = 12): IndicatorPoint[] {
-  if (candles.length < period || period <= 0) return [];
+  if (!Number.isFinite(period) || !Number.isInteger(period) || period <= 0) return [];
+  if (candles.length < period) return [];
 
   const results: IndicatorPoint[] = [];
   const multiplier = 2 / (period + 1);

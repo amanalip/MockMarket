@@ -17,13 +17,16 @@ export interface ChartVolumeData {
 }
 
 export function toCandlestickData(candles: Candle[]): ChartCandleData[] {
-  return candles.map((c) => ({
-    time: c.time,
-    open: c.open,
-    high: c.high,
-    low: c.low,
-    close: c.close,
-  }));
+  if (!Array.isArray(candles)) return [];
+  return candles
+    .filter((c) => c && typeof c.time === 'string' && Number.isFinite(c.open) && Number.isFinite(c.high) && Number.isFinite(c.low) && Number.isFinite(c.close))
+    .map((c) => ({
+      time: c.time,
+      open: c.open,
+      high: c.high,
+      low: c.low,
+      close: c.close,
+    }));
 }
 
 export function toVolumeData(
@@ -76,5 +79,5 @@ export function filterCandlesByTimeframe(
   const cutoffStr = cutoff.toISOString().split('T')[0];
 
   const filtered = candles.filter((c) => c.time >= cutoffStr && c.time <= targetDateStr);
-  return filtered.length > 0 ? filtered : candles;
+  return filtered;
 }

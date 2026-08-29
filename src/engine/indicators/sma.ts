@@ -6,7 +6,8 @@ export interface IndicatorPoint {
 }
 
 export function calculateSMA(candles: Candle[], period = 20): IndicatorPoint[] {
-  if (candles.length < period || period <= 0) return [];
+  if (!Number.isFinite(period) || !Number.isInteger(period) || period <= 0) return [];
+  if (candles.length < period) return [];
 
   const results: IndicatorPoint[] = [];
   let sum = 0;

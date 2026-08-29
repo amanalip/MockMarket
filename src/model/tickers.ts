@@ -116,9 +116,22 @@ export function getAllSectors(): string[] {
 }
 
 export function getAllIndustries(sectorFilter?: string): string[] {
-  const items = sectorFilter
-    ? CORE_TICKERS.filter((t) => t.sector === sectorFilter)
+  const clean = sectorFilter?.trim();
+  const items = clean
+    ? CORE_TICKERS.filter((t) => t.sector.toLowerCase() === clean.toLowerCase())
     : CORE_TICKERS;
   const set = new Set(items.map((t) => t.industry));
   return Array.from(set).sort();
+}
+
+export function searchTickers(query: string): TickerInfo[] {
+  const q = query?.trim().toLowerCase();
+  if (!q) return [...CORE_TICKERS];
+  return CORE_TICKERS.filter(
+    (t) =>
+      t.ticker.toLowerCase().includes(q) ||
+      t.name.toLowerCase().includes(q) ||
+      t.sector.toLowerCase().includes(q) ||
+      t.industry.toLowerCase().includes(q)
+  );
 }

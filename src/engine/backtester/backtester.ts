@@ -66,21 +66,21 @@ export function runBacktest(
   const volMAMap = new Map(calculateVolumeMA(candles, 20).map((p) => [p.time, p.value]));
 
   const indicators: BacktestIndicatorsContext = {
-    sma20: filteredCandles.map((c) => sma20Map.get(c.time) || c.close),
-    sma50: filteredCandles.map((c) => sma50Map.get(c.time) || c.close),
-    sma200: filteredCandles.map((c) => sma200Map.get(c.time) || c.close),
-    ema12: filteredCandles.map((c) => ema12Map.get(c.time) || c.close),
-    ema26: filteredCandles.map((c) => ema26Map.get(c.time) || c.close),
-    rsi14: filteredCandles.map((c) => rsi14Map.get(c.time) || 50),
-    macd: filteredCandles.map((c) => macdMap.get(c.time) || { macd: 0, signal: 0, histogram: 0 }),
-    bb: filteredCandles.map((c) => bbMap.get(c.time) || { upper: c.close, middle: c.close, lower: c.close }),
-    volumeMA20: filteredCandles.map((c) => volMAMap.get(c.time) || c.volume),
+    sma20: filteredCandles.map((c) => sma20Map.get(c.time) ?? c.close),
+    sma50: filteredCandles.map((c) => sma50Map.get(c.time) ?? c.close),
+    sma200: filteredCandles.map((c) => sma200Map.get(c.time) ?? c.close),
+    ema12: filteredCandles.map((c) => ema12Map.get(c.time) ?? c.close),
+    ema26: filteredCandles.map((c) => ema26Map.get(c.time) ?? c.close),
+    rsi14: filteredCandles.map((c) => rsi14Map.get(c.time) ?? 50),
+    macd: filteredCandles.map((c) => macdMap.get(c.time) ?? { macd: 0, signal: 0, histogram: 0 }),
+    bb: filteredCandles.map((c) => bbMap.get(c.time) ?? { upper: c.close, middle: c.close, lower: c.close }),
+    volumeMA20: filteredCandles.map((c) => volMAMap.get(c.time) ?? c.volume),
   };
 
   // Benchmark alignment
   const benchMap = new Map(benchmarkCandles.map((c) => [c.time, c.close]));
-  const initialBenchPrice = benchMap.get(filteredCandles[0].time) || 100;
-  const initialAssetPrice = filteredCandles[0].close;
+  const initialBenchPrice = benchMap.get(filteredCandles[0].time) ?? 100;
+  const initialAssetPrice = filteredCandles[0].close > 0 ? filteredCandles[0].close : 1;
 
   let cash = config.initialCash;
   let shares = 0;
@@ -91,9 +91,14 @@ export function runBacktest(
   const trades: BacktestTrade[] = [];
   const equityCurve: BacktestEquityPoint[] = [];
 
+  // Validate config
+  const positionSize = Math.max(0, Math.min(100, config.positionSizePercent));
+  const stopLoss = config.stopLossPercent && Number.isFinite(config.stopLossPercent) && config.stopLossPercent > 0 ? Math.min(99, config.stopLossPercent) : 0;
+  const takeProfit = config.takeProfitPercent && Number.isFinite(config.takeProfitPercent) && config.takeProfitPercent > 0 ? config.takeProfitPercent : 0;
+
   for (let i = 0; i < filteredCandles.length; i++) {
     const candle = filteredCandles[i];
-    const benchClose = benchMap.get(candle.time) || initialBenchPrice;
+    const benchClose = benchMap.get(candle.time) ?? initialBenchPrice;
 
     const ctx: BarRuleContext = {
       index: i,
@@ -111,8 +116,8 @@ export function runBacktest(
       let exitPrice = candle.close;
 
       // Stop loss check
-      if (config.stopLossPercent && config.stopLossPercent > 0) {
-        const stopPrice = entryPrice * (1 - config.stopLossPercent / 100);
+      if (stopLoss > 0) {
+        const stopPrice = entryPrice * (1 - stopLoss / 100);
         if (candle.low <= stopPrice) {
           shouldExit = true;
           exitReason = 'Stop Loss';
@@ -121,8 +126,8 @@ export function runBacktest(
       }
 
       // Take profit check
-      if (!shouldExit && config.takeProfitPercent && config.takeProfitPercent > 0) {
-        const targetPrice = entryPrice * (1 + config.takeProfitPercent / 100);
+      if (!shouldExit && takeProfit > 0) {
+        const targetPrice = entryPrice * (1 + takeProfit / 100);
         if (candle.high >= targetPrice) {
           shouldExit = true;
           exitReason = 'Take Profit';
@@ -161,11 +166,12 @@ export function runBacktest(
       }
     } else {
       // Not in position: check entry condition
-      if (entryFn(ctx) && cash > 0) {
-        const allocatedCash = cash * (config.positionSizePercent / 100);
+      if (entryFn(ctx) && cash > 0 && candle.close > 0) {
+        const allocatedCash = cash * (positionSize / 100);
         const sharesToBuy = Math.floor(allocatedCash / candle.close);
         if (sharesToBuy > 0) {
           const cost = sharesToBuy * candle.close;
+          if (cost > cash) return;
           cash -= cost;
           shares = sharesToBuy;
           entryPrice = candle.close;

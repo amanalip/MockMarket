@@ -38,8 +38,10 @@ export function computeBacktestStats(
 
   const startTs = new Date(startDate).getTime();
   const endTs = new Date(endDate).getTime();
-  const years = Math.max(0.1, (endTs - startTs) / (365.25 * 24 * 3600 * 1000));
-  const cagr = (Math.pow(Math.max(0.001, finalEquity / initialCash), 1 / years) - 1) * 100;
+  const rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
+  const years = Math.max(1 / 365.25, rawYears);
+  const equityRatio = finalEquity / initialCash;
+  const cagr = equityRatio <= 0 ? -100 : (Math.pow(equityRatio, 1 / years) - 1) * 100;
 
   const winningTrades = trades.filter((t) => t.pnl > 0);
   const losingTrades = trades.filter((t) => t.pnl < 0);
@@ -53,7 +55,7 @@ export function computeBacktestStats(
   const grossLosses = Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0));
   const profitFactor = grossLosses > 0
     ? Number((grossGains / grossLosses).toFixed(2))
-    : grossGains > 0 ? 99.99 : 0;
+    : grossGains > 0 ? Infinity : 0;
 
   const avgWinPercent = winningTrades.length > 0
     ? Number((winningTrades.reduce((sum, t) => sum + t.pnlPercent, 0) / winningTrades.length).toFixed(2))

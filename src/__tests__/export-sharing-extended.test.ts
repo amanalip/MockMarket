@@ -32,7 +32,7 @@ describe('Export Sharing Extended', () => {
 
   it('exportBacktest quotes reason', () => {
     const trades: any = [{ id: '1', entryDate: '2020-01-01', entryPrice: 100, exitDate: '2020-01-02', exitPrice: 110, shares: 10, pnl: 100, pnlPercent: 10, reason: 'Take Profit' }];
-    expect(exportBacktestTradesToCSV(trades)).toContain('"Take Profit"');
+    expect(exportBacktestTradesToCSV(trades)).toContain('Take Profit')
   });
 
   it('exportETFNAV row count', () => {

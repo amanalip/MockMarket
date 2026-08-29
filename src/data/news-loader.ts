@@ -26,18 +26,23 @@ export function filterNewsEvents(
   events: HistoricalNewsEvent[],
   options: NewsFilterOptions
 ): HistoricalNewsEvent[] {
+  if (!Array.isArray(events)) return [];
+  const cat = options.category?.trim().toLowerCase();
+  const sent = options.sentiment?.trim().toLowerCase();
+  const ticker = options.ticker?.trim().toUpperCase();
+  const query = options.query?.trim().toLowerCase();
   return events.filter((item) => {
-    if (options.category && options.category !== 'all' && item.category !== options.category) {
+    if (cat && cat !== 'all' && item.category.toLowerCase() !== cat) {
       return false;
     }
-    if (options.sentiment && options.sentiment !== 'all' && item.sentiment !== options.sentiment) {
+    if (sent && sent !== 'all' && item.sentiment.toLowerCase() !== sent) {
       return false;
     }
-    if (options.ticker && !item.affectedTickers.includes(options.ticker.toUpperCase())) {
+    if (ticker && !item.affectedTickers.map((t) => t.toUpperCase()).includes(ticker)) {
       return false;
     }
-    if (options.query) {
-      const q = options.query.toLowerCase();
+    if (query) {
+      const q = query;
       const matchHead = item.headline.toLowerCase().includes(q);
       const matchSumm = item.summary.toLowerCase().includes(q);
       const matchTicker = item.affectedTickers.some((t) => t.toLowerCase().includes(q));

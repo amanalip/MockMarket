@@ -7,6 +7,12 @@ export function calculatePositionUpdate(
   price: number,
   fee = 0
 ): { updatedPosition: Position | null; realizedPnL: number } {
+  if (!Number.isFinite(shares) || !Number.isInteger(shares) || shares <= 0) {
+    throw new Error('Shares must be positive integer');
+  }
+  if (!Number.isFinite(price) || price <= 0) {
+    throw new Error('Price must be positive finite');
+  }
   if (side === 'buy') {
     const existingShares = currentPos?.shares || 0;
     const existingTotalCost = currentPos?.totalCost || 0;
@@ -75,6 +81,9 @@ export function calculatePositionUpdate(
 }
 
 export function revaluePosition(position: Position, newPrice: number): Position {
+  if (!Number.isFinite(newPrice) || newPrice < 0) {
+    return position;
+  }
   const currentValue = position.shares * newPrice;
   const unrealizedPnL = currentValue - position.totalCost;
   const unrealizedPnLPercent = position.totalCost > 0 ? (unrealizedPnL / position.totalCost) * 100 : 0;

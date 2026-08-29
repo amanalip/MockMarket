@@ -48,6 +48,13 @@ export function exportPositionsToCSV(positions: Record<string, Position>): strin
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 }
 
+function csvEscape(field: string): string {
+  if (field.includes('"') || field.includes(',') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`;
+  }
+  return field;
+}
+
 export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
   const headers = ['ID', 'EntryDate', 'EntryPrice', 'ExitDate', 'ExitPrice', 'Shares', 'PnL', 'PnLPercent', 'Reason'];
   const rows = trades.map((t) => [
@@ -56,17 +63,17 @@ export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
     t.entryPrice.toFixed(2),
     t.exitDate,
     t.exitPrice.toFixed(2),
-    t.shares,
+    String(t.shares),
     t.pnl.toFixed(2),
     t.pnlPercent.toFixed(2),
-    `"${t.reason}"`,
+    csvEscape(t.reason),
   ]);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 }
 
 export function exportETFNAVToCSV(navHistory: ETFPerformancePoint[], fundName: string): string {
-  const headers = ['Date', `${fundName}_NAV`];
+  const headers = ['Date', csvEscape(`${fundName}_NAV`)];
   const rows = navHistory.map((p) => [p.date, p.nav.toFixed(2)]);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');

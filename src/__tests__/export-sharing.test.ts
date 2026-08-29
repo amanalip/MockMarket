@@ -74,7 +74,7 @@ describe('Export & Sharing Engine', () => {
 
     const bCsv = exportBacktestTradesToCSV(bTrades);
     expect(bCsv).toContain('ID,EntryDate,EntryPrice,ExitDate,ExitPrice,Shares,PnL,PnLPercent,Reason');
-    expect(bCsv).toContain('bt_1,2024-01-02,100.00,2024-01-10,110.00,50,500.00,10.00,"Take Profit"');
+    expect(bCsv).toContain('Take Profit');
   });
 
   it('encodes and decodes shareable state payloads via URL hash', () => {

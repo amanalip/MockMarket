@@ -12,7 +12,9 @@ export function calculateBollingerBands(
   period = 20,
   stdDevMultiplier = 2
 ): BollingerBandsPoint[] {
-  if (candles.length < period || period <= 0) return [];
+  if (!Number.isFinite(period) || !Number.isInteger(period) || period <= 0) return [];
+  if (!Number.isFinite(stdDevMultiplier) || stdDevMultiplier < 0) return [];
+  if (candles.length < period) return [];
 
   const results: BollingerBandsPoint[] = [];
 

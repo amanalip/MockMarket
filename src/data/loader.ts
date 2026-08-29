@@ -3,11 +3,19 @@ import { CORE_TICKERS, getTickerInfo } from '../model/tickers';
 
 const candleCache = new Map<string, Candle[]>();
 
+export function clearTickerCache(): void {
+  candleCache.clear();
+}
+export function getTickerCacheSize(): number {
+  return candleCache.size;
+}
+
 export async function fetchTickers(): Promise<TickerInfo[]> {
   try {
     const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
     const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    const res = await fetch(`${cleanBase}data/tickers.json`);
+    const safeBase = cleanBase.replace(/\/\//g, '/');
+    const res = await fetch(`${safeBase}data/tickers.json`);
     if (res.ok) {
       const data = await res.json();
       return data;
@@ -35,7 +43,8 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
 
   const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const url = `${cleanBase}data/${subfolder}/${upperTicker}.json`;
+  const safeBase = cleanBase.replace(/\/\//g, '/').replace(/^\.\//, '/');
+  const url = `${safeBase}data/${subfolder}/${encodeURIComponent(upperTicker)}.json`;
 
   try {
     const res = await fetch(url);

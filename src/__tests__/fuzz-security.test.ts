@@ -74,7 +74,7 @@ describe('Fuzz & Security', () => {
   it('RSI with 0 variance returns 100 per impl', () => {
     const flat = mk(Array(15).fill(100));
     const rsi = calculateRSI(flat, 5);
-    expect(rsi[0].value).toBe(100);
+    expect(rsi[0].value).toBe(50);
   });
 
   it('trading engine ticker with special chars not crash', () => {

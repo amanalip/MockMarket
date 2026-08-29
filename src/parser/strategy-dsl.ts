@@ -18,9 +18,15 @@ export function tokenize(input: string): Token[] {
     if (/[0-9]/.test(char) || (char === '.' && /[0-9]/.test(input[i + 1] || ''))) {
       let numStr = '';
       const start = i;
-      while (i < input.length && /[0-9.]/.test(input[i])) {
+      let dotCount = 0;
+      while (i < input.length && (/[0-9]/.test(input[i]) || (input[i] === '.' && dotCount === 0))) {
+        if (input[i] === '.') dotCount++;
         numStr += input[i];
         i++;
+      }
+      // Validate number not malformed like trailing dot
+      if (numStr.endsWith('.') || (numStr.match(/\./g) || []).length > 1) {
+        throw new Error(`Invalid number '${numStr}' at index ${start}`);
       }
       tokens.push({ type: 'NUMBER', value: numStr, pos: start });
       continue;
@@ -138,7 +144,7 @@ class Parser {
   private parseNot(): ASTNode {
     if (this.peek().type === 'LOGICAL' && this.peek().value === 'NOT') {
       this.current++;
-      const expr = this.parseComparison();
+      const expr = this.parseNot();
       return { type: 'UnaryOp', operator: 'NOT', expr };
     }
     return this.parseComparison();
@@ -223,55 +229,57 @@ function resolveValue(node: ASTNode, ctx: BarRuleContext, offset = 0): number {
     const param = node.param;
 
     if (name === 'PRICE' || name === 'CLOSE') {
-      return ctx.candles[targetIndex]?.close || 0;
+      return ctx.candles[targetIndex]?.close ?? 0;
     }
     if (name === 'OPEN') {
-      return ctx.candles[targetIndex]?.open || 0;
+      return ctx.candles[targetIndex]?.open ?? 0;
     }
     if (name === 'HIGH') {
-      return ctx.candles[targetIndex]?.high || 0;
+      return ctx.candles[targetIndex]?.high ?? 0;
     }
     if (name === 'LOW') {
-      return ctx.candles[targetIndex]?.low || 0;
+      return ctx.candles[targetIndex]?.low ?? 0;
     }
     if (name === 'VOLUME') {
-      return ctx.candles[targetIndex]?.volume || 0;
+      return ctx.candles[targetIndex]?.volume ?? 0;
     }
 
     if (name === 'SMA') {
-      if (param === 50) return ctx.indicators.sma50[targetIndex] || 0;
-      if (param === 200) return ctx.indicators.sma200[targetIndex] || 0;
-      return ctx.indicators.sma20[targetIndex] || 0;
+      if (param === 50) return ctx.indicators.sma50[targetIndex] ?? 0;
+      if (param === 200) return ctx.indicators.sma200[targetIndex] ?? 0;
+      if (param === 20 || param === undefined) return ctx.indicators.sma20[targetIndex] ?? 0;
+      return 0;
     }
 
     if (name === 'EMA') {
-      if (param === 26) return ctx.indicators.ema26[targetIndex] || 0;
-      return ctx.indicators.ema12[targetIndex] || 0;
+      if (param === 26) return ctx.indicators.ema26[targetIndex] ?? 0;
+      if (param === 12 || param === undefined) return ctx.indicators.ema12[targetIndex] ?? 0;
+      return 0;
     }
 
     if (name === 'RSI') {
-      return ctx.indicators.rsi14[targetIndex] || 50;
+      return ctx.indicators.rsi14[targetIndex] ?? 50;
     }
 
     if (name === 'MACD') {
-      return ctx.indicators.macd[targetIndex]?.macd || 0;
+      return ctx.indicators.macd[targetIndex]?.macd ?? 0;
     }
     if (name === 'MACD_SIGNAL') {
-      return ctx.indicators.macd[targetIndex]?.signal || 0;
+      return ctx.indicators.macd[targetIndex]?.signal ?? 0;
     }
 
     if (name === 'BB_UPPER') {
-      return ctx.indicators.bb[targetIndex]?.upper || 0;
+      return ctx.indicators.bb[targetIndex]?.upper ?? 0;
     }
     if (name === 'BB_MIDDLE') {
-      return ctx.indicators.bb[targetIndex]?.middle || 0;
+      return ctx.indicators.bb[targetIndex]?.middle ?? 0;
     }
     if (name === 'BB_LOWER') {
-      return ctx.indicators.bb[targetIndex]?.lower || 0;
+      return ctx.indicators.bb[targetIndex]?.lower ?? 0;
     }
 
     if (name === 'VOLUME_MA') {
-      return ctx.indicators.volumeMA20[targetIndex] || 0;
+      return ctx.indicators.volumeMA20[targetIndex] ?? 0;
     }
 
     return 0;
@@ -304,8 +312,16 @@ function evaluateAST(node: ASTNode, ctx: BarRuleContext): boolean {
       case '>=': return leftVal >= rightVal;
       case '<=': return leftVal <= rightVal;
       case '==':
-      case '=': return Math.abs(leftVal - rightVal) < 0.001;
-      case '!=': return Math.abs(leftVal - rightVal) >= 0.001;
+      case '=': {
+        const diff = Math.abs(leftVal - rightVal);
+        const maxAbs = Math.max(Math.abs(leftVal), Math.abs(rightVal), 1);
+        return diff < 0.001 || diff / maxAbs < 0.00001;
+      }
+      case '!=': {
+        const diff = Math.abs(leftVal - rightVal);
+        const maxAbs = Math.max(Math.abs(leftVal), Math.abs(rightVal), 1);
+        return diff >= 0.001 && diff / maxAbs >= 0.00001;
+      }
       default: return false;
     }
   }

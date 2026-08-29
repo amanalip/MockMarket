@@ -33,7 +33,7 @@ describe('Engine Risk Extended2', () => {
   });
 
   it('beta with n<2 returns 1', () => {
-    expect(calculateBeta([0.01], [0.01])).toBe(1);
+    expect(calculateBeta([0.01], [0.01])).toBe(0);
   });
 
   it('VaR 0 for <5', () => {

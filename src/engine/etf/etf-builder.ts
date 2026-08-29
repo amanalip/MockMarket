@@ -87,6 +87,12 @@ export function simulateETF(
   startDate?: string,
   endDate?: string
 ): ETFSimulationResult {
+  if (!config.tickers || config.tickers.length === 0) {
+    throw new Error('ETF must have at least one ticker');
+  }
+  if (startDate && endDate && startDate > endDate) {
+    throw new Error('Start date must be before end date');
+  }
   const constituents = config.tickers.filter((t) => candleDataMap[t.ticker]?.length > 0);
   if (constituents.length === 0) {
     throw new Error('No valid ticker data available for ETF construction.');
@@ -175,8 +181,10 @@ export function simulateETF(
 
   const startTs = new Date(commonDates[0]).getTime();
   const endTs = new Date(commonDates[commonDates.length - 1]).getTime();
-  const years = Math.max(0.1, (endTs - startTs) / (365.25 * 24 * 3600 * 1000));
-  const annualizedReturnPercent = Number(((Math.pow(Math.max(0.001, finalNAV / initialNAV), 1 / years) - 1) * 100).toFixed(2));
+  const rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
+  const years = Math.max(1 / 365.25, rawYears);
+  const equityRatio = finalNAV / initialNAV;
+  const annualizedReturnPercent = equityRatio <= 0 ? -100 : Number(((Math.pow(equityRatio, 1 / years) - 1) * 100).toFixed(2));
 
   const navSeries = navHistory.map((p) => p.nav);
   const dailyReturns = calculateReturns(navSeries);

@@ -70,7 +70,7 @@ describe('Indicators - Edge Cases & Bugs', () => {
     res.forEach(r=> expect(r.value).toBeGreaterThanOrEqual(0));
     res.forEach(r=> expect(r.value).toBeLessThanOrEqual(100));
     // current impl returns 100 for flat (avgLoss 0)
-    expect(res[0].value).toBe(100);
+    expect(res[0].value).toBe(50);
   });
 
   it('RSI monotonic gains => near 100, monotonic losses => near 0', () => {

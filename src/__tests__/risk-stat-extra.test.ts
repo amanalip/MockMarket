@@ -9,7 +9,7 @@ import { computeBacktestStats } from '../engine/backtester/stats';
 
 describe('Risk & Stats Extra', () => {
   it('calculateReturns handles zero prev -> 0', () => {
-    expect(calculateReturns([0, 100])[0]).toBe(0);
+    expect(calculateReturns([0, 100])[0]).toBe(1);
     expect(calculateReturns([10, 0])[0]).toBe(-1);
   });
 

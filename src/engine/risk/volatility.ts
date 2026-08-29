@@ -3,8 +3,14 @@ export function calculateReturns(values: number[]): number[] {
   const returns: number[] = [];
   for (let i = 1; i < values.length; i++) {
     const prev = values[i - 1];
-    if (prev > 0) {
+    if (!Number.isFinite(prev) || !Number.isFinite(values[i])) {
+      returns.push(0);
+    } else if (prev > 0) {
       returns.push((values[i] - prev) / prev);
+    } else if (prev === 0 && values[i] > 0) {
+      returns.push(1);
+    } else if (prev === 0 && values[i] === 0) {
+      returns.push(0);
     } else {
       returns.push(0);
     }

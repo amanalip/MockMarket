@@ -90,9 +90,13 @@ interface ScenarioState {
 }
 
 const getInitialTheme = (): ThemeMode => {
-  if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('mockmarket_theme') as ThemeMode;
-    if (saved === 'light' || saved === 'dark') return saved;
+  try {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('mockmarket_theme') as ThemeMode;
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+  } catch {
+    // ignore quota or SSR errors
   }
   return 'dark';
 };
@@ -109,17 +113,21 @@ export const useUIStore = create<UIState>((set) => ({
   setMode: (mode) => set({ mode }),
   toggleTheme: () => set((state) => {
     const next = state.theme === 'dark' ? 'light' : 'dark';
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mockmarket_theme', next);
-      document.documentElement.setAttribute('data-theme', next);
-    }
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mockmarket_theme', next);
+        document.documentElement.setAttribute('data-theme', next);
+      }
+    } catch {}
     return { theme: next };
   }),
   setTheme: (theme) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('mockmarket_theme', theme);
-      document.documentElement.setAttribute('data-theme', theme);
-    }
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('mockmarket_theme', theme);
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+    } catch {}
     set({ theme });
   },
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
@@ -128,11 +136,12 @@ export const useUIStore = create<UIState>((set) => ({
   setPlaybackSpeed: (playbackSpeed) => set({ playbackSpeed }),
   setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
   addToast: (message, type = 'info') => {
-    const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-    set((state) => ({ toasts: [...state.toasts, { id, message, type }] }));
-    setTimeout(() => {
+    const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}_${Math.random().toString(36).substring(2, 3)}`;
+    set((state) => ({ toasts: [...state.toasts.slice(-9), { id, message, type }] }));
+    const timer = setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 4000);
+    if (typeof timer === 'object' && 'unref' in timer) (timer as any).unref?.();
   },
   removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
@@ -157,7 +166,12 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
       orders: [],
     });
   },
-  setCash: (cash) => set({ cash }),
+  setCash: (cash) => {
+    if (!Number.isFinite(cash) || cash < 0) return;
+    // Sync engine cash to avoid divergence with store
+    (tradingEngineInstance as any).state.cash = cash;
+    set({ cash });
+  },
   resetPortfolio: (startingCash = 100000) => {
     tradingEngineInstance.setStartingCash(startingCash);
     const engineState = tradingEngineInstance.getState();
@@ -221,7 +235,25 @@ export const useBacktesterStore = create<BacktesterState>((set) => ({
   result: null,
   isRunning: false,
   error: null,
-  setConfig: (partial) => set((state) => ({ config: { ...state.config, ...partial } })),
+  setConfig: (partial) => {
+    const sanitized: Partial<BacktestConfig> = { ...partial };
+    if (sanitized.positionSizePercent !== undefined) {
+      const v = Number(sanitized.positionSizePercent);
+      if (!Number.isFinite(v)) delete sanitized.positionSizePercent;
+      else sanitized.positionSizePercent = Math.max(1, Math.min(100, v));
+    }
+    if (sanitized.initialCash !== undefined) {
+      const v = Number(sanitized.initialCash);
+      if (!Number.isFinite(v) || v < 1000) delete sanitized.initialCash;
+    }
+    if (sanitized.startDate && sanitized.endDate && sanitized.startDate > sanitized.endDate) {
+      // swap to maintain valid range
+      const tmp = sanitized.startDate;
+      sanitized.startDate = sanitized.endDate;
+      sanitized.endDate = tmp;
+    }
+    set((state) => ({ config: { ...state.config, ...sanitized } }));
+  },
   setResult: (result) => set({ result }),
   setIsRunning: (isRunning) => set({ isRunning }),
   setError: (error) => set({ error }),

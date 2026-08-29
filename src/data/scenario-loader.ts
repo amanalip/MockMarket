@@ -35,16 +35,20 @@ export function getAllScenarios(): EducationalScenario[] {
 }
 
 export function getScenarioById(id: string): EducationalScenario | undefined {
-  return allScenarios.find((s) => s.id === id);
+  if (!id || typeof id !== 'string') return undefined;
+  const clean = id.trim();
+  return allScenarios.find((s) => s.id === clean || s.id.toLowerCase() === clean.toLowerCase());
 }
 
 export function filterScenarios(
   category?: string,
   difficulty?: string
 ): EducationalScenario[] {
+  const cat = category?.trim().toLowerCase();
+  const diff = difficulty?.trim().toLowerCase();
   return allScenarios.filter((s) => {
-    if (category && category !== 'all' && s.category !== category) return false;
-    if (difficulty && difficulty !== 'all' && s.difficulty !== difficulty) return false;
+    if (cat && cat !== 'all' && s.category.toLowerCase() !== cat) return false;
+    if (diff && diff !== 'all' && s.difficulty.toLowerCase() !== diff) return false;
     return true;
   });
 }

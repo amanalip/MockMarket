@@ -9,7 +9,7 @@ describe('Data & Export Extra - Security & Edge', () => {
   it('export CSV escapes commas and quotes via quoted reason', () => {
     const trades = [{ id: '1', entryDate: '2020-01-01', entryPrice: 100, exitDate: '2020-01-02', exitPrice: 110, shares: 10, pnl: 100, pnlPercent: 10, reason: 'Stop Loss, \"triggered\"' } as any];
     const csv = exportBacktestTradesToCSV(trades);
-    expect(csv).toContain('"Stop Loss, "triggered""'); // naive quoting leaves inner quote unescaped but outer quotes present
+    expect(csv).toContain('"Stop Loss, ""triggered"""');
   });
 
   it('exportTrades handles BRK.B ticker with dot', () => {
@@ -21,7 +21,7 @@ describe('Data & Export Extra - Security & Edge', () => {
   it('exportETFNAV fundName with comma breaks header (documented bug)', () => {
     const nav = [{ date: '2020-01-01', nav: 100 }];
     const csv = exportETFNAVToCSV(nav, 'Foo,Bar');
-    expect(csv.split('\n')[0]).toBe('Date,Foo,Bar_NAV');
+    expect(csv.split('\n')[0]).toBe('Date,"Foo,Bar_NAV"')
   });
 
   it('downloadCSV creates link and revokes URL', () => {

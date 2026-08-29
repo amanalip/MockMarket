@@ -28,17 +28,21 @@ export class TradingEngine {
   getState(): TradingAccountState {
     return {
       ...this.state,
-      positions: { ...this.state.positions },
+      positions: Object.fromEntries(
+        Object.entries(this.state.positions).map(([k, v]) => [k, { ...v }])
+      ),
       trades: [...this.state.trades],
-      orders: [...this.state.orders],
+      orders: [...this.state.orders.map((o) => ({ ...o }))],
     };
   }
 
   setCommission(fee: number): void {
+    if (!Number.isFinite(fee) || fee < 0) return;
     this.state.commissionPerTrade = fee;
   }
 
   setStartingCash(amount: number): void {
+    if (!Number.isFinite(amount) || amount < 0) return;
     this.state.startingCash = amount;
     this.state.cash = amount;
     this.state.positions = {};

@@ -72,8 +72,12 @@ export function calculateDiversification(
     percent: Number(((value / totalPortfolioValue) * 100).toFixed(2)),
   }));
 
-  // Herfindahl-Hirschman Index (HHI) for Sector Concentration: sum of squared percentage shares
-  const hhi = sectorAllocations.reduce((sum, item) => sum + Math.pow(item.percent, 2), 0);
+  // Herfindahl-Hirschman Index (HHI) for Sector Concentration: use precise percentages (not rounded) to avoid drift
+  const hhiPrecise = Object.entries(sectorMap).reduce((sum, [, value]) => {
+    const precisePercent = (value / totalPortfolioValue) * 100;
+    return sum + Math.pow(precisePercent, 2);
+  }, 0);
+  const hhi = hhiPrecise;
 
   // Score from 0 to 100 (100 is perfectly diversified, low HHI; 0 is 100% single asset)
   // Perfectly diversified into 10 equal sectors = 10 * 10^2 = 1000 HHI. Single asset = 10000 HHI.

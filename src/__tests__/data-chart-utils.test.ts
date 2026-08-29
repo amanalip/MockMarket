@@ -80,7 +80,7 @@ describe('Data Loader & Chart Utils - Edges', () => {
   it('filterCandlesByTimeframe no data after cutoff returns original (bug)', () => {
     // reference date far in future where cutoff filters all -> returns original instead of empty
     const farFuture=filterCandlesByTimeframe(candles.slice(0,2),'1M','2099-01-01');
-    expect(farFuture.length).toBe(2); // bug: returns full instead of maybe empty? Current impl returns candles if filtered empty
+    expect(farFuture.length).toBe(0); // fixed: returns empty: returns full instead of maybe empty? Current impl returns candles if filtered empty
   });
 
   it('filterCandlesByTimeframe 5Y includes older', () => {

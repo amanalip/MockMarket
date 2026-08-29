@@ -37,11 +37,8 @@ describe('Strategy DSL - Edges & Bugs', () => {
     expect(toks[0].value).toBe('.5');
   });
 
-  it('tokenize double dot is single number token (bug case)', () => {
-    // current impl collects 1..2 as single number; parseFloat =>1
-    const toks=tokenize('1..2');
-    expect(toks[0].type).toBe('NUMBER');
-    expect(parseFloat(toks[0].value)).toBe(1);
+  it('tokenize double dot now throws invalid number', () => {
+    expect(() => tokenize('1..2')).toThrow(/Invalid number/);
   });
 
   it('parse NOT precedence - NOT binds only next comparison (bug)', () => {
@@ -65,12 +62,12 @@ describe('Strategy DSL - Edges & Bugs', () => {
     expect(validateRule('RSI(14) > 70').valid).toBe(true);
   });
 
-  it('resolves SMA param mapping bug: SMA(10) falls back to sma20', () => {
+  it('resolves SMA param mapping fixed: unknown SMA(10) returns 0', () => {
     const ctx=mkCtx();
     ctx.indicators.sma20[5]=111;
     ctx.indicators.sma50[5]=222;
     const fn=compileRule('SMA(10) > 110');
-    expect(fn(ctx)).toBe(true); // uses sma20 111 >110 true
+    expect(fn(ctx)).toBe(false); // SMA(10) now 0, not sma20
     const fn2=compileRule('SMA(200) > 200');
     ctx.indicators.sma200[5]=250;
     expect(fn2(ctx)).toBe(true);

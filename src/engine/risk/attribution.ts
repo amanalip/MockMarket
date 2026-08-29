@@ -11,7 +11,7 @@ export function calculatePerformanceAttribution(
   startingCash: number
 ): PerformanceAttribution[] {
   const holdings = Object.values(positions);
-  if (startingCash <= 0 || holdings.length === 0) return [];
+  if (!Number.isFinite(startingCash) || startingCash <= 0 || holdings.length === 0) return [];
 
   return holdings
     .map((p) => {

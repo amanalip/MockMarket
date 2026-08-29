@@ -10,7 +10,10 @@ export function calculateTrackingError(
   benchmarkNavSeries: number[]
 ): TrackingErrorResult {
   const n = Math.min(customNavSeries.length, benchmarkNavSeries.length);
-  if (n < 5) return { trackingErrorPercent: 0, correlation: 1 };
+  if (!Number.isFinite(n) || n < 5) return { trackingErrorPercent: 0, correlation: 0 };
+  if (customNavSeries.some((v) => !Number.isFinite(v)) || benchmarkNavSeries.some((v) => !Number.isFinite(v))) {
+    return { trackingErrorPercent: 0, correlation: 0 };
+  }
 
   const customReturns = calculateReturns(customNavSeries.slice(0, n));
   const benchReturns = calculateReturns(benchmarkNavSeries.slice(0, n));

@@ -52,10 +52,19 @@ export function calculateTimeMachine(
 
   const benchMap = new Map(benchmarkCandles.map((c) => [c.time, c.close]));
 
+  if (!Number.isFinite(config.initialAmount) || config.initialAmount < 0) {
+    throw new Error('Initial amount must be non-negative finite');
+  }
+  if (filtered[0].close <= 0 || !Number.isFinite(filtered[0].close)) {
+    throw new Error('Invalid initial price');
+  }
   let totalCashInvested = config.initialAmount;
   let assetShares = config.initialAmount / filtered[0].close;
 
-  const initialBenchPrice = benchMap.get(filtered[0].time) || 100;
+  const initialBenchPrice = benchMap.get(filtered[0].time) ?? 100;
+  if (!Number.isFinite(initialBenchPrice) || initialBenchPrice <= 0) {
+    throw new Error('Invalid benchmark price');
+  }
   let benchmarkShares = config.initialAmount / initialBenchPrice;
 
   const growthCurve: TimeMachineGrowthPoint[] = [];
@@ -149,8 +158,10 @@ export function calculateTimeMachine(
 
   const startTs = new Date(filtered[0].time).getTime();
   const endTs = new Date(filtered[filtered.length - 1].time).getTime();
-  const years = Math.max(0.1, (endTs - startTs) / (365.25 * 24 * 3600 * 1000));
-  const cagrPercent = Number(((Math.pow(Math.max(0.001, finalAssetValue / totalCashInvested), 1 / years) - 1) * 100).toFixed(2));
+  const rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
+  const years = Math.max(1 / 365.25, rawYears);
+  const equityRatio = totalCashInvested > 0 ? finalAssetValue / totalCashInvested : 0;
+  const cagrPercent = equityRatio <= 0 ? -100 : Number(((Math.pow(equityRatio, 1 / years) - 1) * 100).toFixed(2));
 
   return {
     config,

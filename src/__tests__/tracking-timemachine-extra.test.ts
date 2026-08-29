@@ -12,8 +12,8 @@ const mk = (n: number, price: number, volGrowth = 0): Candle[] =>
 
 describe('Tracking Error & TimeMachine Extra', () => {
   it('tracking error <5 returns 0/1 fallback', () => {
-    expect(calculateTrackingError([100, 101], [100, 101])).toEqual({ trackingErrorPercent: 0, correlation: 1 });
-    expect(calculateTrackingError([], [])).toEqual({ trackingErrorPercent: 0, correlation: 1 });
+    expect(calculateTrackingError([100, 101], [100, 101])).toEqual({ trackingErrorPercent: 0, correlation: 0 });
+    expect(calculateTrackingError([], [])).toEqual({ trackingErrorPercent: 0, correlation: 0 });
   });
 
   it('tracking error perfect correlation ~1 when series identical', () => {

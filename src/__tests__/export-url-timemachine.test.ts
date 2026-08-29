@@ -31,7 +31,7 @@ describe('Export / URL / TimeMachine Edges', () => {
   it('exportBacktestTrades reason with quote not escaped (known bug) contains quote', () => {
     const trades=[{id:'1',entryDate:'2020-01-01',entryPrice:100,exitDate:'2020-01-02',exitPrice:110,shares:10,pnl:0,pnlPercent:0,reason:'Say "hi"'} as any];
     const csv=exportBacktestTradesToCSV(trades);
-    expect(csv).toContain('Say "hi"');
+    expect(csv).toContain('"Say ""hi"""')
   });
 
   it('exportETFNAV includes fundName header', () => {

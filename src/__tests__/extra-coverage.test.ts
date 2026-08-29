@@ -53,10 +53,10 @@ describe('Extra Coverage - Security, Stats & Edge', () => {
     expect(computeBacktestStats([], curve, 10000, '2020-01-01', '2020-01-02').profitFactor).toBe(0);
   });
 
-  it('computeBacktestStats all wins profitFactor 99.99', () => {
+  it('computeBacktestStats all wins profitFactor Infinity (fixed)', () => {
     const trades: any = [{ id: '1', entryDate: '2020-01-01', exitDate: '2020-01-02', entryPrice: 100, exitPrice: 120, shares: 10, pnl: 200, pnlPercent: 20, reason: 'x' }];
     const curve: any = [{ date: '2020-01-01', strategyValue: 10000, buyAndHoldValue: 10000, benchmarkValue: 10000 }, { date: '2020-01-02', strategyValue: 10200, buyAndHoldValue: 10200, benchmarkValue: 10200 }];
-    expect(computeBacktestStats(trades, curve, 10000, '2020-01-01', '2020-01-02').profitFactor).toBe(99.99);
+    expect(computeBacktestStats(trades, curve, 10000, '2020-01-01', '2020-01-02').profitFactor).toBe(Infinity);
   });
 
   it('computeMonthlyReturns empty and single point', () => {

@@ -8,8 +8,8 @@ import { calculatePerformanceAttribution } from '../engine/risk/attribution';
 
 describe('Risk Analytics - Edges', () => {
   it('calculateReturns handles prev <=0 returns 0', () => {
-    expect(calculateReturns([0,100])).toEqual([0]);
-    expect(calculateReturns([ -5,10])).toEqual([0]);
+    expect(calculateReturns([0,100])).toEqual([1]);
+    expect(calculateReturns([-5,10])).toEqual([0]);
     expect(calculateReturns([100,110])).toEqual([0.1]);
     expect(calculateReturns([100])).toEqual([]);
   });
@@ -76,15 +76,15 @@ describe('Risk Analytics - Edges', () => {
     expect(calculateSortinoRatio([0.01])).toBe(0);
   });
 
-  it('Beta returns 1 for insufficient data', () => {
-    expect(calculateBeta([0.01],[0.02])).toBe(1);
-    expect(calculateBeta([],[ ])).toBe(1);
+  it('Beta returns 0 for insufficient data', () => {
+    expect(calculateBeta([0.01],[0.02])).toBe(0);
+    expect(calculateBeta([],[ ])).toBe(0);
   });
 
   it('Beta flat benchmark returns 1', () => {
     const port=[0.01,0.02,0.015];
     const bench=[0.01,0.01,0.01];
-    expect(calculateBeta(port,bench)).toBe(1);
+    expect(calculateBeta(port,bench)).toBe(0);
   });
 
   it('Beta perfect correlation ~1', () => {

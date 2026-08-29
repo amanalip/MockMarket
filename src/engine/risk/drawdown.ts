@@ -18,7 +18,12 @@ export function calculateMaxDrawdown(
   let maxPeakDate = peakDate;
   let maxTroughDate = peakDate;
 
-  const drawdownSeries = equitySeries.map((pt) => {
+  // Validate and sanitize equity series
+  const sanitized = equitySeries.map((pt) => ({
+    date: pt.date,
+    value: Number.isFinite(pt.value) && pt.value >= 0 ? pt.value : 0,
+  }));
+  const drawdownSeries = sanitized.map((pt) => {
     if (pt.value > peak) {
       peak = pt.value;
       peakDate = pt.date;
