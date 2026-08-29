@@ -41,15 +41,15 @@ function isRebalanceDate(
   const prev = new Date(prevDateStr);
 
   if (freq === 'monthly') {
-    return cur.getMonth() !== prev.getMonth();
+    return cur.getUTCMonth() !== prev.getUTCMonth() || cur.getUTCFullYear() !== prev.getUTCFullYear();
   }
   if (freq === 'quarterly') {
-    const curQ = Math.floor(cur.getMonth() / 3);
-    const prevQ = Math.floor(prev.getMonth() / 3);
-    return curQ !== prevQ || cur.getFullYear() !== prev.getFullYear();
+    const curQ = Math.floor(cur.getUTCMonth() / 3);
+    const prevQ = Math.floor(prev.getUTCMonth() / 3);
+    return curQ !== prevQ || cur.getUTCFullYear() !== prev.getUTCFullYear();
   }
   if (freq === 'annually') {
-    return cur.getFullYear() !== prev.getFullYear();
+    return cur.getUTCFullYear() !== prev.getUTCFullYear();
   }
 
   return false;
@@ -58,15 +58,27 @@ function isRebalanceDate(
 export function normalizeWeights(
   tickers: { ticker: string; targetWeight: number }[]
 ): { ticker: string; targetWeight: number }[] {
+  if (tickers.length === 0) return [];
   const sum = tickers.reduce((acc, t) => acc + t.targetWeight, 0);
   if (sum === 0) {
     const equal = Number((100 / tickers.length).toFixed(2));
-    return tickers.map((t) => ({ ticker: t.ticker, targetWeight: equal }));
+    const result = tickers.map((t) => ({ ticker: t.ticker, targetWeight: equal }));
+    // Adjust rounding drift to ensure sum is 100
+    const drift = Number((100 - result.reduce((s, c) => s + c.targetWeight, 0)).toFixed(2));
+    if (drift !== 0 && result.length > 0) {
+      result[result.length - 1].targetWeight = Number((result[result.length - 1].targetWeight + drift).toFixed(2));
+    }
+    return result;
   }
-  return tickers.map((t) => ({
+  const result = tickers.map((t) => ({
     ticker: t.ticker,
     targetWeight: Number(((t.targetWeight / sum) * 100).toFixed(2)),
   }));
+  const drift = Number((100 - result.reduce((s, c) => s + c.targetWeight, 0)).toFixed(2));
+  if (drift !== 0) {
+    result[result.length - 1].targetWeight = Number((result[result.length - 1].targetWeight + drift).toFixed(2));
+  }
+  return result;
 }
 
 export function simulateETF(

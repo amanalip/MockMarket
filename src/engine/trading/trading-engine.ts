@@ -62,9 +62,14 @@ export class TradingEngine {
     const fee = this.state.commissionPerTrade;
 
     if (req.side === 'buy') {
-      const priceToCheck = req.limitPrice || candle?.close || 0;
-      if (priceToCheck <= 0) {
+      const hasLimit = req.limitPrice !== undefined && req.limitPrice !== null;
+      const hasStop = req.stopPrice !== undefined && req.stopPrice !== null;
+      const priceToCheck = hasLimit ? req.limitPrice! : hasStop ? req.stopPrice! : candle?.close ?? 0;
+      if (priceToCheck <= 0 || !Number.isFinite(priceToCheck)) {
         return { success: false, filled: false, error: 'Limit price must be positive.' };
+      }
+      if (!Number.isFinite(req.shares) || !Number.isInteger(req.shares) || req.shares <= 0) {
+        return { success: false, filled: false, error: 'Share count must be positive integer.' };
       }
       const requiredCash = req.shares * priceToCheck + fee;
       if (this.state.cash < requiredCash) {
@@ -78,7 +83,7 @@ export class TradingEngine {
       // Sell limit/stop
       const pos = this.state.positions[req.ticker];
       const pendingSellShares = this.state.orders
-        .filter((o) => o.ticker === req.ticker && o.side === 'sell' && o.status === 'pending')
+        .filter((o) => o.ticker.toUpperCase() === req.ticker.toUpperCase() && o.side === 'sell' && o.status === 'pending')
         .reduce((sum, o) => sum + o.shares, 0);
 
       const availableShares = (pos?.shares || 0) - pendingSellShares;

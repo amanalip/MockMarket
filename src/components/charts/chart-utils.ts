@@ -72,7 +72,7 @@ export function filterCandlesByTimeframe(
   }
 
   const cutoff = new Date(ref);
-  cutoff.setMonth(cutoff.getMonth() - monthsToSubtract);
+  cutoff.setUTCMonth(cutoff.getUTCMonth() - monthsToSubtract);
   const cutoffStr = cutoff.toISOString().split('T')[0];
 
   const filtered = candles.filter((c) => c.time >= cutoffStr && c.time <= targetDateStr);

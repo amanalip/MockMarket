@@ -112,7 +112,9 @@ export function computeMonthlyReturns(
 
   equityCurve.forEach((pt) => {
     const d = new Date(pt.date);
-    const key = `${d.getFullYear()}-${d.getMonth() + 1}`;
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const key = `${year}-${String(month).padStart(2, '0')}`;
     if (!monthlyMap.has(key)) {
       monthlyMap.set(key, []);
     }

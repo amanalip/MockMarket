@@ -92,5 +92,5 @@ export function getLatestCandleOnOrBefore(
       return candles[i];
     }
   }
-  return candles[0];
+  return undefined;
 }
