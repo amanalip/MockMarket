@@ -47,8 +47,8 @@ export class TradingEngine {
   }
 
   placeOrder(req: OrderRequest, candle?: Candle): ExecutionResult {
-    if (req.shares <= 0) {
-      return { success: false, filled: false, error: 'Share count must be positive.' };
+    if (!Number.isFinite(req.shares) || !Number.isInteger(req.shares) || req.shares <= 0) {
+      return { success: false, filled: false, error: 'Share count must be positive integer.' };
     }
 
     if (req.type === 'market') {
@@ -269,8 +269,11 @@ export class TradingEngine {
     const fillPrice = candle.close;
     const fee = this.state.commissionPerTrade;
 
-    if (req.shares <= 0) {
-      return { success: false, filled: false, error: 'Share count must be positive.' };
+    if (!Number.isFinite(req.shares) || !Number.isInteger(req.shares) || req.shares <= 0) {
+      return { success: false, filled: false, error: 'Share count must be positive integer.' };
+    }
+    if (!Number.isFinite(fillPrice) || fillPrice <= 0) {
+      return { success: false, filled: false, error: 'Price must be positive.' };
     }
 
     if (req.side === 'buy') {
