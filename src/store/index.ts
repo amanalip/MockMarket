@@ -110,7 +110,11 @@ export const useUIStore = create<UIState>((set) => ({
   playbackSpeed: 500,
   selectedTicker: 'AAPL',
   toasts: [],
-  setMode: (mode) => set({ mode }),
+  setMode: (mode) => {
+    const valid: AppMode[] = ['trade', 'backtest', 'etf', 'scenarios', 'timeline'];
+    if (!valid.includes(mode)) return;
+    set({ mode });
+  },
   toggleTheme: () => set((state) => {
     const next = state.theme === 'dark' ? 'light' : 'dark';
     try {
@@ -144,7 +148,11 @@ export const useUIStore = create<UIState>((set) => ({
     const clamped = Math.max(50, Math.min(5000, v));
     set({ playbackSpeed: clamped });
   },
-  setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
+  setSelectedTicker: (selectedTicker) => {
+    if (typeof selectedTicker !== 'string' || !selectedTicker.trim()) return;
+    const clean = selectedTicker.trim().toUpperCase();
+    set({ selectedTicker: clean });
+  },
   addToast: (message, type = 'info') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}_${Math.random().toString(36).substring(2, 3)}`;
     set((state) => ({ toasts: [...state.toasts.slice(-9), { id, message, type }] }));

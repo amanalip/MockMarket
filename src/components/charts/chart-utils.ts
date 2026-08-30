@@ -34,14 +34,18 @@ export function toVolumeData(
   upColor = 'rgba(16, 185, 129, 0.4)',
   downColor = 'rgba(239, 68, 68, 0.4)'
 ): ChartVolumeData[] {
-  return candles.map((c) => {
-    const isUp = c.close >= c.open;
-    return {
-      time: c.time,
-      value: c.volume,
-      color: isUp ? upColor : downColor,
-    };
-  });
+  if (!Array.isArray(candles)) return [];
+  return candles
+    .filter((c) => c && typeof c.time === 'string' && Number.isFinite(c.volume) && Number.isFinite(c.open) && Number.isFinite(c.close))
+    .map((c) => {
+      const isUp = c.close >= c.open;
+      const safeVol = Number.isFinite(c.volume) ? c.volume : 0;
+      return {
+        time: c.time,
+        value: safeVol,
+        color: isUp ? upColor : downColor,
+      };
+    });
 }
 
 export function filterCandlesByTimeframe(

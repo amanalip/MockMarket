@@ -119,7 +119,7 @@ describe('CSV Fix - RFC4180 Quote Escaping', () => {
 
   it('ETF NAV handles empty fundName', () => {
     const nav = [{ date: '2020-01-01', nav: 100 }];
-    expect(exportETFNAVToCSV(nav, '').split('\n')[0]).toBe('Date,_NAV');
+    expect(exportETFNAVToCSV(nav, '').split('\n')[0]).toBe('Date,FUND_NAV');
   });
 
   it('backtest handles special chars <>&', () => {

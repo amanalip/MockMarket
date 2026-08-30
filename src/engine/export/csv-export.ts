@@ -73,8 +73,10 @@ export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
 }
 
 export function exportETFNAVToCSV(navHistory: ETFPerformancePoint[], fundName: string): string {
-  const headers = ['Date', csvEscape(`${fundName}_NAV`)];
-  const rows = navHistory.map((p) => [csvEscape(String(p.date)), Number.isFinite(p.nav) ? p.nav.toFixed(2) : '0.00']);
+  const safeName = typeof fundName === 'string' && fundName.trim() ? fundName.trim() : 'FUND';
+  const headers = ['Date', csvEscape(`${safeName}_NAV`)];
+  const safeHistory = Array.isArray(navHistory) ? navHistory : [];
+  const rows = safeHistory.map((p) => [csvEscape(String(p?.date ?? '')), Number.isFinite(p?.nav) ? (p.nav as number).toFixed(2) : '0.00']);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 }

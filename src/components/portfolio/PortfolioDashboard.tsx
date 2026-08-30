@@ -38,7 +38,7 @@ export const PortfolioDashboard: React.FC = () => {
           <span className={styles.cardLabel}>Available Cash</span>
           <span className={styles.cardValue}>${cash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           <span className={styles.cardSub}>
-            {((cash / totalPortfolioValue) * 100).toFixed(1)}% cash allocation
+            {(totalPortfolioValue > 0 && Number.isFinite(cash) ? ((cash / totalPortfolioValue) * 100).toFixed(1) : '0.0')}% cash allocation
           </span>
         </div>
 
