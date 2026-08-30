@@ -11,15 +11,18 @@ export function useKeyboardShortcuts({
   onToggleShortcutsModal,
   onAdvanceOneDay,
 }: KeyboardShortcutsOptions) {
-  const { setMode, toggleTheme, isPlaying, setIsPlaying } = useUIStore();
+  const { setMode, toggleTheme, setIsPlaying } = useUIStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is currently typing in an input, textarea, or select
-      const activeTag = document.activeElement?.tagName.toLowerCase();
-      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select') {
+      // Ignore if user is currently typing in an input, textarea, select, or contenteditable
+      const activeEl = document.activeElement as HTMLElement | null;
+      const activeTag = activeEl?.tagName.toLowerCase();
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || activeEl?.isContentEditable) {
         return;
       }
+      // Don't hijack browser shortcuts
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
 
       const key = e.key;
 
@@ -36,8 +39,12 @@ export function useKeyboardShortcuts({
       }
 
       if (key === ' ') {
+        // Ignore space when focused on button to avoid double toggle
+        if (activeTag === 'button') return;
         e.preventDefault();
-        setIsPlaying(!isPlaying);
+        // Use functional update to avoid stale closure
+        const current = useUIStore.getState().isPlaying;
+        setIsPlaying(!current);
         return;
       }
 
@@ -64,5 +71,5 @@ export function useKeyboardShortcuts({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [setMode, toggleTheme, isPlaying, setIsPlaying, onToggleShortcutsModal, onAdvanceOneDay]);
+  }, [setMode, toggleTheme, setIsPlaying, onToggleShortcutsModal, onAdvanceOneDay]);
 }

@@ -49,7 +49,7 @@ export function exportPositionsToCSV(positions: Record<string, Position>): strin
 }
 
 function csvEscape(field: string): string {
-  if (field.includes('"') || field.includes(',') || field.includes('\n')) {
+  if (field.includes('"') || field.includes(',') || field.includes('\n') || field.includes('\r')) {
     return `"${field.replace(/"/g, '""')}"`;
   }
   return field;
@@ -58,15 +58,15 @@ function csvEscape(field: string): string {
 export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
   const headers = ['ID', 'EntryDate', 'EntryPrice', 'ExitDate', 'ExitPrice', 'Shares', 'PnL', 'PnLPercent', 'Reason'];
   const rows = trades.map((t) => [
-    t.id,
-    t.entryDate,
-    t.entryPrice.toFixed(2),
-    t.exitDate,
-    t.exitPrice.toFixed(2),
+    csvEscape(String(t.id)),
+    csvEscape(String(t.entryDate)),
+    Number.isFinite(t.entryPrice) ? t.entryPrice.toFixed(2) : '0.00',
+    csvEscape(String(t.exitDate)),
+    Number.isFinite(t.exitPrice) ? t.exitPrice.toFixed(2) : '0.00',
     String(t.shares),
-    t.pnl.toFixed(2),
-    t.pnlPercent.toFixed(2),
-    csvEscape(t.reason),
+    Number.isFinite(t.pnl) ? t.pnl.toFixed(2) : '0.00',
+    Number.isFinite(t.pnlPercent) ? t.pnlPercent.toFixed(2) : '0.00',
+    csvEscape(String(t.reason)),
   ]);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -74,7 +74,7 @@ export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
 
 export function exportETFNAVToCSV(navHistory: ETFPerformancePoint[], fundName: string): string {
   const headers = ['Date', csvEscape(`${fundName}_NAV`)];
-  const rows = navHistory.map((p) => [p.date, p.nav.toFixed(2)]);
+  const rows = navHistory.map((p) => [csvEscape(String(p.date)), Number.isFinite(p.nav) ? p.nav.toFixed(2) : '0.00']);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
 }

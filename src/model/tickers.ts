@@ -108,7 +108,9 @@ export const CORE_TICKERS: TickerInfo[] = [
 
 export function getTickerInfo(ticker: string): TickerInfo | undefined {
   if (typeof ticker !== 'string') return undefined;
-  return CORE_TICKERS.find((t) => t.ticker.toUpperCase() === ticker.toUpperCase());
+  const clean = ticker.trim().toUpperCase();
+  if (!clean) return undefined;
+  return CORE_TICKERS.find((t) => t.ticker.toUpperCase() === clean);
 }
 
 export function getAllSectors(): string[] {

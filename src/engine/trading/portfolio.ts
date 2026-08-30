@@ -47,7 +47,8 @@ export function calculatePositionUpdate(
 
     const costOfSharesSold = shares * currentPos.avgCost;
     const grossProceeds = shares * price;
-    const tradeRealizedPnL = grossProceeds - costOfSharesSold - fee;
+    const safeFee = Number.isFinite(fee) ? fee : 0;
+    const tradeRealizedPnL = grossProceeds - costOfSharesSold - safeFee;
     const cumulativeRealizedPnL = (currentPos.realizedPnL || 0) + tradeRealizedPnL;
 
     const remainingShares = currentPos.shares - shares;

@@ -49,11 +49,14 @@ export function filterCandlesByTimeframe(
   timeframe: Timeframe,
   referenceDate?: string
 ): Candle[] {
-  if (candles.length === 0) return [];
+  if (!Array.isArray(candles) || candles.length === 0) return [];
   if (timeframe === 'MAX') return candles;
+  const validTimeframes: Timeframe[] = ['1M', '3M', '6M', '1Y', '5Y', 'MAX'];
+  if (!validTimeframes.includes(timeframe)) return [...candles];
 
   const targetDateStr = referenceDate || candles[candles.length - 1].time;
   const ref = new Date(targetDateStr);
+  if (Number.isNaN(ref.getTime())) return [];
 
   let monthsToSubtract = 0;
   switch (timeframe) {
@@ -74,10 +77,15 @@ export function filterCandlesByTimeframe(
       break;
   }
 
+  // Avoid month-end overflow (Mar 31 -1M => Feb 28 not Mar 3)
   const cutoff = new Date(ref);
+  const originalDay = cutoff.getUTCDate();
+  cutoff.setUTCDate(1);
   cutoff.setUTCMonth(cutoff.getUTCMonth() - monthsToSubtract);
+  const daysInCutoffMonth = new Date(Date.UTC(cutoff.getUTCFullYear(), cutoff.getUTCMonth() + 1, 0)).getUTCDate();
+  cutoff.setUTCDate(Math.min(originalDay, daysInCutoffMonth));
   const cutoffStr = cutoff.toISOString().split('T')[0];
 
-  const filtered = candles.filter((c) => c.time >= cutoffStr && c.time <= targetDateStr);
+  const filtered = candles.filter((c) => typeof c.time === 'string' && c.time >= cutoffStr && c.time <= targetDateStr);
   return filtered;
 }

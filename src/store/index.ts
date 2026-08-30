@@ -133,7 +133,12 @@ export const useUIStore = create<UIState>((set) => ({
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setSimulationDate: (simulationDate) => set({ simulationDate }),
   setIsPlaying: (isPlaying) => set({ isPlaying }),
-  setPlaybackSpeed: (playbackSpeed) => set({ playbackSpeed }),
+  setPlaybackSpeed: (playbackSpeed) => {
+    const v = Number(playbackSpeed);
+    if (!Number.isFinite(v)) return;
+    const clamped = Math.max(50, Math.min(5000, v));
+    set({ playbackSpeed: clamped });
+  },
   setSelectedTicker: (selectedTicker) => set({ selectedTicker }),
   addToast: (message, type = 'info') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}_${Math.random().toString(36).substring(2, 3)}`;

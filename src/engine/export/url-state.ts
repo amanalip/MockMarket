@@ -78,8 +78,10 @@ export function decodeShareState(encodedStr: string): ShareableStatePayload | nu
 export function generateShareableLink(payload: ShareableStatePayload): string {
   const hash = encodeShareState(payload);
   if (typeof window !== 'undefined' && window.location) {
-    const origin = window.location.origin || '';
-    const pathname = window.location.pathname || '';
+    const loc = window.location as unknown as { origin?: string; pathname?: string };
+    const origin = loc.origin || '';
+    const pathname = loc.pathname || '';
+    // pathname never includes hash, so this automatically strips existing #share
     return `${origin}${pathname}#share=${hash}`;
   }
   return `https://mockmarket.app/#share=${hash}`;
