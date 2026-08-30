@@ -23,6 +23,7 @@ export function calculateReturns(values: number[]): number[] {
 
 export function calculateAnnualizedVolatility(dailyReturns: number[], tradingDaysPerYear = 252): number {
   if (dailyReturns.length < 2) return 0;
+  if (!Number.isFinite(tradingDaysPerYear) || tradingDaysPerYear <= 0) return 0;
 
   const mean = dailyReturns.reduce((sum, r) => sum + r, 0) / dailyReturns.length;
   const variance = dailyReturns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (dailyReturns.length - 1);

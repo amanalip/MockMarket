@@ -30,15 +30,19 @@ export interface ETFSimulationResult {
   endDate: string;
 }
 
-function isRebalanceDate(
+export function isRebalanceDate(
   currentDateStr: string,
   prevDateStr: string | undefined,
   freq: RebalanceFrequency
 ): boolean {
   if (!prevDateStr || freq === 'never') return false;
+  if (typeof currentDateStr !== 'string' || typeof prevDateStr !== 'string') return false;
 
   const cur = new Date(currentDateStr);
   const prev = new Date(prevDateStr);
+  if (Number.isNaN(cur.getTime()) || Number.isNaN(prev.getTime())) return false;
+  // Strict ISO date validation to catch overflow like 2024-02-30 → 2024-03-01
+  if (cur.toISOString().slice(0, 10) !== currentDateStr || prev.toISOString().slice(0, 10) !== prevDateStr) return false;
 
   if (freq === 'monthly') {
     return cur.getUTCMonth() !== prev.getUTCMonth() || cur.getUTCFullYear() !== prev.getUTCFullYear();

@@ -84,8 +84,8 @@ describe('Indicators - Edge Cases & Bugs', () => {
 
   it('MACD returns [] when insufficient candles', () => {
     expect(calculateMACD(mk(Array(10).fill(100)))).toEqual([]);
-    expect(calculateMACD(mk(Array(34).fill(100)))).toHaveLength(0); // 34 <35
-    expect(calculateMACD(mk(Array(35).fill(100)) ).length).toBeGreaterThan(0);
+    expect(calculateMACD(mk(Array(33).fill(100)))).toHaveLength(0); // 33 <34
+    expect(calculateMACD(mk(Array(34).fill(100)) ).length).toBeGreaterThan(0);
   });
 
   it('MACD histogram = macd - signal', () => {

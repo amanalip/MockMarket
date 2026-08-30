@@ -15,9 +15,10 @@ export function calculateMACD(
   signalPeriod = 9
 ): MACDPoint[] {
   if (!Number.isFinite(fastPeriod) || !Number.isFinite(slowPeriod) || !Number.isFinite(signalPeriod)) return [];
+  if (!Number.isInteger(fastPeriod) || !Number.isInteger(slowPeriod) || !Number.isInteger(signalPeriod)) return [];
   if (fastPeriod <= 0 || slowPeriod <= 0 || signalPeriod <= 0) return [];
   if (fastPeriod >= slowPeriod) return [];
-  if (candles.length < slowPeriod + signalPeriod) return [];
+  if (candles.length < slowPeriod + signalPeriod - 1) return [];
 
   const fastEMA = calculateEMA(candles, fastPeriod);
   const slowEMA = calculateEMA(candles, slowPeriod);

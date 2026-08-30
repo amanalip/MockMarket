@@ -28,6 +28,12 @@ export function calculateBollingerBands(
     return 0;
   };
   for (let i = period - 1; i < candles.length; i++) {
+    // Skip window if all closes are non-finite
+    let hasValid = false;
+    for (let j = 0; j < period; j++) {
+      if (Number.isFinite(candles[i - j]?.close)) { hasValid = true; break; }
+    }
+    if (!hasValid) continue;
     let sum = 0;
     for (let j = 0; j < period; j++) {
       sum += getClose(i - j);
