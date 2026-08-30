@@ -14,11 +14,15 @@ export function tokenize(input: string): Token[] {
       continue;
     }
 
-    // Numbers
-    if (/[0-9]/.test(char) || (char === '.' && /[0-9]/.test(input[i + 1] || ''))) {
+    // Numbers (including negative)
+    if (/[0-9]/.test(char) || (char === '.' && /[0-9]/.test(input[i + 1] || '')) || (char === '-' && (/[0-9]/.test(input[i + 1] || '') || (input[i + 1] === '.' && /[0-9]/.test(input[i + 2] || ''))))) {
       let numStr = '';
       const start = i;
       let dotCount = 0;
+      if (input[i] === '-') {
+        numStr += '-';
+        i++;
+      }
       while (i < input.length && (/[0-9]/.test(input[i]) || (input[i] === '.' && dotCount === 0))) {
         if (input[i] === '.') dotCount++;
         numStr += input[i];

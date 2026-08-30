@@ -110,9 +110,10 @@ export function getLatestCandleOnOrBefore(
   candles: Candle[],
   targetDate: string
 ): Candle | undefined {
-  if (candles.length === 0) return undefined;
+  if (!Array.isArray(candles) || candles.length === 0) return undefined;
+  if (typeof targetDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(targetDate) || Number.isNaN(new Date(targetDate).getTime()) || new Date(targetDate).toISOString().slice(0,10) !== targetDate) return undefined;
   for (let i = candles.length - 1; i >= 0; i--) {
-    if (candles[i].time <= targetDate) {
+    if (typeof candles[i]?.time === 'string' && candles[i].time <= targetDate) {
       return candles[i];
     }
   }

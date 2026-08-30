@@ -111,10 +111,18 @@ export function simulateETF(
   if (startDate && endDate && startDate > endDate) {
     throw new Error('Start date must be before end date');
   }
-  const constituents = config.tickers.filter((t) => candleDataMap[t.ticker]?.length > 0);
-  if (constituents.length === 0) {
+  const constituentsRaw = config.tickers.filter((t) => candleDataMap[t.ticker]?.length > 0);
+  if (constituentsRaw.length === 0) {
     throw new Error('No valid ticker data available for ETF construction.');
   }
+  // Deduplicate tickers by summing weights (duplicate would overwrite assetValues)
+  const dedupMap = new Map<string, { ticker: string; targetWeight: number }>();
+  constituentsRaw.forEach(t => {
+    const existing = dedupMap.get(t.ticker);
+    if (existing) existing.targetWeight += t.targetWeight;
+    else dedupMap.set(t.ticker, { ticker: t.ticker, targetWeight: t.targetWeight });
+  });
+  const constituents = Array.from(dedupMap.values());
 
   // Find common overlapping dates across all selected tickers
   const dateSets = constituents.map(

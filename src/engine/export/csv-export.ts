@@ -16,6 +16,7 @@ export function downloadCSV(filename: string, csvContent: string): void {
 
 export function exportTradesToCSV(trades: Trade[]): string {
   const headers = ['ID', 'Ticker', 'Side', 'Type', 'Shares', 'Price', 'Fee', 'Total', 'Timestamp'];
+  if (!Array.isArray(trades)) return headers.join(',');
   const rows = trades.map((t) => [
     csvEscape(String(t.id)),
     csvEscape(String(t.ticker)),
@@ -33,6 +34,7 @@ export function exportTradesToCSV(trades: Trade[]): string {
 
 export function exportPositionsToCSV(positions: Record<string, Position>): string {
   const headers = ['Ticker', 'Shares', 'AvgCost', 'TotalCost', 'CurrentPrice', 'CurrentValue', 'UnrealizedPnL', 'UnrealizedPnLPercent', 'RealizedPnL'];
+  if (!positions || typeof positions !== 'object' || Array.isArray(positions)) return headers.join(',');
   const rows = Object.values(positions).map((p) => [
     csvEscape(String(p.ticker)),
     String(p.shares),
@@ -57,6 +59,7 @@ function csvEscape(field: string): string {
 
 export function exportBacktestTradesToCSV(trades: BacktestTrade[]): string {
   const headers = ['ID', 'EntryDate', 'EntryPrice', 'ExitDate', 'ExitPrice', 'Shares', 'PnL', 'PnLPercent', 'Reason'];
+  if (!Array.isArray(trades)) return headers.join(',');
   const rows = trades.map((t) => [
     csvEscape(String(t.id)),
     csvEscape(String(t.entryDate)),

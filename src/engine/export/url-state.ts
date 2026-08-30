@@ -69,6 +69,12 @@ export function decodeShareState(encodedStr: string): ShareableStatePayload | nu
     }
 
     const payload: ShareableStatePayload = JSON.parse(jsonStr);
+    // Validate payload for prototype pollution and non-finite cash
+    if (!payload || typeof payload !== 'object') return null;
+    if (JSON.stringify(payload).includes('__proto__')) return null;
+    if (!Number.isFinite(payload.version)) return null;
+    if (payload.cash !== undefined && !Number.isFinite(payload.cash)) return null;
+    if (payload.ticker !== undefined && typeof payload.ticker !== 'string') return null;
     return payload;
   } catch {
     return null;
