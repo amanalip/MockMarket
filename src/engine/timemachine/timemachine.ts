@@ -80,7 +80,8 @@ export function calculateTimeMachine(
 
   for (let i = 0; i < filtered.length; i++) {
     const candle = filtered[i];
-    const benchPrice = benchMap.get(candle.time) || initialBenchPrice;
+    const benchPriceRaw = benchMap.get(candle.time);
+    const benchPrice = Number.isFinite(benchPriceRaw) && (benchPriceRaw as number) > 0 ? (benchPriceRaw as number) : initialBenchPrice;
     const curDate = new Date(candle.time);
 
     // Check DCA periodic contribution
@@ -104,13 +105,17 @@ export function calculateTimeMachine(
       }
 
       if (isDcaTime) {
-        totalCashInvested += config.dcaAmount;
-        assetShares += config.dcaAmount / candle.close;
-        benchmarkShares += config.dcaAmount / benchPrice;
+        const safeDca = Number.isFinite(config.dcaAmount) && (config.dcaAmount as number) > 0 ? (config.dcaAmount as number) : 0;
+        if (safeDca > 0 && Number.isFinite(candle.close) && candle.close > 0 && Number.isFinite(benchPrice) && benchPrice > 0) {
+          totalCashInvested += safeDca;
+          assetShares += safeDca / candle.close;
+          benchmarkShares += safeDca / benchPrice;
+        }
       }
     }
 
-    const currentAssetVal = assetShares * candle.close;
+    const safeClose = Number.isFinite(candle.close) && candle.close > 0 ? candle.close : (Number.isFinite(benchPrice) && benchPrice > 0 ? benchPrice : 1);
+    const currentAssetVal = assetShares * safeClose;
     const currentBenchVal = benchmarkShares * benchPrice;
 
     // Track milestones
@@ -152,8 +157,8 @@ export function calculateTimeMachine(
   const finalAssetValue = growthCurve[growthCurve.length - 1].assetValue;
   const finalBenchmarkValue = growthCurve[growthCurve.length - 1].benchmarkValue;
 
-  const totalReturnPercent = Number((((finalAssetValue - totalCashInvested) / totalCashInvested) * 100).toFixed(2));
-  const benchmarkReturnPercent = Number((((finalBenchmarkValue - totalCashInvested) / totalCashInvested) * 100).toFixed(2));
+  const totalReturnPercent = totalCashInvested > 0 ? Number((((finalAssetValue - totalCashInvested) / totalCashInvested) * 100).toFixed(2)) : 0;
+  const benchmarkReturnPercent = totalCashInvested > 0 ? Number((((finalBenchmarkValue - totalCashInvested) / totalCashInvested) * 100).toFixed(2)) : 0;
   const totalProfitDollars = Number((finalAssetValue - totalCashInvested).toFixed(2));
 
   const startTs = new Date(filtered[0].time).getTime();

@@ -4,9 +4,11 @@ export function calculateValueAtRisk(
 ): number {
   if (dailyReturns.length < 5) return 0;
   if (!Number.isFinite(confidenceLevel) || confidenceLevel <= 0 || confidenceLevel >= 1) return 0;
+  const clean = dailyReturns.filter(v => Number.isFinite(v));
+  if (clean.length < 5) return 0;
 
   // Historical simulation approach with quantile interpolation
-  const sorted = [...dailyReturns].sort((a, b) => a - b);
+  const sorted = [...clean].sort((a, b) => a - b);
   const index = Math.min(
     sorted.length - 1,
     Math.max(0, Math.ceil((1 - confidenceLevel) * sorted.length) - 1)

@@ -11,21 +11,23 @@ export function calculateMaxDrawdown(
   if (equitySeries.length === 0) {
     return { maxDrawdownPercent: 0, peakDate: '', troughDate: '', drawdownSeries: [] };
   }
+  // Ensure sorted by date to avoid wrong peak/trough if unsorted
+  const sortedSeries = [...equitySeries].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-  let peak = equitySeries[0].value;
-  let peakDate = equitySeries[0].date;
+  let peak = sortedSeries[0].value;
+  let peakDate = sortedSeries[0].date;
   let maxDrawdown = 0;
   let maxPeakDate = peakDate;
   let maxTroughDate = peakDate;
 
   // Validate: peak must be finite, sanitized corrupt values to peak (not 0) to avoid fake 100% drawdown
-  let firstValid = equitySeries.find(pt => Number.isFinite(pt.value) && pt.value >= 0);
+  let firstValid = sortedSeries.find(pt => Number.isFinite(pt.value) && pt.value >= 0);
   if (!firstValid) {
-    firstValid = { date: equitySeries[0]?.date || '', value: 0 };
+    firstValid = { date: sortedSeries[0]?.date || '', value: 0 };
   }
   peak = firstValid.value;
   peakDate = firstValid.date;
-  const sanitized = equitySeries.map((pt) => ({
+  const sanitized = sortedSeries.map((pt) => ({
     date: pt.date,
     value: Number.isFinite(pt.value) && pt.value >= 0 ? pt.value : peak,
   }));
