@@ -21,9 +21,6 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
   } = useUIStore();
 
   const {
-    cash,
-    positions,
-    startingCash,
     updateMarketPrices,
     processCandleForOrders,
     resetPortfolio,
