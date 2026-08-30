@@ -131,7 +131,12 @@ export const useUIStore = create<UIState>((set) => ({
     set({ theme });
   },
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
-  setSimulationDate: (simulationDate) => set({ simulationDate }),
+  setSimulationDate: (simulationDate) => {
+    if (typeof simulationDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(simulationDate)) return;
+    const d = new Date(simulationDate);
+    if (Number.isNaN(d.getTime()) || d.toISOString().slice(0,10) !== simulationDate) return;
+    set({ simulationDate });
+  },
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setPlaybackSpeed: (playbackSpeed) => {
     const v = Number(playbackSpeed);
@@ -269,10 +274,15 @@ export const useBacktesterStore = create<BacktesterState>((set) => ({
 export const useETFStore = create<ETFState>((set) => ({
   savedETFs: [],
   activeETF: null,
-  saveETF: (etf) => set((state) => ({
-    savedETFs: [...state.savedETFs.filter((e) => e.id !== etf.id), etf],
-    activeETF: etf,
-  })),
+  saveETF: (etf) => {
+    if (!etf || typeof etf !== 'object' || typeof etf.id !== 'string') return;
+    const copy = JSON.parse(JSON.stringify(etf));
+    // ensure id collision not silent overwrite in same ms is still intentional, but copy prevents external mutation
+    set((state) => ({
+      savedETFs: [...state.savedETFs.filter((e) => e.id !== copy.id), copy],
+      activeETF: copy,
+    }));
+  },
   deleteETF: (id) => set((state) => ({
     savedETFs: state.savedETFs.filter((e) => e.id !== id),
     activeETF: state.activeETF?.id === id ? null : state.activeETF,
@@ -285,7 +295,13 @@ export const useScenarioStore = create<ScenarioState>((set) => ({
   currentStepIndex: 0,
   completedScenarioIds: [],
   setActiveScenario: (activeScenario) => set({ activeScenario, currentStepIndex: 0 }),
-  setCurrentStepIndex: (currentStepIndex) => set({ currentStepIndex }),
+  setCurrentStepIndex: (currentStepIndex) => {
+    const v = Number(currentStepIndex);
+    if (!Number.isFinite(v) || !Number.isInteger(v) || v < 0) return;
+    // clamp to 0..1000 to avoid overflow, real max checked in UI
+    const clamped = Math.min(1000, v);
+    set({ currentStepIndex: clamped });
+  },
   markCompleted: (id) => set((state) => ({
     completedScenarioIds: state.completedScenarioIds.includes(id)
       ? state.completedScenarioIds

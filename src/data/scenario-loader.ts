@@ -31,7 +31,7 @@ export interface EducationalScenario {
 const allScenarios: EducationalScenario[] = scenariosData as EducationalScenario[];
 
 export function getAllScenarios(): EducationalScenario[] {
-  return [...allScenarios];
+  return allScenarios.map(s => ({ ...s, steps: s.steps.map(st => ({ ...st, options: st.options.map(o => ({ ...o })) })), lessonsLearned: [...s.lessonsLearned] }));
 }
 
 export function getScenarioById(id: string): EducationalScenario | undefined {
@@ -45,11 +45,12 @@ export function filterScenarios(
   category?: string,
   difficulty?: string
 ): EducationalScenario[] {
-  const cat = category?.trim().toLowerCase();
-  const diff = difficulty?.trim().toLowerCase();
-  return allScenarios.filter((s) => {
+  const cat = typeof category === 'string' ? category.trim().toLowerCase() : undefined;
+  const diff = typeof difficulty === 'string' ? difficulty.trim().toLowerCase() : undefined;
+  const filtered = allScenarios.filter((s) => {
     if (cat && cat !== 'all' && s.category.toLowerCase() !== cat) return false;
     if (diff && diff !== 'all' && s.difficulty.toLowerCase() !== diff) return false;
     return true;
   });
+  return filtered.map(s => ({ ...s, steps: s.steps.map(st => ({ ...st, options: st.options.map(o => ({ ...o })) })), lessonsLearned: [...s.lessonsLearned] }));
 }

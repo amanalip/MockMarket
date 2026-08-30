@@ -96,9 +96,12 @@ export function filterCandlesByDate(
   startDate?: string,
   endDate?: string
 ): Candle[] {
+  const validStart = typeof startDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(startDate) && !Number.isNaN(new Date(startDate).getTime()) && new Date(startDate).toISOString().slice(0,10) === startDate;
+  const validEnd = typeof endDate === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(endDate) && !Number.isNaN(new Date(endDate).getTime()) && new Date(endDate).toISOString().slice(0,10) === endDate;
   return candles.filter((c) => {
-    if (startDate && c.time < startDate) return false;
-    if (endDate && c.time > endDate) return false;
+    if (!c || typeof c.time !== 'string') return false;
+    if (validStart && c.time < startDate!) return false;
+    if (validEnd && c.time > endDate!) return false;
     return true;
   });
 }
