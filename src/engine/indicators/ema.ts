@@ -8,10 +8,19 @@ export function calculateEMA(candles: Candle[], period = 12): IndicatorPoint[] {
   const results: IndicatorPoint[] = [];
   const multiplier = 2 / (period + 1);
 
-  // Initialize first EMA value with SMA of the first `period` elements
+  const getClose = (idx: number): number => {
+    const v = candles[idx]?.close;
+    if (Number.isFinite(v)) return v as number;
+    for (let k = idx - 1; k >= 0; k--) {
+      const pv = candles[k]?.close;
+      if (Number.isFinite(pv)) return pv as number;
+    }
+    return 0;
+  };
+  // Initialize first EMA value with SMA of the first `period` elements (finite-safe)
   let sum = 0;
   for (let i = 0; i < period; i++) {
-    sum += candles[i].close;
+    sum += getClose(i);
   }
   let currentEMA = sum / period;
 
@@ -21,7 +30,7 @@ export function calculateEMA(candles: Candle[], period = 12): IndicatorPoint[] {
   });
 
   for (let i = period; i < candles.length; i++) {
-    currentEMA = (candles[i].close - currentEMA) * multiplier + currentEMA;
+    currentEMA = (getClose(i) - currentEMA) * multiplier + currentEMA;
     results.push({
       time: candles[i].time,
       value: Number(currentEMA.toFixed(2)),

@@ -14,7 +14,7 @@ export async function fetchTickers(): Promise<TickerInfo[]> {
   try {
     const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
     const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-    const safeBase = cleanBase.replace(/\/\//g, '/');
+    const safeBase = cleanBase.replace(/([^:])\/\//g, '$1/');
     const res = await fetch(`${safeBase}data/tickers.json`);
     if (res.ok) {
       const data = await res.json();
@@ -30,7 +30,9 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
   const upperTicker = ticker.toUpperCase();
 
   if (candleCache.has(upperTicker)) {
-    return candleCache.get(upperTicker)!;
+    const cached = candleCache.get(upperTicker)!;
+    // Return deep copy to prevent mutation of cache
+    return cached.map(c => ({ ...c }));
   }
 
   const info = getTickerInfo(upperTicker);
@@ -43,15 +45,15 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
 
   const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.BASE_URL) || '/';
   const cleanBase = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`;
-  const safeBase = cleanBase.replace(/\/\//g, '/').replace(/^\.\//, '/');
+  const safeBase = cleanBase.replace(/([^:])\/\//g, '$1/').replace(/^\.\//, '/');
   const url = `${safeBase}data/${subfolder}/${encodeURIComponent(upperTicker)}.json`;
 
   try {
     const res = await fetch(url);
     if (res && res.ok) {
       const candles: Candle[] = await res.json();
-      candleCache.set(upperTicker, candles);
-      return candles;
+      candleCache.set(upperTicker, candles.map(c => ({ ...c })));
+      return candles.map(c => ({ ...c }));
     }
   } catch {
     // Attempt local Node fs fallback for testing environments
@@ -67,8 +69,8 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
         if (fs.existsSync(filePath)) {
           const raw = fs.readFileSync(filePath, 'utf8');
           const candles: Candle[] = JSON.parse(raw);
-          candleCache.set(upperTicker, candles);
-          return candles;
+          candleCache.set(upperTicker, candles.map(c => ({ ...c })));
+          return candles.map(c => ({ ...c }));
         }
       } catch {
         // Fall through to error

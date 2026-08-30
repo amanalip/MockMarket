@@ -11,19 +11,29 @@ export function calculateSMA(candles: Candle[], period = 20): IndicatorPoint[] {
 
   const results: IndicatorPoint[] = [];
   let sum = 0;
-
+  const getClose = (idx: number): number => {
+    if (idx < 0 || idx >= candles.length) return 0;
+    const v = candles[idx]?.close;
+    if (Number.isFinite(v)) return v as number;
+    // walk back to previous finite close
+    for (let k = idx - 1; k >= 0; k--) {
+      const pv = candles[k]?.close;
+      if (Number.isFinite(pv)) return pv as number;
+    }
+    return 0;
+  };
   for (let i = 0; i < candles.length; i++) {
-    sum += candles[i].close;
+    sum += getClose(i);
 
     if (i >= period) {
-      sum -= candles[i - period].close;
+      sum -= getClose(i - period);
     }
 
     if (i >= period - 1) {
       const avg = sum / period;
       results.push({
         time: candles[i].time,
-        value: Number(avg.toFixed(2)),
+        value: Number.isFinite(avg) ? Number(avg.toFixed(2)) : 0,
       });
     }
   }

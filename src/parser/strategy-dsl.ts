@@ -28,6 +28,10 @@ export function tokenize(input: string): Token[] {
       if (numStr.endsWith('.') || (numStr.match(/\./g) || []).length > 1) {
         throw new Error(`Invalid number '${numStr}' at index ${start}`);
       }
+      // Detect malformed 1.2.3 (second dot without separator)
+      if (i < input.length && input[i] === '.' && /[0-9]/.test(input[i + 1] || '')) {
+        throw new Error(`Invalid number '${numStr}.' at index ${start}`);
+      }
       tokens.push({ type: 'NUMBER', value: numStr, pos: start });
       continue;
     }
@@ -247,14 +251,14 @@ function resolveValue(node: ASTNode, ctx: BarRuleContext, offset = 0): number {
     if (name === 'SMA') {
       if (param === 50) return ctx.indicators.sma50[targetIndex] ?? 0;
       if (param === 200) return ctx.indicators.sma200[targetIndex] ?? 0;
-      if (param === 20 || param === undefined) return ctx.indicators.sma20[targetIndex] ?? 0;
-      return 0;
+      // Unknown period falls back to sma20 (instead of silent 0)
+      return ctx.indicators.sma20[targetIndex] ?? 0;
     }
 
     if (name === 'EMA') {
       if (param === 26) return ctx.indicators.ema26[targetIndex] ?? 0;
-      if (param === 12 || param === undefined) return ctx.indicators.ema12[targetIndex] ?? 0;
-      return 0;
+      // Unknown period falls back to ema12
+      return ctx.indicators.ema12[targetIndex] ?? 0;
     }
 
     if (name === 'RSI') {

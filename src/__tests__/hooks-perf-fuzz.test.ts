@@ -51,12 +51,12 @@ describe('Hooks, Perf & Fuzz', () => {
     expect(Array.isArray(rsi)).toBe(true);
   });
 
-  it('indicators handles Infinity (produces Infinity avg)', () => {
+  it('indicators handles Infinity (produces finite avg after fix)', () => {
     const candles = mk([100, Infinity, 100]);
     const sma = calculateSMA(candles, 2);
-    // Infinity propagates -> avg Infinity
+    // Infinity guarded -> finite fallback
     expect(sma.length).toBe(2);
-    expect(sma.some(p => !Number.isFinite(p.value))).toBe(true);
+    expect(sma.every(p => Number.isFinite(p.value))).toBe(true);
   });
 
   it('portfolio fuzz fractional/invalid shares throws or handles', () => {

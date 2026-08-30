@@ -10,7 +10,14 @@ export function calculateRSI(candles: Candle[], period = 14): IndicatorPoint[] {
   const losses: number[] = [];
 
   for (let i = 1; i < candles.length; i++) {
-    const diff = candles[i].close - candles[i - 1].close;
+    const cur = candles[i].close;
+    const prev = candles[i - 1].close;
+    if (!Number.isFinite(cur) || !Number.isFinite(prev)) {
+      gains.push(0);
+      losses.push(0);
+      continue;
+    }
+    const diff = cur - prev;
     gains.push(diff > 0 ? diff : 0);
     losses.push(diff < 0 ? Math.abs(diff) : 0);
   }

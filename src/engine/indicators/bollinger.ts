@@ -18,16 +18,25 @@ export function calculateBollingerBands(
 
   const results: BollingerBandsPoint[] = [];
 
+  const getClose = (idx: number): number => {
+    const v = candles[idx]?.close;
+    if (Number.isFinite(v)) return v as number;
+    for (let k = idx - 1; k >= 0; k--) {
+      const pv = candles[k]?.close;
+      if (Number.isFinite(pv)) return pv as number;
+    }
+    return 0;
+  };
   for (let i = period - 1; i < candles.length; i++) {
     let sum = 0;
     for (let j = 0; j < period; j++) {
-      sum += candles[i - j].close;
+      sum += getClose(i - j);
     }
     const mean = sum / period;
 
     let varianceSum = 0;
     for (let j = 0; j < period; j++) {
-      const diff = candles[i - j].close - mean;
+      const diff = getClose(i - j) - mean;
       varianceSum += diff * diff;
     }
     const stdDev = Math.sqrt(varianceSum / period);

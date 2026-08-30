@@ -62,12 +62,12 @@ describe('Strategy DSL - Edges & Bugs', () => {
     expect(validateRule('RSI(14) > 70').valid).toBe(true);
   });
 
-  it('resolves SMA param mapping fixed: unknown SMA(10) returns 0', () => {
+  it('resolves SMA param mapping fixed: unknown SMA(10) falls back to SMA20', () => {
     const ctx=mkCtx();
     ctx.indicators.sma20[5]=111;
     ctx.indicators.sma50[5]=222;
     const fn=compileRule('SMA(10) > 110');
-    expect(fn(ctx)).toBe(false); // SMA(10) now 0, not sma20
+    expect(fn(ctx)).toBe(true); // SMA(10) now falls back to sma20 (111)
     const fn2=compileRule('SMA(200) > 200');
     ctx.indicators.sma200[5]=250;
     expect(fn2(ctx)).toBe(true);
