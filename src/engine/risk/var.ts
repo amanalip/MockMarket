@@ -23,17 +23,24 @@ export function calculateSharpeRatio(
   riskFreeRateAnnual = 0.04
 ): number {
   if (dailyReturns.length < 5) return 0;
+  // Filter out non-finite returns
+  const clean = dailyReturns.filter(r => Number.isFinite(r));
+  if (clean.length < 5) return 0;
+  if (clean.some(r => !Number.isFinite(r) || Math.abs(r) > 5)) return 0; // corrupt extreme
 
-  const meanDaily = dailyReturns.reduce((sum, r) => sum + r, 0) / dailyReturns.length;
-  const annualReturn = Math.pow(1 + meanDaily, 252) - 1;
+  const meanDaily = clean.reduce((sum, r) => sum + r, 0) / clean.length;
+  if (!Number.isFinite(meanDaily)) return 0;
+  // Clamp meanDaily to avoid Math.pow with negative base producing NaN/Infinity
+  const clampedMean = Math.max(-0.9, Math.min(5, meanDaily));
+  const annualReturn = Math.pow(1 + clampedMean, 252) - 1;
+  if (!Number.isFinite(annualReturn)) return 0;
 
-  const variance = dailyReturns.reduce((sum, r) => sum + Math.pow(r - meanDaily, 2), 0) / (dailyReturns.length - 1);
+  const variance = clean.reduce((sum, r) => sum + Math.pow(r - meanDaily, 2), 0) / (clean.length - 1);
   const annualStdDev = Math.sqrt(variance) * Math.sqrt(252);
-
-  if (annualStdDev === 0) return 0;
+  if (!Number.isFinite(annualStdDev) || annualStdDev === 0) return 0;
 
   const sharpe = (annualReturn - riskFreeRateAnnual) / annualStdDev;
-  return Number(sharpe.toFixed(2));
+  return Number.isFinite(sharpe) ? Number(sharpe.toFixed(2)) : 0;
 }
 
 export function calculateSortinoRatio(
@@ -41,11 +48,17 @@ export function calculateSortinoRatio(
   riskFreeRateAnnual = 0.04
 ): number {
   if (dailyReturns.length < 5) return 0;
+  const clean = dailyReturns.filter(r => Number.isFinite(r));
+  if (clean.length < 5) return 0;
+  if (clean.some(r => Math.abs(r) > 5)) return 0;
 
-  const meanDaily = dailyReturns.reduce((sum, r) => sum + r, 0) / dailyReturns.length;
-  const annualReturn = Math.pow(1 + meanDaily, 252) - 1;
+  const meanDaily = clean.reduce((sum, r) => sum + r, 0) / clean.length;
+  if (!Number.isFinite(meanDaily)) return 0;
+  const clampedMean = Math.max(-0.9, Math.min(5, meanDaily));
+  const annualReturn = Math.pow(1 + clampedMean, 252) - 1;
+  if (!Number.isFinite(annualReturn)) return 0;
 
-  const downsideReturns = dailyReturns.filter((r) => r < 0);
+  const downsideReturns = clean.filter((r) => r < 0);
   if (downsideReturns.length === 0) {
     // No downside: Sortino is effectively Sharpe with higher ratio; if annual return positive, Sharpe-like, else 0
     return annualReturn > riskFreeRateAnnual ? Number(((annualReturn - riskFreeRateAnnual) * 10).toFixed(2)) : 0;
@@ -54,8 +67,8 @@ export function calculateSortinoRatio(
   const downsideVariance = downsideReturns.reduce((sum, r) => sum + Math.pow(r, 2), 0) / downsideReturns.length;
   const annualDownsideStdDev = Math.sqrt(downsideVariance) * Math.sqrt(252);
 
-  if (annualDownsideStdDev === 0) return 0;
+  if (!Number.isFinite(annualDownsideStdDev) || annualDownsideStdDev === 0) return 0;
 
   const sortino = (annualReturn - riskFreeRateAnnual) / annualDownsideStdDev;
-  return Number(sortino.toFixed(2));
+  return Number.isFinite(sortino) ? Number(sortino.toFixed(2)) : 0;
 }

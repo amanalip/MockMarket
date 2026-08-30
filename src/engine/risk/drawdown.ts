@@ -18,11 +18,20 @@ export function calculateMaxDrawdown(
   let maxPeakDate = peakDate;
   let maxTroughDate = peakDate;
 
-  // Validate and sanitize equity series
+  // Validate: peak must be finite, sanitized corrupt values to peak (not 0) to avoid fake 100% drawdown
+  let firstValid = equitySeries.find(pt => Number.isFinite(pt.value) && pt.value >= 0);
+  if (!firstValid) {
+    firstValid = { date: equitySeries[0]?.date || '', value: 0 };
+  }
+  peak = firstValid.value;
+  peakDate = firstValid.date;
   const sanitized = equitySeries.map((pt) => ({
     date: pt.date,
-    value: Number.isFinite(pt.value) && pt.value >= 0 ? pt.value : 0,
+    value: Number.isFinite(pt.value) && pt.value >= 0 ? pt.value : peak,
   }));
+  // Ensure peak starts from sanitized first valid
+  peak = sanitized[0]?.value ?? 0;
+  peakDate = sanitized[0]?.date ?? peakDate;
   const drawdownSeries = sanitized.map((pt) => {
     if (pt.value > peak) {
       peak = pt.value;

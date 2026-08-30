@@ -13,9 +13,10 @@ export function calculateDiversification(
   positions: Record<string, Position>,
   cash: number
 ): DiversificationMetrics {
-  const holdings = Object.values(positions);
+  const holdings = Object.values(positions).filter(p => Number.isFinite(p.currentValue) && p.currentValue >= 0);
+  const safeCash = Number.isFinite(cash) && cash > 0 ? cash : 0;
   const investedValue = holdings.reduce((sum, p) => sum + p.currentValue, 0);
-  const totalPortfolioValue = cash + investedValue;
+  const totalPortfolioValue = safeCash + investedValue;
 
   if (totalPortfolioValue <= 0) {
     return {
@@ -34,11 +35,11 @@ export function calculateDiversification(
     percent: Number(((p.currentValue / totalPortfolioValue) * 100).toFixed(2)),
   }));
 
-  if (cash > 0) {
+  if (safeCash > 0) {
     tickerAllocations.push({
       ticker: 'CASH',
-      value: cash,
-      percent: Number(((cash / totalPortfolioValue) * 100).toFixed(2)),
+      value: safeCash,
+      percent: Number(((safeCash / totalPortfolioValue) * 100).toFixed(2)),
     });
   }
 
@@ -55,9 +56,9 @@ export function calculateDiversification(
     assetTypeMap[assetType] = (assetTypeMap[assetType] || 0) + p.currentValue;
   });
 
-  if (cash > 0) {
-    sectorMap['Cash'] = (sectorMap['Cash'] || 0) + cash;
-    assetTypeMap['cash'] = (assetTypeMap['cash'] || 0) + cash;
+  if (safeCash > 0) {
+    sectorMap['Cash'] = (sectorMap['Cash'] || 0) + safeCash;
+    assetTypeMap['cash'] = (assetTypeMap['cash'] || 0) + safeCash;
   }
 
   const sectorAllocations = Object.entries(sectorMap).map(([sector, value]) => ({
