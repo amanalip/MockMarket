@@ -15,10 +15,13 @@ export function useKeyboardShortcuts({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Ignore if user is currently typing in an input, textarea, select, or contenteditable
+      // Ignore auto-repeat
+      if (e.repeat) return;
+      // Ignore if user is currently typing in an input, textarea, select, or contenteditable (including nested)
       const activeEl = document.activeElement as HTMLElement | null;
       const activeTag = activeEl?.tagName.toLowerCase();
-      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || activeEl?.isContentEditable) {
+      const isEditable = activeEl?.isContentEditable || !!activeEl?.closest?.('[contenteditable="true"]');
+      if (activeTag === 'input' || activeTag === 'textarea' || activeTag === 'select' || isEditable) {
         return;
       }
       // Don't hijack browser shortcuts

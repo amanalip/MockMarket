@@ -105,6 +105,7 @@ export const CORE_TICKERS: TickerInfo[] = [
   { ticker: 'BTC', name: 'Bitcoin', sector: 'Crypto', industry: 'Digital Currency', assetType: 'crypto', marketCap: 1300000000000, peRatio: 0, dividendYield: 0.00 },
   { ticker: 'ETH', name: 'Ethereum', sector: 'Crypto', industry: 'Smart Contract Platform', assetType: 'crypto', marketCap: 380000000000, peRatio: 0, dividendYield: 0.00 },
 ];
+Object.freeze(CORE_TICKERS);
 
 export function getTickerInfo(ticker: string): TickerInfo | undefined {
   if (typeof ticker !== 'string') return undefined;

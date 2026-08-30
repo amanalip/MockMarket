@@ -266,6 +266,9 @@ export const useBacktesterStore = create<BacktesterState>((set) => ({
       const v = Number(sanitized.initialCash);
       if (!Number.isFinite(v) || v < 1000) delete sanitized.initialCash;
     }
+    const isValidISO = (s: string) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(s).getTime()) && new Date(s).toISOString().slice(0,10) === s;
+    if (sanitized.startDate !== undefined && !isValidISO(sanitized.startDate)) delete sanitized.startDate;
+    if (sanitized.endDate !== undefined && !isValidISO(sanitized.endDate)) delete sanitized.endDate;
     if (sanitized.startDate && sanitized.endDate && sanitized.startDate > sanitized.endDate) {
       // swap to maintain valid range
       const tmp = sanitized.startDate;
