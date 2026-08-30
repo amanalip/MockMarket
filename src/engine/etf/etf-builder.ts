@@ -59,7 +59,7 @@ export function normalizeWeights(
   tickers: { ticker: string; targetWeight: number }[]
 ): { ticker: string; targetWeight: number }[] {
   if (tickers.length === 0) return [];
-  const sum = tickers.reduce((acc, t) => acc + (Number.isFinite(t.targetWeight) ? t.targetWeight : 0), 0);
+  const sum = tickers.reduce((acc, t) => acc + (Number.isFinite(t.targetWeight) ? Math.max(0, t.targetWeight) : 0), 0);
   if (sum === 0) {
     // Use higher precision to minimize drift for large N, then distribute remainder evenly
     const rawEqual = 100 / tickers.length;
@@ -81,10 +81,13 @@ export function normalizeWeights(
     }
     return result;
   }
-  const result = tickers.map((t) => ({
-    ticker: t.ticker,
-    targetWeight: Number(((t.targetWeight / sum) * 100).toFixed(2)),
-  }));
+  const result = tickers.map((t) => {
+    const safeWeight = Number.isFinite(t.targetWeight) ? Math.max(0, t.targetWeight) : 0;
+    return {
+      ticker: t.ticker,
+      targetWeight: Number(((safeWeight / sum) * 100).toFixed(2)),
+    };
+  });
   const drift = Number((100 - result.reduce((s, c) => s + c.targetWeight, 0)).toFixed(2));
   if (drift !== 0) {
     result[result.length - 1].targetWeight = Number((result[result.length - 1].targetWeight + drift).toFixed(2));

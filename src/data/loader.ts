@@ -27,7 +27,11 @@ export async function fetchTickers(): Promise<TickerInfo[]> {
 }
 
 export async function loadTickerData(ticker: string): Promise<Candle[]> {
-  const upperTicker = ticker.toUpperCase();
+  if (typeof ticker !== 'string' || !ticker.trim()) throw new Error('Data file not found for ticker: UNKNOWN');
+  const upperTicker = ticker.toUpperCase().trim();
+  if (upperTicker.includes('..') || upperTicker.includes('/') || upperTicker.includes('\\')) {
+    throw new Error(`Data file not found for ticker: ${upperTicker}`);
+  }
 
   if (candleCache.has(upperTicker)) {
     const cached = candleCache.get(upperTicker)!;
@@ -51,7 +55,10 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
   try {
     const res = await fetch(url);
     if (res && res.ok) {
-      const candles: Candle[] = await res.json();
+      const rawCandles: Candle[] = await res.json();
+      if (!Array.isArray(rawCandles)) throw new Error(`Data file not found for ticker: ${upperTicker}`);
+      const candles = rawCandles.filter(c => c && typeof c.time === 'string' && Number.isFinite(c.close));
+      if (candles.length === 0) throw new Error(`Data file not found for ticker: ${upperTicker}`);
       candleCache.set(upperTicker, candles.map(c => ({ ...c })));
       return candles.map(c => ({ ...c }));
     }
@@ -68,7 +75,10 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
         const filePath = path.resolve(cwd, `public/data/${subfolder}/${upperTicker}.json`);
         if (fs.existsSync(filePath)) {
           const raw = fs.readFileSync(filePath, 'utf8');
-          const candles: Candle[] = JSON.parse(raw);
+          const rawCandles: Candle[] = JSON.parse(raw);
+          if (!Array.isArray(rawCandles)) throw new Error(`Data file not found for ticker: ${upperTicker}`);
+          const candles = rawCandles.filter(c => c && typeof c.time === 'string' && Number.isFinite(c.close));
+          if (candles.length === 0) throw new Error(`Data file not found for ticker: ${upperTicker}`);
           candleCache.set(upperTicker, candles.map(c => ({ ...c })));
           return candles.map(c => ({ ...c }));
         }

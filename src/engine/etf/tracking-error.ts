@@ -11,12 +11,17 @@ export function calculateTrackingError(
 ): TrackingErrorResult {
   const n = Math.min(customNavSeries.length, benchmarkNavSeries.length);
   if (!Number.isFinite(n) || n < 5) return { trackingErrorPercent: 0, correlation: 0 };
-  if (customNavSeries.some((v) => !Number.isFinite(v)) || benchmarkNavSeries.some((v) => !Number.isFinite(v))) {
+  const customSlice = customNavSeries.slice(0, n);
+  const benchSlice = benchmarkNavSeries.slice(0, n);
+  if (customSlice.some((v) => !Number.isFinite(v)) || benchSlice.some((v) => !Number.isFinite(v))) {
     return { trackingErrorPercent: 0, correlation: 0 };
   }
 
-  const customReturns = calculateReturns(customNavSeries.slice(0, n));
-  const benchReturns = calculateReturns(benchmarkNavSeries.slice(0, n));
+  const customReturns = calculateReturns(customSlice);
+  const benchReturns = calculateReturns(benchSlice);
+  if (customReturns.length !== benchReturns.length || customReturns.length < 2) {
+    return { trackingErrorPercent: 0, correlation: 0 };
+  }
 
   const returnDiffs = customReturns.map((r, i) => r - benchReturns[i]);
   const trackingError = calculateAnnualizedVolatility(returnDiffs);

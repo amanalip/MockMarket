@@ -31,13 +31,14 @@ export interface EducationalScenario {
 const allScenarios: EducationalScenario[] = scenariosData as EducationalScenario[];
 
 export function getAllScenarios(): EducationalScenario[] {
-  return allScenarios;
+  return [...allScenarios];
 }
 
 export function getScenarioById(id: string): EducationalScenario | undefined {
   if (!id || typeof id !== 'string') return undefined;
   const clean = id.trim();
-  return allScenarios.find((s) => s.id === clean || s.id.toLowerCase() === clean.toLowerCase());
+  const found = allScenarios.find((s) => s.id === clean || s.id.toLowerCase() === clean.toLowerCase());
+  return found ? { ...found, steps: found.steps.map(st => ({ ...st, options: st.options.map(o => ({ ...o })) })), lessonsLearned: [...found.lessonsLearned] } : undefined;
 }
 
 export function filterScenarios(
