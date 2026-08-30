@@ -22,19 +22,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build production bundle
         run: npm run build
+
+      - name: Verify Pages artifact (SPA fallback + .nojekyll)
+        run: |
+          ls -lh dist/
+          test -f dist/index.html || (echo "dist/index.html missing" && exit 1)
+          # SPA fallback for GitHub Pages (deep links) – build script already creates this, keep idempotent
+          cp dist/index.html dist/404.html
+          touch dist/.nojekyll
+          echo "Artifact verification:"
+          ls -lh dist/*.html dist/.nojekyll
+          grep -q "/MockMarket/assets" dist/index.html && echo "base path OK" || (echo "base path missing /MockMarket/" && exit 1)
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -46,4 +57,4 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4

@@ -141,7 +141,8 @@ export const useUIStore = create<UIState>((set) => ({
     const timer = setTimeout(() => {
       set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
     }, 4000);
-    if (typeof timer === 'object' && 'unref' in timer) (timer as any).unref?.();
+    if (typeof timer === 'object' && 'unref' in timer)
+      (timer as unknown as NodeJS.Timeout).unref?.();
   },
   removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
@@ -169,7 +170,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
   setCash: (cash) => {
     if (!Number.isFinite(cash) || cash < 0) return;
     // Sync engine cash to avoid divergence with store
-    (tradingEngineInstance as any).state.cash = cash;
+    (tradingEngineInstance as unknown as { state: { cash: number } }).state.cash = cash;
     set({ cash });
   },
   resetPortfolio: (startingCash = 100000) => {
