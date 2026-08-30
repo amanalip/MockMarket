@@ -163,6 +163,7 @@ export class TradingEngine {
 
   private checkAndFillOrder(order: Order, candle: Candle): boolean {
     if (order.status !== 'pending') return false;
+    if (!candle || !Number.isFinite(candle.low) || !Number.isFinite(candle.high) || !Number.isFinite(candle.open) || !Number.isFinite(candle.close)) return false;
 
     let shouldFill = false;
     let fillPrice = candle.close;
@@ -210,11 +211,15 @@ export class TradingEngine {
   }
 
   private executeFill(order: Order, fillPrice: number, timestamp: string): void {
+    if (!Number.isFinite(fillPrice) || fillPrice <= 0) {
+      order.status = 'cancelled';
+      return;
+    }
     const fee = this.state.commissionPerTrade;
 
     if (order.side === 'buy') {
       const totalCost = order.shares * fillPrice + fee;
-      if (this.state.cash < totalCost) {
+      if (!Number.isFinite(totalCost) || this.state.cash < totalCost) {
         order.status = 'cancelled';
         return;
       }

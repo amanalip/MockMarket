@@ -20,21 +20,25 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
   const currentPosition = positions[selectedTicker];
   const ownedShares = currentPosition?.shares || 0;
 
-  const parsedShares = parseInt(sharesInput, 10) || 0;
-  const targetPrice = orderType === 'market'
-    ? currentPrice
-    : parseFloat(priceInput) || currentPrice;
+  const rawShares = Number(sharesInput);
+  const parsedShares = Number.isInteger(rawShares) && rawShares > 0 ? rawShares : 0;
+  const rawPrice = orderType === 'market' ? currentPrice : (priceInput.trim() === '' ? currentPrice : Number(priceInput));
+  const targetPrice = Number.isFinite(rawPrice) && rawPrice > 0 ? rawPrice : (orderType === 'market' ? currentPrice : 0);
 
   const estimatedTotal = parsedShares * targetPrice;
 
   const handlePercentageClick = (percent: number) => {
-    if (targetPrice <= 0) return;
+    if (!Number.isFinite(targetPrice) || targetPrice <= 0 || !Number.isFinite(cash) || !Number.isFinite(ownedShares)) return;
     if (side === 'buy') {
+      if (!Number.isFinite(cash) || cash <= 0) return;
       const maxShares = Math.floor(cash / targetPrice);
+      if (!Number.isFinite(maxShares) || maxShares <= 0) return;
       const target = Math.max(1, Math.floor(maxShares * (percent / 100)));
+      if (!Number.isFinite(target) || target <= 0) return;
       setSharesInput(String(target));
     } else {
       const target = Math.max(1, Math.floor(ownedShares * (percent / 100)));
+      if (!Number.isFinite(target) || target <= 0) return;
       setSharesInput(String(target));
     }
   };

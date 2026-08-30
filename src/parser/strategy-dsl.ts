@@ -14,6 +14,25 @@ export function tokenize(input: string): Token[] {
       continue;
     }
 
+    // Infinity / NaN literals
+    const lower8 = input.slice(i, i + 8).toLowerCase();
+    const lower9 = input.slice(i, i + 9).toLowerCase();
+    const lower3 = input.slice(i, i + 3).toLowerCase();
+    if (lower8 === 'infinity') {
+      tokens.push({ type: 'NUMBER', value: 'Infinity', pos: i });
+      i += 8;
+      continue;
+    }
+    if (lower9 === '-infinity') {
+      tokens.push({ type: 'NUMBER', value: '-Infinity', pos: i });
+      i += 9;
+      continue;
+    }
+    if (lower3 === 'nan') {
+      tokens.push({ type: 'NUMBER', value: 'NaN', pos: i });
+      i += 3;
+      continue;
+    }
     // Numbers (including negative)
     if (/[0-9]/.test(char) || (char === '.' && /[0-9]/.test(input[i + 1] || '')) || (char === '-' && (/[0-9]/.test(input[i + 1] || '') || (input[i + 1] === '.' && /[0-9]/.test(input[i + 2] || ''))))) {
       let numStr = '';
@@ -313,6 +332,14 @@ function evaluateAST(node: ASTNode, ctx: BarRuleContext): boolean {
   if (node.type === 'BinaryOp') {
     const leftVal = resolveValue(node.left, ctx);
     const rightVal = resolveValue(node.right, ctx);
+    // Handle NaN explicitly: NaN == NaN should be false for both, but NaN != NaN should be true
+    const leftIsNaN = Number.isNaN(leftVal);
+    const rightIsNaN = Number.isNaN(rightVal);
+    if (leftIsNaN || rightIsNaN) {
+      if (node.operator === '==' || node.operator === '=') return false;
+      if (node.operator === '!=') return true;
+      return false;
+    }
 
     switch (node.operator) {
       case '>': return leftVal > rightVal;

@@ -9,7 +9,7 @@ import { calculatePerformanceAttribution } from '../engine/risk/attribution';
 describe('Risk Analytics - Edges', () => {
   it('calculateReturns handles prev <=0 returns 0', () => {
     expect(calculateReturns([0,100])).toEqual([1]);
-    expect(calculateReturns([-5,10])).toEqual([0]);
+    expect(calculateReturns([-5,10])).toEqual([]);
     expect(calculateReturns([100,110])).toEqual([0.1]);
     expect(calculateReturns([100])).toEqual([]);
   });

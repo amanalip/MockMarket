@@ -29,11 +29,12 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     resetPortfolio,
   } = usePortfolioStore();
 
-  // Find index of current simulation date in candles
+  // Find index of current simulation date in candles – handle beyond last
   const currentIndex = candles.findIndex((c) => c.time === simulationDate);
+  const nextOrEqualIdx = candles.findIndex((c) => c.time >= simulationDate);
   const effectiveIndex = currentIndex >= 0
     ? currentIndex
-    : Math.max(0, candles.findIndex((c) => c.time >= simulationDate));
+    : nextOrEqualIdx >= 0 ? nextOrEqualIdx : candles.length > 0 ? candles.length - 1 : 0;
 
   const advanceByDays = useCallback((stepCount: number) => {
     if (candles.length === 0) return;
@@ -44,29 +45,35 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     const nextDate = nextCandle.time;
     setSimulationDate(nextDate);
 
-    // Revalue active holdings & process pending limit/stop orders
+    // Revalue active holdings & process pending limit/stop orders – use fresh store values to avoid stale closure
+    const fresh = usePortfolioStore.getState();
     const priceMap: Record<string, number> = {
       [selectedTicker]: nextCandle.close,
     };
+    // For multi-ticker, revalue all positions with latest known prices (fallback to selected)
+    Object.keys(fresh.positions).forEach(tk => {
+      if (!(tk in priceMap)) priceMap[tk] = nextCandle.close;
+    });
     updateMarketPrices(priceMap);
     processCandleForOrders(nextCandle, selectedTicker);
 
-    // Record snapshot
-    const invested = Object.values(positions).reduce((sum, p) => sum + p.currentValue, 0);
-    const totalVal = cash + invested;
+    // Record snapshot with fresh totals after revalue
+    const after = usePortfolioStore.getState();
+    const invested = Object.values(after.positions).reduce((sum, p) => sum + p.currentValue, 0);
+    const totalVal = after.cash + invested;
     const snapshot: PortfolioSnapshot = {
       date: nextDate,
-      cash,
+      cash: after.cash,
       investedValue: invested,
       totalValue: totalVal,
       dailyPnL: 0,
-      totalPnL: totalVal - startingCash,
+      totalPnL: totalVal - after.startingCash,
     };
 
     usePortfolioStore.setState((state) => ({
       history: [...state.history.filter((h) => h.date !== nextDate), snapshot],
     }));
-  }, [candles, effectiveIndex, setSimulationDate, selectedTicker, updateMarketPrices, processCandleForOrders, positions, cash, startingCash]);
+  }, [candles, effectiveIndex, setSimulationDate, selectedTicker, updateMarketPrices, processCandleForOrders]);
 
   // Auto-play interval
   useEffect(() => {

@@ -108,6 +108,9 @@ export function simulateETF(
   if (!config.tickers || config.tickers.length === 0) {
     throw new Error('ETF must have at least one ticker');
   }
+  const isValidISO = (s: string) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(s).getTime()) && new Date(s).toISOString().slice(0,10) === s;
+  if (startDate !== undefined && !isValidISO(startDate)) throw new Error('Invalid startDate');
+  if (endDate !== undefined && !isValidISO(endDate)) throw new Error('Invalid endDate');
   if (startDate && endDate && startDate > endDate) {
     throw new Error('Start date must be before end date');
   }
@@ -205,7 +208,8 @@ export function simulateETF(
       currentWeights[c.ticker] = Number(w.toFixed(2));
     });
 
-    navHistory.push({ date: curDate, nav: Number(dailyNAV.toFixed(2)) });
+    const safeNAV = Number.isFinite(dailyNAV) ? dailyNAV : (navHistory.length > 0 ? navHistory[navHistory.length - 1].nav : 100);
+    navHistory.push({ date: curDate, nav: Number(safeNAV.toFixed(2)) });
     driftHistory.push({ date: curDate, weights: currentWeights });
   }
 

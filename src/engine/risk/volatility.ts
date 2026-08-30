@@ -7,7 +7,7 @@ export function calculateReturns(values: number[]): number[] {
     if (!Number.isFinite(prev) || !Number.isFinite(cur)) {
       // Skip corrupt pair instead of faking 0 (which understates volatility)
       continue;
-    } else if (prev > 0) {
+    } else if (prev > 0 && cur >= 0) {
       const r = (cur - prev) / prev;
       if (Number.isFinite(r)) returns.push(r);
     } else if (prev === 0 && cur > 0) {
@@ -15,18 +15,21 @@ export function calculateReturns(values: number[]): number[] {
     } else if (prev === 0 && cur === 0) {
       returns.push(0);
     } else {
-      returns.push(0);
+      // Negative or corrupt price -> skip, don't fake 0
+      continue;
     }
   }
   return returns;
 }
 
 export function calculateAnnualizedVolatility(dailyReturns: number[], tradingDaysPerYear = 252): number {
-  if (dailyReturns.length < 2) return 0;
+  if (!Array.isArray(dailyReturns) || dailyReturns.length < 2) return 0;
   if (!Number.isFinite(tradingDaysPerYear) || tradingDaysPerYear <= 0) return 0;
+  const clean = dailyReturns.filter(v => Number.isFinite(v));
+  if (clean.length < 2) return 0;
 
-  const mean = dailyReturns.reduce((sum, r) => sum + r, 0) / dailyReturns.length;
-  const variance = dailyReturns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (dailyReturns.length - 1);
+  const mean = clean.reduce((sum, r) => sum + r, 0) / clean.length;
+  const variance = clean.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (clean.length - 1);
   const dailyStdDev = Math.sqrt(variance);
 
   const annualized = dailyStdDev * Math.sqrt(tradingDaysPerYear) * 100;
