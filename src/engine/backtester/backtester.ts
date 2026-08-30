@@ -66,21 +66,45 @@ export function runBacktest(
   const volMAMap = new Map(calculateVolumeMA(candles, 20).map((p) => [p.time, p.value]));
 
   const indicators: BacktestIndicatorsContext = {
-    sma20: filteredCandles.map((c) => sma20Map.get(c.time) ?? c.close),
-    sma50: filteredCandles.map((c) => sma50Map.get(c.time) ?? c.close),
-    sma200: filteredCandles.map((c) => sma200Map.get(c.time) ?? c.close),
-    ema12: filteredCandles.map((c) => ema12Map.get(c.time) ?? c.close),
-    ema26: filteredCandles.map((c) => ema26Map.get(c.time) ?? c.close),
-    rsi14: filteredCandles.map((c) => rsi14Map.get(c.time) ?? 50),
+    sma20: filteredCandles.map((c) => {
+      const v = sma20Map.get(c.time);
+      return Number.isFinite(v) ? v! : c.close;
+    }),
+    sma50: filteredCandles.map((c) => {
+      const v = sma50Map.get(c.time);
+      return Number.isFinite(v) ? v! : c.close;
+    }),
+    sma200: filteredCandles.map((c) => {
+      const v = sma200Map.get(c.time);
+      return Number.isFinite(v) ? v! : c.close;
+    }),
+    ema12: filteredCandles.map((c) => {
+      const v = ema12Map.get(c.time);
+      return Number.isFinite(v) ? v! : c.close;
+    }),
+    ema26: filteredCandles.map((c) => {
+      const v = ema26Map.get(c.time);
+      return Number.isFinite(v) ? v! : c.close;
+    }),
+    rsi14: filteredCandles.map((c) => {
+      const v = rsi14Map.get(c.time);
+      return Number.isFinite(v) ? v! : 50;
+    }),
     macd: filteredCandles.map((c) => macdMap.get(c.time) ?? { macd: 0, signal: 0, histogram: 0 }),
     bb: filteredCandles.map((c) => bbMap.get(c.time) ?? { upper: c.close, middle: c.close, lower: c.close }),
-    volumeMA20: filteredCandles.map((c) => volMAMap.get(c.time) ?? c.volume),
+    volumeMA20: filteredCandles.map((c) => {
+      const v = volMAMap.get(c.time);
+      return Number.isFinite(v) ? v! : c.volume;
+    }),
   };
 
-  // Benchmark alignment
+  // Benchmark alignment – avoid magic 100 when benchmark missing for start date
   const benchMap = new Map(benchmarkCandles.map((c) => [c.time, c.close]));
-  const initialBenchPrice = benchMap.get(filteredCandles[0].time) ?? 100;
-  const initialAssetPrice = filteredCandles[0].close > 0 ? filteredCandles[0].close : 1;
+  const firstBenchClose = benchmarkCandles.length > 0 ? benchmarkCandles[0].close : undefined;
+  const fallbackBenchPrice = Number.isFinite(firstBenchClose) && (firstBenchClose as number) > 0 ? (firstBenchClose as number) : (Number.isFinite(filteredCandles[0].close) && filteredCandles[0].close > 0 ? filteredCandles[0].close : 100);
+  const initialBenchPriceRaw = benchMap.get(filteredCandles[0].time);
+  const initialBenchPrice = Number.isFinite(initialBenchPriceRaw) && (initialBenchPriceRaw as number) > 0 ? (initialBenchPriceRaw as number) : fallbackBenchPrice;
+  const initialAssetPrice = Number.isFinite(filteredCandles[0].close) && filteredCandles[0].close > 0 ? filteredCandles[0].close : 1;
 
   let cash = config.initialCash;
   let shares = 0;
@@ -98,7 +122,8 @@ export function runBacktest(
 
   for (let i = 0; i < filteredCandles.length; i++) {
     const candle = filteredCandles[i];
-    const benchClose = benchMap.get(candle.time) ?? initialBenchPrice;
+    const benchCloseRaw = benchMap.get(candle.time);
+    const benchClose = Number.isFinite(benchCloseRaw) && (benchCloseRaw as number) > 0 ? (benchCloseRaw as number) : initialBenchPrice;
 
     const ctx: BarRuleContext = {
       index: i,
@@ -182,9 +207,19 @@ export function runBacktest(
       }
     }
 
-    const currentInvested = shares * candle.close;
+    // Handle corrupt candle close (NaN/Infinity/0) gracefully – use last valid price or entryPrice
+    let safeClose = candle.close;
+    if (!Number.isFinite(safeClose) || safeClose <= 0) {
+      // find previous finite close
+      for (let k = i - 1; k >= 0; k--) {
+        const prevClose = filteredCandles[k].close;
+        if (Number.isFinite(prevClose) && prevClose > 0) { safeClose = prevClose; break; }
+      }
+      if (!Number.isFinite(safeClose) || safeClose <= 0) safeClose = entryPrice > 0 ? entryPrice : initialAssetPrice;
+    }
+    const currentInvested = shares * safeClose;
     const strategyValue = Number((cash + currentInvested).toFixed(2));
-    const buyAndHoldValue = Number(((config.initialCash / initialAssetPrice) * candle.close).toFixed(2));
+    const buyAndHoldValue = Number(((config.initialCash / initialAssetPrice) * safeClose).toFixed(2));
     const benchmarkValue = Number(((config.initialCash / initialBenchPrice) * benchClose).toFixed(2));
 
     equityCurve.push({

@@ -38,10 +38,15 @@ export function computeBacktestStats(
 
   const startTs = new Date(startDate).getTime();
   const endTs = new Date(endDate).getTime();
-  const rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
-  const years = Math.max(1 / 365.25, rawYears);
-  const equityRatio = finalEquity / initialCash;
-  const cagr = equityRatio <= 0 ? -100 : (Math.pow(equityRatio, 1 / years) - 1) * 100;
+  const startValid = Number.isFinite(startTs);
+  const endValid = Number.isFinite(endTs);
+  let rawYears = 0;
+  if (startValid && endValid) {
+    rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
+  }
+  const years = Number.isFinite(rawYears) ? Math.max(1 / 365.25, rawYears) : 1 / 365.25;
+  const equityRatio = Number.isFinite(finalEquity) && Number.isFinite(initialCash) && initialCash > 0 ? finalEquity / initialCash : 0;
+  const cagr = !Number.isFinite(equityRatio) || equityRatio <= 0 ? -100 : (Math.pow(equityRatio, 1 / years) - 1) * 100;
 
   const winningTrades = trades.filter((t) => t.pnl > 0);
   const losingTrades = trades.filter((t) => t.pnl < 0);
@@ -51,11 +56,11 @@ export function computeBacktestStats(
     ? Number(((winningTrades.length / totalTrades) * 100).toFixed(2))
     : 0;
 
-  const grossGains = winningTrades.reduce((sum, t) => sum + t.pnl, 0);
-  const grossLosses = Math.abs(losingTrades.reduce((sum, t) => sum + t.pnl, 0));
+  const grossGains = winningTrades.reduce((sum, t) => sum + (Number.isFinite(t.pnl) ? t.pnl : 0), 0);
+  const grossLosses = Math.abs(losingTrades.reduce((sum, t) => sum + (Number.isFinite(t.pnl) ? t.pnl : 0), 0));
   const profitFactor = grossLosses > 0
     ? Number((grossGains / grossLosses).toFixed(2))
-    : grossGains > 0 ? Infinity : 0;
+    : grossGains > 0 ? 999 : 0;
 
   const avgWinPercent = winningTrades.length > 0
     ? Number((winningTrades.reduce((sum, t) => sum + t.pnlPercent, 0) / winningTrades.length).toFixed(2))
@@ -69,10 +74,12 @@ export function computeBacktestStats(
   trades.forEach((t) => {
     const d1 = new Date(t.entryDate).getTime();
     const d2 = new Date(t.exitDate).getTime();
-    const days = Math.max(1, Math.round((d2 - d1) / (24 * 3600 * 1000)));
+    const valid = Number.isFinite(d1) && Number.isFinite(d2);
+    const rawDays = valid ? (d2 - d1) / (24 * 3600 * 1000) : NaN;
+    const days = Number.isFinite(rawDays) ? Math.max(1, Math.round(rawDays)) : 1;
     totalHoldingDays += days;
   });
-  const avgHoldingDays = totalTrades > 0 ? Math.round(totalHoldingDays / totalTrades) : 0;
+  const avgHoldingDays = totalTrades > 0 && Number.isFinite(totalHoldingDays) ? Math.round(totalHoldingDays / totalTrades) : 0;
 
   const equitySeries = equityCurve.map((pt) => ({ date: pt.date, value: pt.strategyValue }));
   const ddResult = calculateMaxDrawdown(equitySeries);

@@ -131,6 +131,6 @@ describe('Backtester - Edge Cases', () => {
     const trades=[{id:'1',entryDate:'2020-01-01',exitDate:'2020-01-02',entryPrice:100,exitPrice:110,shares:10,pnl:100,pnlPercent:10,reason:'x'} as any];
     const curve=[{date:'2020-01-01',strategyValue:10000,buyAndHoldValue:10000,benchmarkValue:10000},{date:'2020-01-02',strategyValue:10100,buyAndHoldValue:10100,benchmarkValue:10100}];
     const s=computeBacktestStats(trades,curve,10000,'2020-01-01','2020-01-02');
-    expect(s.profitFactor).toBe(Infinity);
+    expect(s.profitFactor).toBe(999);
   });
 });
