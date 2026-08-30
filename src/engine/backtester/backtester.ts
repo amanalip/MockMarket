@@ -190,18 +190,21 @@ export function runBacktest(
         entryDate = '';
       }
     } else {
-      // Not in position: check entry condition
-      if (entryFn(ctx) && cash > 0 && candle.close > 0) {
+      // Not in position: check entry condition – guard NaN/Infinity close
+      if (entryFn(ctx) && cash > 0 && Number.isFinite(candle.close) && candle.close > 0) {
         const allocatedCash = cash * (positionSize / 100);
-        const sharesToBuy = Math.floor(allocatedCash / candle.close);
-        if (sharesToBuy > 0) {
-          const cost = sharesToBuy * candle.close;
-          if (cost <= cash) {
-            cash -= cost;
-            shares = sharesToBuy;
-            entryPrice = candle.close;
-            entryDate = candle.time;
-            entryIndex = i;
+        const rawShares = allocatedCash / candle.close;
+        if (Number.isFinite(rawShares)) {
+          const sharesToBuy = Math.floor(rawShares);
+          if (Number.isFinite(sharesToBuy) && sharesToBuy > 0) {
+            const cost = sharesToBuy * candle.close;
+            if (Number.isFinite(cost) && cost <= cash) {
+              cash -= cost;
+              shares = sharesToBuy;
+              entryPrice = candle.close;
+              entryDate = candle.time;
+              entryIndex = i;
+            }
           }
         }
       }

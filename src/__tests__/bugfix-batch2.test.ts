@@ -13,7 +13,7 @@ describe('Bugfix Batch 2 – Trading & ETF hardening', () => {
     const eng = new TradingEngine(100000, 0);
     const c = candle('2024-01-02', 100);
     // buy 10 AAPL
-    let r = eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market' }, c);
+    const r = eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market' }, c);
     expect(r.success).toBe(true);
     // place sell limit with lowercase ticker
     const r1 = eng.placeOrder({ ticker: 'aapl', side: 'sell', type: 'limit', shares: 6, limitPrice: 110 }, c);

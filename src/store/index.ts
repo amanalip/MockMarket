@@ -156,6 +156,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
   orders: [],
   commission: 0,
   setStartingCash: (startingCash) => {
+    if (!Number.isFinite(startingCash) || startingCash < 0) return;
     tradingEngineInstance.setStartingCash(startingCash);
     const engineState = tradingEngineInstance.getState();
     set({

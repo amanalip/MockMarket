@@ -103,7 +103,7 @@ describe('Extra Coverage - Security, Stats & Edge', () => {
   it('csv export handles NaN price -> NaN string', () => {
     const trades: any = [{ id: '1', ticker: 'AAPL', side: 'buy', type: 'market', shares: 10, price: NaN, total: NaN, fee: 0, timestamp: '2020-01-01' }];
     const csv = exportTradesToCSV(trades);
-    expect(csv).toContain('NaN');
+    expect(csv).toContain('0.00'); // NaN sanitized to 0.00 for robustness
   });
 
   it('url-state handles special chars < > &', () => {

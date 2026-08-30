@@ -17,15 +17,15 @@ export function downloadCSV(filename: string, csvContent: string): void {
 export function exportTradesToCSV(trades: Trade[]): string {
   const headers = ['ID', 'Ticker', 'Side', 'Type', 'Shares', 'Price', 'Fee', 'Total', 'Timestamp'];
   const rows = trades.map((t) => [
-    t.id,
-    t.ticker,
-    t.side.toUpperCase(),
-    t.type.toUpperCase(),
-    t.shares,
-    t.price.toFixed(2),
-    t.fee.toFixed(2),
-    t.total.toFixed(2),
-    t.timestamp,
+    csvEscape(String(t.id)),
+    csvEscape(String(t.ticker)),
+    csvEscape(String(t.side).toUpperCase()),
+    csvEscape(String(t.type).toUpperCase()),
+    String(t.shares),
+    Number.isFinite(t.price) ? t.price.toFixed(2) : '0.00',
+    Number.isFinite(t.fee) ? t.fee.toFixed(2) : '0.00',
+    Number.isFinite(t.total) ? t.total.toFixed(2) : '0.00',
+    csvEscape(String(t.timestamp)),
   ]);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -34,15 +34,15 @@ export function exportTradesToCSV(trades: Trade[]): string {
 export function exportPositionsToCSV(positions: Record<string, Position>): string {
   const headers = ['Ticker', 'Shares', 'AvgCost', 'TotalCost', 'CurrentPrice', 'CurrentValue', 'UnrealizedPnL', 'UnrealizedPnLPercent', 'RealizedPnL'];
   const rows = Object.values(positions).map((p) => [
-    p.ticker,
-    p.shares,
-    p.avgCost.toFixed(2),
-    p.totalCost.toFixed(2),
-    p.currentPrice.toFixed(2),
-    p.currentValue.toFixed(2),
-    p.unrealizedPnL.toFixed(2),
-    p.unrealizedPnLPercent.toFixed(2),
-    p.realizedPnL.toFixed(2),
+    csvEscape(String(p.ticker)),
+    String(p.shares),
+    Number.isFinite(p.avgCost) ? p.avgCost.toFixed(2) : '0.00',
+    Number.isFinite(p.totalCost) ? p.totalCost.toFixed(2) : '0.00',
+    Number.isFinite(p.currentPrice) ? p.currentPrice.toFixed(2) : '0.00',
+    Number.isFinite(p.currentValue) ? p.currentValue.toFixed(2) : '0.00',
+    Number.isFinite(p.unrealizedPnL) ? p.unrealizedPnL.toFixed(2) : '0.00',
+    Number.isFinite(p.unrealizedPnLPercent) ? p.unrealizedPnLPercent.toFixed(2) : '0.00',
+    Number.isFinite(p.realizedPnL) ? p.realizedPnL.toFixed(2) : '0.00',
   ]);
 
   return [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');

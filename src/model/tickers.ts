@@ -107,6 +107,7 @@ export const CORE_TICKERS: TickerInfo[] = [
 ];
 
 export function getTickerInfo(ticker: string): TickerInfo | undefined {
+  if (typeof ticker !== 'string') return undefined;
   return CORE_TICKERS.find((t) => t.ticker.toUpperCase() === ticker.toUpperCase());
 }
 
@@ -116,7 +117,7 @@ export function getAllSectors(): string[] {
 }
 
 export function getAllIndustries(sectorFilter?: string): string[] {
-  const clean = sectorFilter?.trim();
+  const clean = typeof sectorFilter === 'string' ? sectorFilter.trim() : '';
   const items = clean
     ? CORE_TICKERS.filter((t) => t.sector.toLowerCase() === clean.toLowerCase())
     : CORE_TICKERS;
@@ -125,7 +126,8 @@ export function getAllIndustries(sectorFilter?: string): string[] {
 }
 
 export function searchTickers(query: string): TickerInfo[] {
-  const q = query?.trim().toLowerCase();
+  if (typeof query !== 'string') return [...CORE_TICKERS];
+  const q = query.trim().toLowerCase();
   if (!q) return [...CORE_TICKERS];
   return CORE_TICKERS.filter(
     (t) =>
