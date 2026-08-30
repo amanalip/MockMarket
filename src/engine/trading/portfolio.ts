@@ -19,7 +19,7 @@ export function calculatePositionUpdate(
     const existingRealizedPnL = currentPos?.realizedPnL || 0;
 
     const newShares = existingShares + shares;
-    const newTotalCost = existingTotalCost + (shares * price);
+    const newTotalCost = existingTotalCost + (shares * price) + (Number.isFinite(fee) ? fee : 0);
     const newAvgCost = newShares > 0 ? newTotalCost / newShares : 0;
     const currentValue = newShares * price;
     const unrealizedPnL = currentValue - newTotalCost;

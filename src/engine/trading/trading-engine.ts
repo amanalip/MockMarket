@@ -84,8 +84,9 @@ export class TradingEngine {
         };
       }
     } else {
-      // Sell limit/stop
-      const pos = this.state.positions[req.ticker];
+      // Sell limit/stop – case-insensitive ticker lookup for positions as well
+      const posKey = Object.keys(this.state.positions).find(k => k.toUpperCase() === req.ticker.toUpperCase());
+      const pos = posKey ? this.state.positions[posKey] : undefined;
       const pendingSellShares = this.state.orders
         .filter((o) => o.ticker.toUpperCase() === req.ticker.toUpperCase() && o.side === 'sell' && o.status === 'pending')
         .reduce((sum, o) => sum + o.shares, 0);
@@ -179,14 +180,24 @@ export class TradingEngine {
         }
       }
     } else if (order.type === 'stop_loss') {
-      if (order.stopPrice !== undefined && candle.low <= order.stopPrice) {
-        shouldFill = true;
-        fillPrice = Math.min(order.stopPrice, candle.open);
+      if (order.stopPrice !== undefined && Number.isFinite(order.stopPrice)) {
+        if (order.side === 'sell' && candle.low <= order.stopPrice) {
+          shouldFill = true;
+          fillPrice = Math.min(order.stopPrice, candle.open);
+        } else if (order.side === 'buy' && candle.high >= order.stopPrice) {
+          shouldFill = true;
+          fillPrice = Math.max(order.stopPrice, candle.open);
+        }
       }
     } else if (order.type === 'take_profit') {
-      if (order.stopPrice !== undefined && candle.high >= order.stopPrice) {
-        shouldFill = true;
-        fillPrice = Math.max(order.stopPrice, candle.open);
+      if (order.stopPrice !== undefined && Number.isFinite(order.stopPrice)) {
+        if (order.side === 'sell' && candle.high >= order.stopPrice) {
+          shouldFill = true;
+          fillPrice = Math.max(order.stopPrice, candle.open);
+        } else if (order.side === 'buy' && candle.low <= order.stopPrice) {
+          shouldFill = true;
+          fillPrice = Math.min(order.stopPrice, candle.open);
+        }
       }
     }
 

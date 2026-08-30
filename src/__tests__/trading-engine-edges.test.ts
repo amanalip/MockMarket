@@ -173,9 +173,9 @@ describe('Trading Engine - Edge & Bug Cases', () => {
   it('sell fee affects realized PnL and cash', () => {
     const e = new TradingEngine(10000, 10);
     e.executeMarketOrder({ ticker: 'AAPL', side: 'buy', type: 'market', shares: 10, date: '2024-01-02' }, mkCandle({ close: 100 }));
-    // cash after buy 10000-1000-10=8990
+    // cash after buy 10000-1010=8990 (fee amortized into cost basis)
     const res = e.executeMarketOrder({ ticker: 'AAPL', side: 'sell', type: 'market', shares: 10, date: '2024-01-03' }, mkCandle({ close: 110 }));
-    expect(res.realizedPnL).toBe(90); // (1100 -1000 -10)
+    expect(res.realizedPnL).toBe(80); // (1100 -1010 -10) fee amortized
     expect(e.getState().cash).toBe(8990 + 1100 -10); // 10080
   });
 

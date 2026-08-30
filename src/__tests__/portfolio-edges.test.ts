@@ -32,8 +32,8 @@ describe('Portfolio Position Logic - Edges', () => {
 
   it('buy with fee keeps cost basis without fee but realizedPnL unchanged', () => {
     const { updatedPosition } = calculatePositionUpdate(basePos, 'buy', 10, 100, 10);
-    // fee not in totalCost per implementation
-    expect(updatedPosition!.totalCost).toBe(2000);
+    // fee amortized into totalCost (bugfix)
+    expect(updatedPosition!.totalCost).toBe(2010);
     expect(updatedPosition!.realizedPnL).toBe(50);
   });
 

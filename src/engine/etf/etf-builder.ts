@@ -59,13 +59,24 @@ export function normalizeWeights(
   tickers: { ticker: string; targetWeight: number }[]
 ): { ticker: string; targetWeight: number }[] {
   if (tickers.length === 0) return [];
-  const sum = tickers.reduce((acc, t) => acc + t.targetWeight, 0);
+  const sum = tickers.reduce((acc, t) => acc + (Number.isFinite(t.targetWeight) ? t.targetWeight : 0), 0);
   if (sum === 0) {
-    const equal = Number((100 / tickers.length).toFixed(2));
-    const result = tickers.map((t) => ({ ticker: t.ticker, targetWeight: equal }));
-    // Adjust rounding drift to ensure sum is 100
+    // Use higher precision to minimize drift for large N, then distribute remainder evenly
+    const rawEqual = 100 / tickers.length;
+    const base = Math.floor(rawEqual * 100) / 100; // truncate to 2 decimals down
+    const result = tickers.map((t) => ({ ticker: t.ticker, targetWeight: base }));
+    let remainder = Number((100 - base * tickers.length).toFixed(2));
+    // Distribute remainder in 0.01 increments to avoid single-ticker concentration
+    let idx = 0;
+    while (remainder > 0.0001 && idx < result.length) {
+      const add = Math.min(0.01, remainder);
+      result[idx].targetWeight = Number((result[idx].targetWeight + add).toFixed(2));
+      remainder = Number((remainder - add).toFixed(2));
+      idx = (idx + 1) % result.length;
+    }
+    // Final drift correction
     const drift = Number((100 - result.reduce((s, c) => s + c.targetWeight, 0)).toFixed(2));
-    if (drift !== 0 && result.length > 0) {
+    if (Math.abs(drift) > 0.001) {
       result[result.length - 1].targetWeight = Number((result[result.length - 1].targetWeight + drift).toFixed(2));
     }
     return result;
@@ -158,10 +169,18 @@ export function simulateETF(
     const currentWeights: Record<string, number> = {};
 
     normalizedConstituents.forEach((c) => {
-      const prevPrice = priceMap[c.ticker].get(prevDate)!;
-      const curPrice = priceMap[c.ticker].get(curDate)!;
-      const ret = prevPrice > 0 ? (curPrice - prevPrice) / prevPrice : 0;
-
+      const prevPriceRaw = priceMap[c.ticker].get(prevDate);
+      const curPriceRaw = priceMap[c.ticker].get(curDate);
+      const prevPrice = Number.isFinite(prevPriceRaw) ? prevPriceRaw as number : 0;
+      const curPrice = Number.isFinite(curPriceRaw) ? curPriceRaw as number : prevPrice;
+      let ret = 0;
+      if (prevPrice > 0 && Number.isFinite(curPrice) && Number.isFinite(prevPrice)) {
+        ret = (curPrice - prevPrice) / prevPrice;
+        if (!Number.isFinite(ret)) ret = 0;
+      } else if (prevPrice === 0 && curPrice > 0) {
+        // Recovery from zero (e.g., bad data fixed) – treat as 0 to avoid stuck NAV, but allow step
+        ret = 0;
+      }
       assetValues[c.ticker] *= (1 + ret);
       dailyNAV += assetValues[c.ticker];
     });
