@@ -9,7 +9,7 @@ export function calculateVolumeMA(candles: Candle[], period = 20): IndicatorPoin
   let sum = 0;
   const getVol = (idx: number): number => {
     const v = candles[idx]?.volume;
-    return Number.isFinite(v) ? (v as number) : 0;
+    return Number.isFinite(v) && (v as number) >= 0 ? (v as number) : 0;
   };
   for (let i = 0; i < candles.length; i++) {
     sum += getVol(i);

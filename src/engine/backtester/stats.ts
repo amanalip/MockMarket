@@ -62,12 +62,14 @@ export function computeBacktestStats(
     ? Number((grossGains / grossLosses).toFixed(2))
     : grossGains > 0 ? 999 : 0;
 
-  const avgWinPercent = winningTrades.length > 0
-    ? Number((winningTrades.reduce((sum, t) => sum + t.pnlPercent, 0) / winningTrades.length).toFixed(2))
+  const cleanWinPercents = winningTrades.map(t => t.pnlPercent).filter(v => Number.isFinite(v));
+  const cleanLossPercents = losingTrades.map(t => t.pnlPercent).filter(v => Number.isFinite(v));
+  const avgWinPercent = cleanWinPercents.length > 0
+    ? Number((cleanWinPercents.reduce((sum, v) => sum + v, 0) / cleanWinPercents.length).toFixed(2))
     : 0;
 
-  const avgLossPercent = losingTrades.length > 0
-    ? Number((losingTrades.reduce((sum, t) => sum + t.pnlPercent, 0) / losingTrades.length).toFixed(2))
+  const avgLossPercent = cleanLossPercents.length > 0
+    ? Number((cleanLossPercents.reduce((sum, v) => sum + v, 0) / cleanLossPercents.length).toFixed(2))
     : 0;
 
   let totalHoldingDays = 0;
@@ -114,13 +116,16 @@ export function computeBacktestStats(
 export function computeMonthlyReturns(
   equityCurve: BacktestEquityPoint[]
 ): { year: number; month: number; returnPercent: number }[] {
-  if (equityCurve.length < 2) return [];
+  if (!Array.isArray(equityCurve) || equityCurve.length < 2) return [];
 
-  // Group equity points by year and month
+  // Group equity points by year and month, skip invalid dates/values
   const monthlyMap = new Map<string, BacktestEquityPoint[]>();
 
   equityCurve.forEach((pt) => {
+    if (!pt || typeof pt.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(pt.date)) return;
     const d = new Date(pt.date);
+    if (Number.isNaN(d.getTime()) || d.toISOString().slice(0,10) !== pt.date) return;
+    if (!Number.isFinite(pt.strategyValue)) return;
     const year = d.getUTCFullYear();
     const month = d.getUTCMonth() + 1;
     const key = `${year}-${String(month).padStart(2, '0')}`;
@@ -133,7 +138,8 @@ export function computeMonthlyReturns(
   const sortedKeys = Array.from(monthlyMap.keys()).sort();
   const results: { year: number; month: number; returnPercent: number }[] = [];
 
-  let previousMonthEndValue = equityCurve[0].strategyValue;
+  const firstValid = equityCurve.find(pt => Number.isFinite(pt.strategyValue));
+  let previousMonthEndValue = firstValid ? firstValid.strategyValue : 0;
 
   sortedKeys.forEach((key, index) => {
     const points = monthlyMap.get(key)!;
@@ -143,8 +149,9 @@ export function computeMonthlyReturns(
 
     const monthStartValue = index === 0 ? points[0].strategyValue : previousMonthEndValue;
     const monthEndValue = points[points.length - 1].strategyValue;
+    if (!Number.isFinite(monthStartValue) || !Number.isFinite(monthEndValue)) return;
 
-    const returnPercent = monthStartValue > 0
+    const returnPercent = monthStartValue > 0 && Number.isFinite(monthStartValue) && Number.isFinite(monthEndValue)
       ? ((monthEndValue - monthStartValue) / monthStartValue) * 100
       : 0;
 

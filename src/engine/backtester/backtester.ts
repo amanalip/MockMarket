@@ -46,6 +46,13 @@ export function runBacktest(
   entryFn: RuleEvaluator,
   exitFn: RuleEvaluator
 ): BacktestResult {
+  if (!Number.isFinite(config.initialCash) || config.initialCash <= 0) {
+    throw new Error('Invalid initialCash');
+  }
+  const isValidDate = (s: string) => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(s).getTime()) && new Date(s).toISOString().slice(0,10) === s;
+  if (!isValidDate(config.startDate) || !isValidDate(config.endDate)) {
+    throw new Error('Invalid date range');
+  }
   const filteredCandles = candles.filter(
     (c) => c.time >= config.startDate && c.time <= config.endDate
   );
