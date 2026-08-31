@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { isTradingDay } from 'us-equity-market-calendar';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,7 +27,10 @@ function createPRNG(seed) {
   };
 }
 
-// Generate calendar dates from 2015-01-02 to 2024-12-31
+// Exceptional full-day closures are not predictable from recurring holiday rules.
+const AD_HOC_EQUITY_CLOSURES = new Set(['2018-12-05']);
+
+// Generate UTC date labels from 2015-01-01 to 2024-12-31.
 function getTradingDates(isCrypto = false) {
   const dates = [];
   const start = new Date(Date.UTC(2015, 0, 1));
@@ -34,25 +38,16 @@ function getTradingDates(isCrypto = false) {
   const current = new Date(start);
 
   while (current <= end) {
-    const dayOfWeek = current.getUTCDay(); // 0 is Sunday, 6 is Saturday
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-
-    if (isCrypto || !isWeekend) {
-      const year = current.getUTCFullYear();
-      const month = String(current.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(current.getUTCDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      // Skip Jan 1 (market holiday) for non-crypto
-      if (isCrypto || dateStr !== '2015-01-01') {
-        dates.push(dateStr);
-      }
+    const dateStr = current.toISOString().slice(0, 10);
+    if (isCrypto || (isTradingDay(dateStr) && !AD_HOC_EQUITY_CLOSURES.has(dateStr))) {
+      dates.push(dateStr);
     }
     current.setUTCDate(current.getUTCDate() + 1);
   }
   return dates;
 }
 
-// Historic anchors per ticker (date -> approximate real close price)
+// Approximate reference anchors used only to shape synthetic paths.
 const TICKER_ANCHORS = {
   AAPL: [
     { date: '2015-01-02', price: 27.33 },
@@ -299,4 +294,4 @@ tickersRaw.forEach((item, index) => {
   console.log(`[${index + 1}/${tickersRaw.length}] Saved ${item.ticker} (${data.length} candles) -> ${filePath}`);
 });
 
-console.log('Complete 100-ticker dataset generation complete.');
+console.log(`Complete ${tickersRaw.length}-ticker dataset generation complete.`);
