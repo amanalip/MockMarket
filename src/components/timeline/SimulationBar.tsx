@@ -1,8 +1,8 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useRef } from 'react';
 import { useUIStore, usePortfolioStore } from '../../store';
 import { Play, Pause, RotateCcw, Calendar as CalendarIcon } from 'lucide-react';
 import { Candle, PortfolioSnapshot } from '../../model/types';
-import { getLatestCandleOnOrBefore } from '../../data/loader';
+import { loadLatestCandlesOnOrBefore } from '../../data/loader';
 import styles from './SimulationBar.module.css';
 
 interface SimulationBarProps {
@@ -18,6 +18,7 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     playbackSpeed,
     setPlaybackSpeed,
     selectedTicker,
+    addToast,
   } = useUIStore();
 
   const {
@@ -25,6 +26,7 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     processCandleForOrders,
     resetPortfolio,
   } = usePortfolioStore();
+  const transitionId = useRef(0);
 
   // Find index of current simulation date in candles – handle beyond last
   const currentIndex = candles.findIndex((c) => c.time === simulationDate);
@@ -33,44 +35,64 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     ? currentIndex
     : nextOrEqualIdx >= 0 ? nextOrEqualIdx : candles.length > 0 ? candles.length - 1 : 0;
 
+  const transitionToDate = useCallback(async (nextDate: string) => {
+    if (!setSimulationDate(nextDate)) {
+      setIsPlaying(false);
+      addToast('Reset the portfolio before rewinding past account activity.', 'error');
+      return;
+    }
+
+    const requestId = ++transitionId.current;
+    const before = usePortfolioStore.getState();
+    const tickers = [
+      selectedTicker,
+      ...Object.keys(before.positions),
+      ...before.orders.filter((order) => order.status === 'pending').map((order) => order.ticker),
+    ];
+    const results = await loadLatestCandlesOnOrBefore(tickers, nextDate);
+    if (requestId !== transitionId.current || useUIStore.getState().simulationDate !== nextDate) return;
+
+    Object.values(results).forEach((result) => {
+      if (result.status === 'available') processCandleForOrders(result.candle, result.ticker);
+    });
+    const priceMap = Object.fromEntries(
+      Object.values(results)
+        .filter((result) => result.status === 'available')
+        .map((result) => [result.ticker, result.candle.close])
+    );
+    updateMarketPrices(priceMap);
+
+    const unavailable = Object.values(results)
+      .filter((result) => result.status === 'unavailable')
+      .map((result) => result.ticker);
+    if (unavailable.length > 0) {
+      addToast(`Price unavailable for ${unavailable.join(', ')} on ${nextDate}; previous marks were preserved.`, 'error');
+    }
+
+    const after = usePortfolioStore.getState();
+    const invested = Object.values(after.positions).reduce((sum, position) => sum + position.currentValue, 0);
+    const totalValue = after.cash + invested;
+    const snapshot: PortfolioSnapshot = {
+      date: nextDate,
+      cash: after.cash,
+      investedValue: invested,
+      totalValue,
+      dailyPnL: 0,
+      totalPnL: totalValue - after.startingCash,
+    };
+    usePortfolioStore.setState((state) => ({
+      history: [...state.history.filter((entry) => entry.date !== nextDate), snapshot],
+    }));
+  }, [addToast, processCandleForOrders, selectedTicker, setIsPlaying, setSimulationDate, updateMarketPrices]);
+
   const advanceByDays = useCallback((stepCount: number) => {
     if (candles.length === 0) return;
     const targetIdx = Math.min(candles.length - 1, effectiveIndex + stepCount);
     const nextCandle = candles[targetIdx];
     if (!nextCandle) return;
 
-    const nextDate = nextCandle.time;
-    setSimulationDate(nextDate);
-
-    // Revalue active holdings & process pending limit/stop orders – use fresh store values to avoid stale closure
-    const fresh = usePortfolioStore.getState();
-    const priceMap: Record<string, number> = {
-      [selectedTicker]: nextCandle.close,
-    };
-    // For multi-ticker, revalue all positions with latest known prices (fallback to selected)
-    Object.keys(fresh.positions).forEach(tk => {
-      if (!(tk in priceMap)) priceMap[tk] = nextCandle.close;
-    });
-    updateMarketPrices(priceMap);
-    processCandleForOrders(nextCandle, selectedTicker);
-
-    // Record snapshot with fresh totals after revalue
-    const after = usePortfolioStore.getState();
-    const invested = Object.values(after.positions).reduce((sum, p) => sum + p.currentValue, 0);
-    const totalVal = after.cash + invested;
-    const snapshot: PortfolioSnapshot = {
-      date: nextDate,
-      cash: after.cash,
-      investedValue: invested,
-      totalValue: totalVal,
-      dailyPnL: 0,
-      totalPnL: totalVal - after.startingCash,
-    };
-
-    usePortfolioStore.setState((state) => ({
-      history: [...state.history.filter((h) => h.date !== nextDate), snapshot],
-    }));
-  }, [candles, effectiveIndex, setSimulationDate, selectedTicker, updateMarketPrices, processCandleForOrders]);
+    void transitionToDate(nextCandle.time);
+  }, [candles, effectiveIndex, transitionToDate]);
 
   // Auto-play interval
   useEffect(() => {
@@ -91,6 +113,8 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
 
   const handleReset = () => {
     setIsPlaying(false);
+    transitionId.current += 1;
+    resetPortfolio(100000);
     if (candles.length > 0) {
       setSimulationDate(candles[0].time);
       const firstCandle = candles[0];
@@ -98,17 +122,10 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     } else {
       setSimulationDate('2015-01-02');
     }
-    resetPortfolio(100000);
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newDate = e.target.value;
-    setSimulationDate(newDate);
-    const candle = getLatestCandleOnOrBefore(candles, newDate);
-    if (candle) {
-      updateMarketPrices({ [selectedTicker]: candle.close });
-      processCandleForOrders(candle, selectedTicker);
-    }
+    void transitionToDate(e.target.value);
   };
 
   return (

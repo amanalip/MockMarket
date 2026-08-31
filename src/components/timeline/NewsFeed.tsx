@@ -27,7 +27,10 @@ export const NewsFeed: React.FC = () => {
   }, [allNews, category, sentiment, searchQuery, tickerFilter]);
 
   const handleJumpToDate = async (targetDate: string, tickerHint?: string) => {
-    setSimulationDate(targetDate);
+    if (!setSimulationDate(targetDate)) {
+      addToast('Reset the portfolio before rewinding past account activity.', 'error');
+      return;
+    }
     const activeTicker = tickerHint || selectedTicker;
     try {
       const candles = await loadTickerData(activeTicker);

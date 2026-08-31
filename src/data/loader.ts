@@ -3,6 +3,10 @@ import { CORE_TICKERS, getTickerInfo } from '../model/tickers';
 
 const candleCache = new Map<string, Candle[]>();
 
+export type DatedCandleResult =
+  | { status: 'available'; ticker: string; targetDate: string; candle: Candle }
+  | { status: 'unavailable'; ticker: string; targetDate: string; reason: 'no-candle-on-or-before' | 'load-failed' };
+
 export function clearTickerCache(): void {
   candleCache.clear();
 }
@@ -118,4 +122,28 @@ export function getLatestCandleOnOrBefore(
     }
   }
   return undefined;
+}
+
+export async function loadLatestCandlesOnOrBefore(
+  tickers: string[],
+  targetDate: string
+): Promise<Record<string, DatedCandleResult>> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate) || Number.isNaN(new Date(targetDate).getTime()) || new Date(targetDate).toISOString().slice(0, 10) !== targetDate) {
+    throw new Error(`Invalid target date: ${targetDate}`);
+  }
+
+  const uniqueTickers = [...new Set(tickers.map((ticker) => ticker.trim().toUpperCase()).filter(Boolean))];
+  const entries = await Promise.all(uniqueTickers.map(async (ticker): Promise<[string, DatedCandleResult]> => {
+    try {
+      const candles = await loadTickerData(ticker);
+      const candle = getLatestCandleOnOrBefore(candles, targetDate);
+      return candle
+        ? [ticker, { status: 'available', ticker, targetDate, candle }]
+        : [ticker, { status: 'unavailable', ticker, targetDate, reason: 'no-candle-on-or-before' }];
+    } catch {
+      return [ticker, { status: 'unavailable', ticker, targetDate, reason: 'load-failed' }];
+    }
+  }));
+
+  return Object.fromEntries(entries);
 }

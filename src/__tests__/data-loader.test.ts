@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CORE_TICKERS, getTickerInfo, getAllSectors, getAllIndustries } from '../model/tickers';
-import { loadTickerData, filterCandlesByDate, getLatestCandleOnOrBefore } from '../data/loader';
+import { clearTickerCache, loadLatestCandlesOnOrBefore, loadTickerData, filterCandlesByDate, getLatestCandleOnOrBefore } from '../data/loader';
 import { Candle } from '../model/types';
 
 describe('Ticker Metadata & Data Loader', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    clearTickerCache();
   });
 
   it('provides comprehensive metadata for core tickers', () => {
@@ -83,5 +84,27 @@ describe('Ticker Metadata & Data Loader', () => {
     const cachedResult = await loadTickerData('TEST_TICKER');
     expect(cachedResult).toEqual(mockCandles);
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads each ticker own latest candle and reports unavailable prices', async () => {
+    const data: Record<string, Candle[]> = {
+      AAA: [
+        { time: '2024-01-05', open: 100, high: 100, low: 100, close: 100, volume: 1 },
+        { time: '2024-01-08', open: 110, high: 110, low: 110, close: 110, volume: 1 },
+      ],
+      BBB: [{ time: '2024-01-05', open: 200, high: 200, low: 200, close: 200, volume: 1 }],
+      CCC: [{ time: '2024-01-09', open: 300, high: 300, low: 300, close: 300, volume: 1 }],
+    };
+    globalThis.fetch = vi.fn(async (url: string) => {
+      const ticker = /([^/]+)\.json$/.exec(url)?.[1] || '';
+      return { ok: true, json: async () => data[ticker] } as Response;
+    });
+
+    const result = await loadLatestCandlesOnOrBefore(['aaa', 'BBB', 'CCC'], '2024-01-08');
+
+    expect(result.AAA.status).toBe('available');
+    expect(result.AAA.status === 'available' && result.AAA.candle.close).toBe(110);
+    expect(result.BBB.status === 'available' && result.BBB.candle).toMatchObject({ time: '2024-01-05', close: 200 });
+    expect(result.CCC).toMatchObject({ status: 'unavailable', reason: 'no-candle-on-or-before' });
   });
 });
