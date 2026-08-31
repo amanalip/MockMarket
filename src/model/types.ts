@@ -63,6 +63,16 @@ export interface Position {
   realizedPnL: number;
 }
 
+export interface TradingAccountState {
+  cash: number;
+  startingCash: number;
+  commissionPerTrade: number;
+  realizedPnL: number;
+  positions: Record<string, Position>;
+  trades: Trade[];
+  orders: Order[];
+}
+
 export interface PortfolioSnapshot {
   date: string;
   cash: number;

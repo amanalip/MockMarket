@@ -1,15 +1,6 @@
-import { Position, Trade, Order, Candle } from '../../model/types';
+import { Trade, Order, Candle, TradingAccountState } from '../../model/types';
 import { OrderRequest, ExecutionResult } from './order-types';
 import { calculatePositionUpdate, revaluePosition } from './portfolio';
-
-export interface TradingAccountState {
-  cash: number;
-  startingCash: number;
-  commissionPerTrade: number;
-  positions: Record<string, Position>;
-  trades: Trade[];
-  orders: Order[];
-}
 
 export class TradingEngine {
   private state: TradingAccountState;
@@ -19,6 +10,7 @@ export class TradingEngine {
       cash: initialCash,
       startingCash: initialCash,
       commissionPerTrade,
+      realizedPnL: 0,
       positions: {},
       trades: [],
       orders: [],
@@ -45,6 +37,7 @@ export class TradingEngine {
     if (!Number.isFinite(amount) || amount < 0) return;
     this.state.startingCash = amount;
     this.state.cash = amount;
+    this.state.realizedPnL = 0;
     this.state.positions = {};
     this.state.trades = [];
     this.state.orders = [];
@@ -164,6 +157,7 @@ export class TradingEngine {
   private checkAndFillOrder(order: Order, candle: Candle): boolean {
     if (order.status !== 'pending') return false;
     if (!candle || !Number.isFinite(candle.low) || !Number.isFinite(candle.high) || !Number.isFinite(candle.open) || !Number.isFinite(candle.close)) return false;
+    if (candle.time < order.createdAt) return false;
 
     let shouldFill = false;
     let fillPrice = candle.close;
@@ -259,7 +253,8 @@ export class TradingEngine {
       const netProceeds = grossProceeds - fee;
       this.state.cash += netProceeds;
 
-      const { updatedPosition } = calculatePositionUpdate(currentPos, 'sell', order.shares, fillPrice, fee);
+      const { updatedPosition, realizedPnL } = calculatePositionUpdate(currentPos, 'sell', order.shares, fillPrice, fee);
+      this.state.realizedPnL = Number((this.state.realizedPnL + realizedPnL).toFixed(2));
       if (updatedPosition) {
         this.state.positions[order.ticker] = updatedPosition;
       } else {
@@ -351,6 +346,7 @@ export class TradingEngine {
       this.state.cash += netProceeds;
 
       const { updatedPosition, realizedPnL } = calculatePositionUpdate(currentPos, 'sell', req.shares, fillPrice, fee);
+      this.state.realizedPnL = Number((this.state.realizedPnL + realizedPnL).toFixed(2));
       if (updatedPosition) {
         this.state.positions[req.ticker] = updatedPosition;
       } else {

@@ -4,7 +4,7 @@ import { getTickerInfo } from '../../model/tickers';
 import styles from './PortfolioDashboard.module.css';
 
 export const PortfolioDashboard: React.FC = () => {
-  const { cash, positions, startingCash, trades } = usePortfolioStore();
+  const { cash, positions, startingCash, realizedPnL } = usePortfolioStore();
   const { setSelectedTicker } = useUIStore();
 
   const holdingsList = Object.values(positions);
@@ -12,14 +12,6 @@ export const PortfolioDashboard: React.FC = () => {
   const totalPortfolioValue = cash + investedValue;
 
   const totalUnrealizedPnL = holdingsList.reduce((sum, p) => sum + p.unrealizedPnL, 0);
-  const totalRealizedPnL = trades
-    .filter((t) => t.side === 'sell')
-    .reduce((sum, t) => sum + (t.total - t.fee), 0) -
-    trades
-      .filter((t) => t.side === 'buy')
-      .reduce((sum, t) => sum + (t.total + t.fee), 0) +
-    investedValue + cash - startingCash;
-
   const netReturnPercent = startingCash > 0 ? ((totalPortfolioValue - startingCash) / startingCash) * 100 : 0;
   const isNetPositive = totalPortfolioValue >= startingCash;
 
@@ -58,8 +50,8 @@ export const PortfolioDashboard: React.FC = () => {
 
         <div className={styles.card}>
           <span className={styles.cardLabel}>Realized P&L</span>
-          <span className={`${styles.cardValue} ${totalRealizedPnL >= 0 ? styles.up : styles.down}`}>
-            {totalRealizedPnL >= 0 ? '+' : ''}${totalRealizedPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <span className={`${styles.cardValue} ${realizedPnL >= 0 ? styles.up : styles.down}`}>
+            {realizedPnL >= 0 ? '+' : ''}${realizedPnL.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           <span className={styles.cardSub}>Closed positions</span>
         </div>

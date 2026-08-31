@@ -13,13 +13,13 @@ describe('Bugfix Batch 2 – Trading & ETF hardening', () => {
     const eng = new TradingEngine(100000, 0);
     const c = candle('2024-01-02', 100);
     // buy 10 AAPL
-    const r = eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market' }, c);
+    const r = eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market', date: c.time }, c);
     expect(r.success).toBe(true);
     // place sell limit with lowercase ticker
-    const r1 = eng.placeOrder({ ticker: 'aapl', side: 'sell', type: 'limit', shares: 6, limitPrice: 110 }, c);
+    const r1 = eng.placeOrder({ ticker: 'aapl', side: 'sell', type: 'limit', shares: 6, limitPrice: 110, date: c.time }, c);
     expect(r1.success).toBe(true);
     // second sell with uppercase should be blocked due to pending 6 + request 5 > owned 10
-    const r2 = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'limit', shares: 5, limitPrice: 110 }, c);
+    const r2 = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'limit', shares: 5, limitPrice: 110, date: c.time }, c);
     expect(r2.success).toBe(false);
     expect(r2.error).toMatch(/Insufficient available shares/);
   });
@@ -27,9 +27,9 @@ describe('Bugfix Batch 2 – Trading & ETF hardening', () => {
   it('stop_loss and take_profit respect side', () => {
     const eng = new TradingEngine(100000, 0);
     const cBuy = candle('2024-01-01', 100);
-    eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market' }, cBuy);
+    eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market', date: cBuy.time }, cBuy);
     // Buy stop_loss should NOT fill on low dip (only triggers on high >= stop)
-    const buyStop = eng.placeOrder({ ticker: 'AAPL', side: 'buy', type: 'stop_loss', shares: 5, stopPrice: 90 }, undefined);
+    const buyStop = eng.placeOrder({ ticker: 'AAPL', side: 'buy', type: 'stop_loss', shares: 5, stopPrice: 90, date: cBuy.time }, undefined);
     expect(buyStop.success).toBe(true);
     const buyOrderId = buyStop.orderId!;
     // candle where low 80 (would trigger sell stop) but high 85 < 90 (so buy stop should stay pending)
@@ -39,7 +39,7 @@ describe('Bugfix Batch 2 – Trading & ETF hardening', () => {
     const buyOrder = stateAfter.orders.find(o => o.id === buyOrderId)!;
     expect(buyOrder.status).toBe('pending'); // buy stop_loss should remain pending on low-only candle
     // Now sell stop_loss should fill on same low candle
-    const sellStop = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'stop_loss', shares: 5, stopPrice: 90 }, undefined);
+    const sellStop = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'stop_loss', shares: 5, stopPrice: 90, date: cBuy.time }, undefined);
     expect(sellStop.success).toBe(true);
     eng.processPendingOrders(triggerCandleLow as Candle, 'AAPL');
     const stateAfter2 = eng.getState();

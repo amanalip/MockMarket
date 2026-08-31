@@ -34,7 +34,7 @@ interface UIState {
   toggleTheme: () => void;
   setTheme: (theme: ThemeMode) => void;
   setSidebarOpen: (open: boolean) => void;
-  setSimulationDate: (date: string) => void;
+  setSimulationDate: (date: string) => boolean;
   setIsPlaying: (playing: boolean) => void;
   setPlaybackSpeed: (speed: number) => void;
   setSelectedTicker: (ticker: string) => void;
@@ -43,6 +43,7 @@ interface UIState {
 }
 
 const tradingEngineInstance = new TradingEngine(100000, 0);
+let preparePortfolioRewind = (_targetDate: string): boolean => true;
 
 interface PortfolioState {
   startingCash: number;
@@ -52,6 +53,7 @@ interface PortfolioState {
   trades: Trade[];
   orders: Order[];
   commission: number;
+  realizedPnL: number;
   setStartingCash: (amount: number) => void;
   setCash: (amount: number) => void;
   resetPortfolio: (startingCash?: number) => void;
@@ -59,6 +61,8 @@ interface PortfolioState {
   processCandleForOrders: (candle: Candle, ticker: string) => Order[];
   updateMarketPrices: (priceMap: Record<string, number>) => void;
   cancelOrder: (orderId: string) => void;
+  hasAccountActivity: () => boolean;
+  prepareRewind: (targetDate: string) => boolean;
 }
 
 interface BacktesterState {
@@ -136,10 +140,18 @@ export const useUIStore = create<UIState>((set) => ({
   },
   setSidebarOpen: (sidebarOpen) => set({ sidebarOpen }),
   setSimulationDate: (simulationDate) => {
-    if (typeof simulationDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(simulationDate)) return;
+    if (typeof simulationDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(simulationDate)) return false;
     const d = new Date(simulationDate);
-    if (Number.isNaN(d.getTime()) || d.toISOString().slice(0,10) !== simulationDate) return;
-    set({ simulationDate });
+    if (Number.isNaN(d.getTime()) || d.toISOString().slice(0,10) !== simulationDate) return false;
+    let accepted = true;
+    set((state) => {
+      if (simulationDate < state.simulationDate && !preparePortfolioRewind(simulationDate)) {
+        accepted = false;
+        return state;
+      }
+      return { simulationDate };
+    });
+    return accepted;
   },
   setIsPlaying: (isPlaying) => set({ isPlaying }),
   setPlaybackSpeed: (playbackSpeed) => {
@@ -165,7 +177,7 @@ export const useUIStore = create<UIState>((set) => ({
   removeToast: (id) => set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
 }));
 
-export const usePortfolioStore = create<PortfolioState>((set) => ({
+export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   startingCash: 100000,
   cash: 100000,
   positions: {},
@@ -173,6 +185,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
   trades: [],
   orders: [],
   commission: 0,
+  realizedPnL: 0,
   setStartingCash: (startingCash) => {
     if (!Number.isFinite(startingCash) || startingCash < 0) return;
     tradingEngineInstance.setStartingCash(startingCash);
@@ -184,6 +197,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
       history: [],
       trades: [],
       orders: [],
+      realizedPnL: engineState.realizedPnL,
     });
   },
   setCash: (cash) => {
@@ -202,6 +216,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
       history: [],
       trades: [],
       orders: [],
+      realizedPnL: engineState.realizedPnL,
     });
   },
   executeTrade: (req, candle) => {
@@ -212,6 +227,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
       positions: engineState.positions,
       trades: engineState.trades,
       orders: engineState.orders,
+      realizedPnL: engineState.realizedPnL,
     });
     return res;
   },
@@ -224,6 +240,7 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
         positions: engineState.positions,
         trades: engineState.trades,
         orders: engineState.orders,
+        realizedPnL: engineState.realizedPnL,
       });
     }
     return filled;
@@ -238,7 +255,18 @@ export const usePortfolioStore = create<PortfolioState>((set) => ({
     const engineState = tradingEngineInstance.getState();
     set({ orders: engineState.orders });
   },
+  hasAccountActivity: () => {
+    const state = get();
+    return state.trades.length > 0 || state.orders.length > 0 || Object.keys(state.positions).length > 0;
+  },
+  prepareRewind: (targetDate) => {
+    if (get().hasAccountActivity()) return false;
+    set((state) => ({ history: state.history.filter((snapshot) => snapshot.date <= targetDate) }));
+    return true;
+  },
 }));
+
+preparePortfolioRewind = (targetDate) => usePortfolioStore.getState().prepareRewind(targetDate);
 
 export const useBacktesterStore = create<BacktesterState>((set) => ({
   config: {

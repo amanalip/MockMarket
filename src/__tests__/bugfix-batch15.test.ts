@@ -22,8 +22,8 @@ describe('Bugfix Batch 15 – Volatility/Trading/ETF/Simulation', () => {
   it('trading engine checkAndFillOrder guards NaN candle', () => {
     const eng = new TradingEngine(100000, 0);
     const c = mkCandle('2024-01-01', 100);
-    eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market' }, c);
-    const res = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'limit', shares: 5, limitPrice: 110 }, c);
+    eng.executeMarketOrder({ ticker: 'AAPL', side: 'buy', shares: 10, type: 'market', date: c.time }, c);
+    const res = eng.placeOrder({ ticker: 'AAPL', side: 'sell', type: 'limit', shares: 5, limitPrice: 110, date: c.time }, c);
     expect(res.success).toBe(true);
     const badCandle: Candle = { time: '2024-01-02', open: NaN as any, high: NaN as any, low: NaN as any, close: 100, volume: 1000 };
     const filled = eng.processPendingOrders(badCandle, 'AAPL');
