@@ -63,52 +63,52 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 - Acceptance: A buy alone shows zero realized P&L, and sales show only gains or losses actually realized.
 
 ### Task 11: Add realized P&L lifecycle tests
-- [ ] Test buys, averaging in, partial sales, full closure, fees, and reopening a ticker.
+- [x] Test buys, averaging in, partial sales, full closure, fees, and reopening a ticker.
 - Files: `src/__tests__/`
 - Acceptance: Expected realized and unrealized P&L values are asserted after every operation.
 
 ### Task 12: Keep portfolio history chronologically sorted
-- [ ] Store snapshots by date order rather than append order and replace snapshots deterministically for duplicate dates.
+- [x] Store snapshots by date order rather than append order and replace snapshots deterministically for duplicate dates.
 - Files: `src/store/index.ts`, `src/components/timeline/SimulationBar.tsx`
 - Acceptance: Advancing, manually changing dates, and rewinding cannot produce unsorted or duplicate history points.
 
 ### Task 13: Record snapshots for every valuation-changing action
-- [ ] Record or update the current-date snapshot after fills, cancellations that affect reservations, manual date changes, and market repricing.
+- [x] Record or update the current-date snapshot after fills, cancellations that affect reservations, manual date changes, and market repricing.
 - Files: `src/store/index.ts`, `src/components/timeline/SimulationBar.tsx`
 - Acceptance: Portfolio analytics update after all relevant account changes, not only playback step buttons.
 
 ### Task 14: Calculate snapshot daily P&L
-- [ ] Replace hard-coded `dailyPnL: 0` with the change from the previous chronological snapshot, adjusted according to the chosen cash-flow policy.
+- [x] Replace hard-coded `dailyPnL: 0` with the change from the previous chronological snapshot, adjusted according to the chosen cash-flow policy.
 - Files: `src/components/timeline/SimulationBar.tsx`, `src/store/index.ts`
 - Acceptance: Daily P&L is correct for ordinary days and documented for deposit or reset events.
 
 ### Task 15: Use actual SPY returns for portfolio beta
-- [ ] Replace the benchmark derived from portfolio returns with date-aligned returns loaded from SPY candles.
+- [x] Replace the benchmark derived from portfolio returns with date-aligned returns loaded from SPY candles.
 - Files: `src/components/portfolio/RiskDashboard.tsx`, `src/data/loader.ts`
 - Acceptance: Beta uses independent SPY observations and displays unavailable when there are too few aligned samples.
 
 ### Task 16: Test risk analytics against known series
-- [ ] Add deterministic tests for portfolio returns, SPY alignment, beta, volatility, VaR, and drawdown.
+- [x] Add deterministic tests for portfolio returns, SPY alignment, beta, volatility, VaR, and drawdown.
 - Files: `src/__tests__/`
 - Acceptance: Tests use hand-verifiable time series and cover missing dates and insufficient history.
 
 ### Task 17: Eliminate same-bar look-ahead in backtests
-- [ ] Evaluate a signal on one completed candle and execute it no earlier than the next eligible candle.
+- [x] Evaluate a signal on one completed candle and execute it no earlier than the next eligible candle.
 - Files: `src/engine/backtester/backtester.ts`
 - Acceptance: A rule using the current close cannot receive that same close as its execution price.
 
 ### Task 18: Make backtest stop-loss fills gap-aware
-- [ ] Fill a stop at the candle open when price gaps through the stop instead of always filling at the stop price.
+- [x] Fill a stop at the candle open when price gaps through the stop instead of always filling at the stop price.
 - Files: `src/engine/backtester/backtester.ts`
 - Acceptance: A long position whose next open is below its stop exits at the worse opening price.
 
 ### Task 19: Make backtest take-profit fills gap-aware
-- [ ] Fill a target at the candle open when price gaps favorably through the target.
+- [x] Fill a target at the candle open when price gaps favorably through the target.
 - Files: `src/engine/backtester/backtester.ts`
 - Acceptance: Target execution follows a documented and tested opening-gap policy.
 
 ### Task 20: Forward-fill aligned benchmark prices
-- [ ] Use the latest prior valid benchmark close when an asset date has no benchmark candle.
+- [x] Use the latest prior valid benchmark close when an asset date has no benchmark candle.
 - Files: `src/engine/backtester/backtester.ts`, `src/engine/timemachine/timemachine.ts`
 - Acceptance: Crypto weekends and calendar mismatches do not reset the benchmark to its initial value.
 
