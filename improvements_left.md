@@ -113,54 +113,54 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 - Acceptance: Crypto weekends and calendar mismatches do not reset the benchmark to its initial value.
 
 ### Task 21: Add backtest execution realism tests
-- [ ] Add tests for next-bar execution, stop gaps, target gaps, and benchmark calendar mismatches.
+- [x] Add tests for next-bar execution, stop gaps, target gaps, and benchmark calendar mismatches.
 - Files: `src/__tests__/`
 - Acceptance: Each corrected execution rule has a focused regression test.
 
 ### Task 22: Reserve cash for pending buy orders
-- [ ] Track cash reserved by pending buys and calculate available cash after all open-order commitments.
+- [x] Track cash reserved by pending buys and calculate available cash after all open-order commitments.
 - Files: `src/engine/trading/trading-engine.ts`, `src/model/types.ts`, `src/store/index.ts`
 - Acceptance: Multiple pending buys cannot collectively commit more than available cash.
 
 ### Task 23: Release reserved cash through the full order lifecycle
-- [ ] Release the correct reservation when an order fills, is cancelled, expires, or is rejected at execution.
+- [x] Release the correct reservation when an order fills, is cancelled, expires, or is rejected at execution.
 - Files: `src/engine/trading/trading-engine.ts`
 - Acceptance: Available and reserved balances remain consistent after every terminal order status.
 
 ### Task 24: Canonicalize ticker symbols at order entry
-- [ ] Normalize ticker casing once before validation, lookup, order storage, and position updates.
+- [x] Normalize ticker casing once before validation, lookup, order storage, and position updates.
 - Files: `src/engine/trading/trading-engine.ts`
 - Acceptance: Lowercase and mixed-case requests cannot create duplicate positions or fail after passing validation.
 
 ### Task 25: Test order reservation and ticker normalization
-- [ ] Add tests for overcommitted pending buys, cancellation release, fill release, and mixed-case buy and sell requests.
+- [x] Add tests for overcommitted pending buys, cancellation release, fill release, and mixed-case buy and sell requests.
 - Files: `src/__tests__/`
 - Acceptance: Cash, reservations, orders, and positions remain internally consistent.
 
 ### Task 26: Use a cash-flow-aware return for recurring investments
-- [ ] Replace or supplement time-machine CAGR with XIRR or another documented money-weighted return when recurring contributions are enabled.
+- [x] Replace or supplement time-machine CAGR with XIRR or another documented money-weighted return when recurring contributions are enabled.
 - Files: `src/engine/timemachine/timemachine.ts`
 - Acceptance: Contribution timing affects the reported annualized return correctly, and lump-sum behavior remains valid.
 
 ## Data Integrity And Product Claims
 
 ### Task 27: Correct the real-data product claim
-- [ ] Replace claims of real historical prices with clear synthetic-data language unless verified historical datasets are introduced.
+- [x] Replace claims of real historical prices with clear synthetic-data language unless verified historical datasets are introduced.
 - Files: `README.md`, `package.json`, visible application copy
 - Acceptance: No user-facing or repository text implies generated OHLCV values are actual market history.
 
 ### Task 28: Add a visible synthetic-data disclaimer
-- [ ] Display an unobtrusive but clear disclaimer in the application near trading and backtesting features.
+- [x] Display an unobtrusive but clear disclaimer in the application near trading and backtesting features.
 - Files: `src/components/ui/`, `src/App.tsx`
 - Acceptance: Users can see that results are educational simulations based on synthetic or approximate data.
 
 ### Task 29: Document dataset provenance and limitations
-- [ ] Add documentation for generation methodology, date range, adjustment policy, timezone, splits, dividends, calendars, and intended use.
+- [x] Add documentation for generation methodology, date range, adjustment policy, timezone, splits, dividends, calendars, and intended use.
 - Files: `README.md` or a dedicated data documentation file
 - Acceptance: A reviewer can determine exactly what the bundled data represents and does not represent.
 
 ### Task 30: Use a real exchange calendar for generated equities
-- [ ] Replace weekday-only date generation with a maintained US exchange calendar covering all included years.
+- [x] Replace weekday-only date generation with a maintained US exchange calendar covering all included years.
 - Files: `scripts/generate_data.js`
 - Acceptance: Equity and ETF datasets exclude weekends and all relevant full-day market holidays.
 
