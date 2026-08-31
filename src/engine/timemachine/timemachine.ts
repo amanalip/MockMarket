@@ -1,6 +1,12 @@
 import { Candle } from '../../model/types';
 
 export type DCAInterval = 'none' | 'weekly' | 'monthly';
+export type AnnualizedReturnMethod = 'cagr' | 'xirr';
+
+interface CashFlow {
+  date: string;
+  amount: number;
+}
 
 export interface TimeMachineConfig {
   ticker: string;
@@ -32,9 +38,72 @@ export interface TimeMachineResult {
   totalReturnPercent: number;
   benchmarkReturnPercent: number;
   totalProfitDollars: number;
+  annualizedReturnPercent: number;
+  annualizedReturnMethod: AnnualizedReturnMethod;
+  /** @deprecated Use annualizedReturnPercent and annualizedReturnMethod. */
   cagrPercent: number;
   growthCurve: TimeMachineGrowthPoint[];
   milestones: TimeMachineMilestone[];
+}
+
+function calculateXirr(cashFlows: CashFlow[]): number {
+  const combined = new Map<number, number>();
+  for (const cashFlow of cashFlows) {
+    const timestamp = Date.parse(`${cashFlow.date}T00:00:00Z`);
+    if (Number.isFinite(timestamp) && Number.isFinite(cashFlow.amount)) {
+      combined.set(timestamp, (combined.get(timestamp) ?? 0) + cashFlow.amount);
+    }
+  }
+
+  const datedFlows = [...combined]
+    .map(([timestamp, amount]) => ({ timestamp, amount }))
+    .filter((cashFlow) => Math.abs(cashFlow.amount) > 1e-10)
+    .sort((a, b) => a.timestamp - b.timestamp);
+
+  if (
+    datedFlows.length < 2
+    || !datedFlows.some((cashFlow) => cashFlow.amount < 0)
+    || !datedFlows.some((cashFlow) => cashFlow.amount > 0)
+  ) {
+    return 0;
+  }
+
+  const firstTimestamp = datedFlows[0].timestamp;
+  const npvAtLogRate = (logRate: number) => datedFlows.reduce((npv, cashFlow) => {
+    const years = (cashFlow.timestamp - firstTimestamp) / (365 * 24 * 60 * 60 * 1000);
+    return npv + cashFlow.amount * Math.exp(-years * logRate);
+  }, 0);
+
+  // logRate = log(1 + rate) keeps the full valid domain (-1, infinity)
+  // bracketed and avoids the convergence failures common with Newton-only XIRR.
+  let low = -50;
+  let high = 1;
+  let lowNpv = npvAtLogRate(low);
+  let highNpv = npvAtLogRate(high);
+
+  while (lowNpv * highNpv > 0 && high < 700) {
+    high = Math.min(700, high * 2);
+    highNpv = npvAtLogRate(high);
+  }
+
+  if (!Number.isFinite(lowNpv) || lowNpv > 0) {
+    lowNpv = Number.POSITIVE_INFINITY;
+  }
+  if (lowNpv * highNpv > 0) {
+    return 0;
+  }
+
+  for (let iteration = 0; iteration < 200; iteration++) {
+    const midpoint = (low + high) / 2;
+    const midpointNpv = npvAtLogRate(midpoint);
+    if (midpointNpv > 0) {
+      low = midpoint;
+    } else {
+      high = midpoint;
+    }
+  }
+
+  return Math.expm1((low + high) / 2);
 }
 
 export function calculateTimeMachine(
@@ -47,7 +116,7 @@ export function calculateTimeMachine(
   );
 
   if (filtered.length < 2) {
-    throw new Error('Insufficient historical data for the selected time range.');
+    throw new Error('Insufficient simulation data for the selected time range.');
   }
 
   const validBenchmarkCandles = benchmarkCandles
@@ -62,6 +131,9 @@ export function calculateTimeMachine(
   }
   let totalCashInvested = config.initialAmount;
   let assetShares = config.initialAmount / filtered[0].close;
+  const cashFlows: CashFlow[] = config.initialAmount > 0
+    ? [{ date: filtered[0].time, amount: -config.initialAmount }]
+    : [];
 
   let benchmarkIndex = -1;
   while (benchmarkIndex + 1 < validBenchmarkCandles.length && validBenchmarkCandles[benchmarkIndex + 1].time <= filtered[0].time) {
@@ -117,6 +189,7 @@ export function calculateTimeMachine(
           totalCashInvested += safeDca;
           assetShares += safeDca / candle.close;
           benchmarkShares += safeDca / benchPrice;
+          cashFlows.push({ date: candle.time, amount: -safeDca });
         }
       }
     }
@@ -173,7 +246,14 @@ export function calculateTimeMachine(
   const rawYears = (endTs - startTs) / (365.25 * 24 * 3600 * 1000);
   const years = Math.max(1 / 365.25, rawYears);
   const equityRatio = totalCashInvested > 0 ? finalAssetValue / totalCashInvested : 0;
-  const cagrPercent = equityRatio <= 0 ? -100 : Number(((Math.pow(equityRatio, 1 / years) - 1) * 100).toFixed(2));
+  const rawCagr = equityRatio <= 0 ? -1 : Math.pow(equityRatio, 1 / years) - 1;
+  const cagrPercent = Number((rawCagr * 100).toFixed(2));
+  const hasRecurringContributions = cashFlows.length > (config.initialAmount > 0 ? 1 : 0);
+  const annualizedReturnMethod: AnnualizedReturnMethod = hasRecurringContributions ? 'xirr' : 'cagr';
+  const rawAnnualizedReturn = hasRecurringContributions
+    ? calculateXirr([...cashFlows, { date: filtered[filtered.length - 1].time, amount: finalAssetValue }])
+    : rawCagr;
+  const annualizedReturnPercent = Number((rawAnnualizedReturn * 100).toFixed(2));
 
   return {
     config,
@@ -183,6 +263,8 @@ export function calculateTimeMachine(
     totalReturnPercent,
     benchmarkReturnPercent,
     totalProfitDollars,
+    annualizedReturnPercent,
+    annualizedReturnMethod,
     cagrPercent,
     growthCurve,
     milestones,

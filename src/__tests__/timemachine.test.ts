@@ -42,6 +42,53 @@ describe('Time Machine Investment Simulator', () => {
     expect(res.milestones.some((m) => m.title.includes('Doubled'))).toBe(true);
   });
 
+  it('preserves CAGR for a lump-sum investment', () => {
+    const candles: Candle[] = [
+      { time: '2023-01-01', open: 100, high: 100, low: 100, close: 100, volume: 1000 },
+      { time: '2024-01-01', open: 110, high: 110, low: 110, close: 110, volume: 1000 },
+    ];
+    const res = calculateTimeMachine(candles, candles, {
+      ticker: 'TEST',
+      startDate: '2023-01-01',
+      endDate: '2024-01-01',
+      initialAmount: 1000,
+      dcaInterval: 'none',
+    });
+
+    expect(res.annualizedReturnMethod).toBe('cagr');
+    // The simulator's existing CAGR convention uses 365.25 days per year.
+    expect(res.annualizedReturnPercent).toBe(10.01);
+    expect(res.cagrPercent).toBe(res.annualizedReturnPercent);
+  });
+
+  it('uses actual contribution dates for recurring-investment XIRR', () => {
+    const makeCandles = (contributionDate: string): Candle[] => [
+      { time: '2023-01-01', open: 100, high: 100, low: 100, close: 100, volume: 1000 },
+      { time: contributionDate, open: 100, high: 100, low: 100, close: 100, volume: 1000 },
+      { time: '2023-12-31', open: 120, high: 120, low: 120, close: 120, volume: 1000 },
+    ];
+    const calculate = (contributionDate: string) => {
+      const candles = makeCandles(contributionDate);
+      return calculateTimeMachine(candles, candles, {
+        ticker: 'TEST',
+        startDate: '2023-01-01',
+        endDate: '2023-12-31',
+        initialAmount: 1000,
+        dcaAmount: 500,
+        dcaInterval: 'monthly',
+      });
+    };
+
+    const earlyContribution = calculate('2023-02-01');
+    const lateContribution = calculate('2023-11-01');
+
+    expect(earlyContribution.totalCashInvested).toBe(lateContribution.totalCashInvested);
+    expect(earlyContribution.finalAssetValue).toBe(lateContribution.finalAssetValue);
+    expect(earlyContribution.annualizedReturnMethod).toBe('xirr');
+    expect(lateContribution.annualizedReturnMethod).toBe('xirr');
+    expect(lateContribution.annualizedReturnPercent).toBeGreaterThan(earlyContribution.annualizedReturnPercent);
+  });
+
   it('simulates dollar cost averaging (DCA) contributions over time', () => {
     const res = calculateTimeMachine(assetCandles, benchCandles, {
       ticker: 'TEST',

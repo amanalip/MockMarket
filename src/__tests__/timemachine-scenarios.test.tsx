@@ -22,7 +22,7 @@ describe('TimeMachine & Scenarios Components', () => {
   it('TimeMachineCalculator renders title', () => {
     render(<TimeMachineCalculator />);
     expect(screen.getByText('Investment Time Machine')).toBeInTheDocument();
-    expect(screen.getByText(/Simulate historical lumpsum/)).toBeInTheDocument();
+    expect(screen.getByText(/Simulate lump-sum/)).toBeInTheDocument();
   });
 
   it('TimeMachineCalculator ticker select', () => {

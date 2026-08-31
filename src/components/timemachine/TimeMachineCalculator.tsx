@@ -70,7 +70,7 @@ export const TimeMachineCalculator: React.FC = () => {
         <div>
           <span className={styles.title}>Investment Time Machine</span>
           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-            Simulate historical lumpsum and dollar-cost averaging returns vs the S&P 500.
+            Simulate lump-sum and dollar-cost averaging returns against a synthetic SPY benchmark.
           </div>
         </div>
       </div>
@@ -156,7 +156,7 @@ export const TimeMachineCalculator: React.FC = () => {
         disabled={loading}
       >
         <History size={18} />
-        <span>{loading ? 'Replaying Historical Price Cycles...' : 'Run Time Machine Simulation'}</span>
+        <span>{loading ? 'Replaying Synthetic Price Cycles...' : 'Run Time Machine Simulation'}</span>
       </button>
 
       {result && (
@@ -179,11 +179,15 @@ export const TimeMachineCalculator: React.FC = () => {
             </div>
 
             <div className={styles.statCard}>
-              <span className={styles.statLabel}>CAGR (Annual Return)</span>
-              <span className={`${styles.statValue} ${isPos ? styles.up : styles.down}`}>
-                {isPos ? '+' : ''}{result.cagrPercent.toFixed(2)}%
+              <span className={styles.statLabel}>
+                {result.annualizedReturnMethod === 'xirr' ? 'Annualized Return (XIRR)' : 'CAGR (Annual Return)'}
               </span>
-              <span className={styles.statSub}>Compound annual rate</span>
+              <span className={`${styles.statValue} ${result.annualizedReturnPercent >= 0 ? styles.up : styles.down}`}>
+                {result.annualizedReturnPercent >= 0 ? '+' : ''}{result.annualizedReturnPercent.toFixed(2)}%
+              </span>
+              <span className={styles.statSub}>
+                {result.annualizedReturnMethod === 'xirr' ? 'Money-weighted using actual cash-flow dates' : 'Compound annual growth rate'}
+              </span>
             </div>
 
             <div className={styles.statCard}>
