@@ -5,9 +5,10 @@ import styles from './TradePanel.module.css';
 
 interface TradePanelProps {
   currentCandle?: Candle;
+  disabled?: boolean;
 }
 
-export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
+export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled = false }) => {
   const { selectedTicker, simulationDate, addToast } = useUIStore();
   const { cash, positions, executeTrade } = usePortfolioStore();
 
@@ -28,6 +29,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
   const estimatedTotal = parsedShares * targetPrice;
 
   const handlePercentageClick = (percent: number) => {
+    if (disabled) return;
     if (!Number.isFinite(targetPrice) || targetPrice <= 0 || !Number.isFinite(cash) || !Number.isFinite(ownedShares)) return;
     if (side === 'buy') {
       if (!Number.isFinite(cash) || cash <= 0) return;
@@ -45,6 +47,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
 
   const handleTrade = (e: React.FormEvent) => {
     e.preventDefault();
+    if (disabled) return;
     if (targetPrice <= 0) {
       addToast('Price must be greater than zero.', 'error');
       return;
@@ -215,7 +218,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle }) => {
         <button
           type="submit"
           className={`${styles.submitBtn} ${side === 'buy' ? styles.btnBuy : styles.btnSell}`}
-          disabled={parsedShares <= 0 || targetPrice <= 0 || (side === 'buy' && estimatedTotal > cash) || (side === 'sell' && parsedShares > ownedShares)}
+          disabled={disabled || parsedShares <= 0 || targetPrice <= 0 || (side === 'buy' && estimatedTotal > cash) || (side === 'sell' && parsedShares > ownedShares)}
         >
           {side === 'buy' ? `Submit Buy ${selectedTicker}` : `Submit Sell ${selectedTicker}`}
         </button>

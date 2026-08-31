@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Layout } from './components/ui/Layout';
 import { useUIStore, usePortfolioStore } from './store';
 import { StockScreener } from './components/stockpicker/StockScreener';
@@ -30,10 +30,16 @@ export const App: React.FC = () => {
   const { updateMarketPrices, processCandleForOrders } = usePortfolioStore();
   const selectedInfo = getTickerInfo(selectedTicker);
 
-  const [candles, setCandles] = useState<Candle[]>([]);
+  const [loadedData, setLoadedData] = useState<{ ticker: string | null; candles: Candle[] }>({ ticker: null, candles: [] });
   const [loading, setLoading] = useState(false);
   const [etfResult, setEtfResult] = useState<ETFSimulationResult | null>(null);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+
+  const hasSelectedTickerData = loadedData.ticker === selectedTicker;
+  const candles = useMemo(
+    () => hasSelectedTickerData ? loadedData.candles : [],
+    [hasSelectedTickerData, loadedData.candles]
+  );
 
   const handleAdvanceOneDay = useCallback(() => {
     if (candles.length === 0) return;
@@ -65,7 +71,7 @@ export const App: React.FC = () => {
     loadTickerData(selectedTicker)
       .then((data) => {
         if (isMounted) {
-          setCandles(data);
+          setLoadedData({ ticker: selectedTicker, candles: data });
           setLoading(false);
           const currentCandle = getLatestCandleOnOrBefore(data, simulationDate);
           if (currentCandle) {
@@ -131,13 +137,14 @@ export const App: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
                 <CandlestickChart
+                  key={selectedTicker}
                   candles={candles}
                   ticker={selectedTicker}
                   theme={theme}
                   simulationDate={simulationDate}
                   loading={loading}
                 />
-                <TradePanel currentCandle={activeCandle} />
+                <TradePanel currentCandle={activeCandle} disabled={!hasSelectedTickerData || !activeCandle} />
               </div>
 
               <PortfolioDashboard />
