@@ -105,12 +105,17 @@ export function runBacktest(
     }),
   };
 
-  // Benchmark alignment – avoid magic 100 when benchmark missing for start date
-  const benchMap = new Map(benchmarkCandles.map((c) => [c.time, c.close]));
-  const firstBenchClose = benchmarkCandles.length > 0 ? benchmarkCandles[0].close : undefined;
+  const validBenchmarkCandles = benchmarkCandles
+    .filter((c) => Number.isFinite(c.close) && c.close > 0)
+    .sort((a, b) => a.time.localeCompare(b.time));
+  const firstBenchClose = validBenchmarkCandles[0]?.close;
   const fallbackBenchPrice = Number.isFinite(firstBenchClose) && (firstBenchClose as number) > 0 ? (firstBenchClose as number) : (Number.isFinite(filteredCandles[0].close) && filteredCandles[0].close > 0 ? filteredCandles[0].close : 100);
-  const initialBenchPriceRaw = benchMap.get(filteredCandles[0].time);
-  const initialBenchPrice = Number.isFinite(initialBenchPriceRaw) && (initialBenchPriceRaw as number) > 0 ? (initialBenchPriceRaw as number) : fallbackBenchPrice;
+  let benchmarkIndex = -1;
+  while (benchmarkIndex + 1 < validBenchmarkCandles.length && validBenchmarkCandles[benchmarkIndex + 1].time <= filteredCandles[0].time) {
+    benchmarkIndex++;
+  }
+  const initialBenchPrice = benchmarkIndex >= 0 ? validBenchmarkCandles[benchmarkIndex].close : fallbackBenchPrice;
+  let latestBenchPrice = initialBenchPrice;
   const initialAssetPrice = Number.isFinite(filteredCandles[0].close) && filteredCandles[0].close > 0 ? filteredCandles[0].close : 1;
 
   let cash = config.initialCash;
@@ -118,6 +123,8 @@ export function runBacktest(
   let entryDate = '';
   let entryPrice = 0;
   let entryIndex = 0;
+  let pendingEntry = false;
+  let pendingExit = false;
 
   const trades: BacktestTrade[] = [];
   const equityCurve: BacktestEquityPoint[] = [];
@@ -129,18 +136,50 @@ export function runBacktest(
 
   for (let i = 0; i < filteredCandles.length; i++) {
     const candle = filteredCandles[i];
-    const benchCloseRaw = benchMap.get(candle.time);
-    const benchClose = Number.isFinite(benchCloseRaw) && (benchCloseRaw as number) > 0 ? (benchCloseRaw as number) : initialBenchPrice;
+    while (benchmarkIndex + 1 < validBenchmarkCandles.length && validBenchmarkCandles[benchmarkIndex + 1].time <= candle.time) {
+      benchmarkIndex++;
+      latestBenchPrice = validBenchmarkCandles[benchmarkIndex].close;
+    }
+    const validOpen = Number.isFinite(candle.open) && candle.open > 0;
 
-    const ctx: BarRuleContext = {
-      index: i,
-      candle,
-      candles: filteredCandles,
-      indicators,
-      inPosition: shares > 0,
-      entryPrice: shares > 0 ? entryPrice : undefined,
-      holdingDays: shares > 0 ? i - entryIndex : undefined,
-    };
+    // Rules use completed-bar data, so queued signals execute at the next valid open.
+    if (shares > 0 && pendingExit && validOpen) {
+      const exitPrice = candle.open;
+      const proceeds = shares * exitPrice;
+      const pnl = proceeds - (shares * entryPrice);
+      const pnlPercent = entryPrice > 0 ? ((exitPrice - entryPrice) / entryPrice) * 100 : 0;
+
+      cash += proceeds;
+      trades.push({
+        id: `btrade_${trades.length + 1}`,
+        entryDate,
+        entryPrice: Number(entryPrice.toFixed(2)),
+        exitDate: candle.time,
+        exitPrice: Number(exitPrice.toFixed(2)),
+        shares,
+        pnl: Number(pnl.toFixed(2)),
+        pnlPercent: Number(pnlPercent.toFixed(2)),
+        reason: 'Signal Exit',
+      });
+      shares = 0;
+      entryPrice = 0;
+      entryDate = '';
+      pendingExit = false;
+    } else if (shares === 0 && pendingEntry && validOpen) {
+      const allocatedCash = cash * (positionSize / 100);
+      const sharesToBuy = Math.floor(allocatedCash / candle.open);
+      if (Number.isFinite(sharesToBuy) && sharesToBuy > 0) {
+        const cost = sharesToBuy * candle.open;
+        if (Number.isFinite(cost) && cost <= cash) {
+          cash -= cost;
+          shares = sharesToBuy;
+          entryPrice = candle.open;
+          entryDate = candle.time;
+          entryIndex = i;
+        }
+      }
+      pendingEntry = false;
+    }
 
     if (shares > 0) {
       let shouldExit = false;
@@ -153,7 +192,7 @@ export function runBacktest(
         if (candle.low <= stopPrice) {
           shouldExit = true;
           exitReason = 'Stop Loss';
-          exitPrice = stopPrice;
+          exitPrice = validOpen && candle.open <= stopPrice ? candle.open : stopPrice;
         }
       }
 
@@ -163,15 +202,8 @@ export function runBacktest(
         if (candle.high >= targetPrice) {
           shouldExit = true;
           exitReason = 'Take Profit';
-          exitPrice = targetPrice;
+          exitPrice = validOpen && candle.open >= targetPrice ? candle.open : targetPrice;
         }
-      }
-
-      // Custom rule exit
-      if (!shouldExit && exitFn(ctx)) {
-        shouldExit = true;
-        exitReason = 'Signal Exit';
-        exitPrice = candle.close;
       }
 
       if (shouldExit) {
@@ -195,26 +227,23 @@ export function runBacktest(
         shares = 0;
         entryPrice = 0;
         entryDate = '';
+        pendingExit = false;
       }
-    } else {
-      // Not in position: check entry condition – guard NaN/Infinity close
-      if (entryFn(ctx) && cash > 0 && Number.isFinite(candle.close) && candle.close > 0) {
-        const allocatedCash = cash * (positionSize / 100);
-        const rawShares = allocatedCash / candle.close;
-        if (Number.isFinite(rawShares)) {
-          const sharesToBuy = Math.floor(rawShares);
-          if (Number.isFinite(sharesToBuy) && sharesToBuy > 0) {
-            const cost = sharesToBuy * candle.close;
-            if (Number.isFinite(cost) && cost <= cash) {
-              cash -= cost;
-              shares = sharesToBuy;
-              entryPrice = candle.close;
-              entryDate = candle.time;
-              entryIndex = i;
-            }
-          }
-        }
-      }
+    }
+
+    const ctx: BarRuleContext = {
+      index: i,
+      candle,
+      candles: filteredCandles,
+      indicators,
+      inPosition: shares > 0,
+      entryPrice: shares > 0 ? entryPrice : undefined,
+      holdingDays: shares > 0 ? i - entryIndex : undefined,
+    };
+    if (shares > 0) {
+      if (exitFn(ctx)) pendingExit = true;
+    } else if (entryFn(ctx) && cash > 0) {
+      pendingEntry = true;
     }
 
     // Handle corrupt candle close (NaN/Infinity/0) gracefully – use last valid price or entryPrice
@@ -230,7 +259,7 @@ export function runBacktest(
     const currentInvested = shares * safeClose;
     const strategyValue = Number((cash + currentInvested).toFixed(2));
     const buyAndHoldValue = Number(((config.initialCash / initialAssetPrice) * safeClose).toFixed(2));
-    const benchmarkValue = Number(((config.initialCash / initialBenchPrice) * benchClose).toFixed(2));
+    const benchmarkValue = Number(((config.initialCash / initialBenchPrice) * latestBenchPrice).toFixed(2));
 
     equityCurve.push({
       date: candle.time,

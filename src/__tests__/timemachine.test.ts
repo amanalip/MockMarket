@@ -56,4 +56,37 @@ describe('Time Machine Investment Simulator', () => {
     expect(res.totalCashInvested).toBeGreaterThan(1000);
     expect(res.growthCurve[res.growthCurve.length - 1].investedCash).toBe(res.totalCashInvested);
   });
+
+  it('forward-fills valid benchmark observations between asset dates', () => {
+    const sparseAsset = assetCandles.slice(0, 3).map((c, index) => ({
+      ...c,
+      time: ['2024-01-02', '2024-01-05', '2024-01-08'][index],
+    }));
+    const sparseBenchmark: Candle[] = [
+      { ...benchCandles[0], time: '2024-01-01', close: 100 },
+      { ...benchCandles[0], time: '2024-01-03', close: 120 },
+      { ...benchCandles[0], time: '2024-01-06', close: Number.POSITIVE_INFINITY },
+    ];
+    const res = calculateTimeMachine(sparseAsset, sparseBenchmark, {
+      ticker: 'TEST',
+      startDate: '2024-01-02',
+      endDate: '2024-01-08',
+      initialAmount: 10000,
+    });
+
+    expect(res.growthCurve.map((point) => point.benchmarkValue)).toEqual([10000, 12000, 12000]);
+  });
+
+  it('keeps the benchmark fallback for pre-history and empty data', () => {
+    const config = {
+      ticker: 'TEST',
+      startDate: '2024-01-02',
+      endDate: '2024-02-01',
+      initialAmount: 10000,
+    };
+    const futureBenchmark = [{ ...benchCandles[0], time: '2024-01-20', close: 125 }];
+
+    expect(calculateTimeMachine(assetCandles, futureBenchmark, config).growthCurve[0].benchmarkValue).toBe(10000);
+    expect(calculateTimeMachine(assetCandles, [], config).growthCurve[0].benchmarkValue).toBe(10000);
+  });
 });

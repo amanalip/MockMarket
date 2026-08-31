@@ -50,7 +50,9 @@ export function calculateTimeMachine(
     throw new Error('Insufficient historical data for the selected time range.');
   }
 
-  const benchMap = new Map(benchmarkCandles.map((c) => [c.time, c.close]));
+  const validBenchmarkCandles = benchmarkCandles
+    .filter((c) => Number.isFinite(c.close) && c.close > 0)
+    .sort((a, b) => a.time.localeCompare(b.time));
 
   if (!Number.isFinite(config.initialAmount) || config.initialAmount < 0) {
     throw new Error('Initial amount must be non-negative finite');
@@ -61,10 +63,12 @@ export function calculateTimeMachine(
   let totalCashInvested = config.initialAmount;
   let assetShares = config.initialAmount / filtered[0].close;
 
-  const initialBenchPrice = benchMap.get(filtered[0].time) ?? 100;
-  if (!Number.isFinite(initialBenchPrice) || initialBenchPrice <= 0) {
-    throw new Error('Invalid benchmark price');
+  let benchmarkIndex = -1;
+  while (benchmarkIndex + 1 < validBenchmarkCandles.length && validBenchmarkCandles[benchmarkIndex + 1].time <= filtered[0].time) {
+    benchmarkIndex++;
   }
+  const initialBenchPrice = benchmarkIndex >= 0 ? validBenchmarkCandles[benchmarkIndex].close : 100;
+  let latestBenchPrice = initialBenchPrice;
   let benchmarkShares = config.initialAmount / initialBenchPrice;
 
   const growthCurve: TimeMachineGrowthPoint[] = [];
@@ -80,8 +84,11 @@ export function calculateTimeMachine(
 
   for (let i = 0; i < filtered.length; i++) {
     const candle = filtered[i];
-    const benchPriceRaw = benchMap.get(candle.time);
-    const benchPrice = Number.isFinite(benchPriceRaw) && (benchPriceRaw as number) > 0 ? (benchPriceRaw as number) : initialBenchPrice;
+    while (benchmarkIndex + 1 < validBenchmarkCandles.length && validBenchmarkCandles[benchmarkIndex + 1].time <= candle.time) {
+      benchmarkIndex++;
+      latestBenchPrice = validBenchmarkCandles[benchmarkIndex].close;
+    }
+    const benchPrice = latestBenchPrice;
     const curDate = new Date(candle.time);
 
     // Check DCA periodic contribution
