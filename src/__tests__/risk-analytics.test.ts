@@ -9,8 +9,38 @@ import {
   calculatePerformanceAttribution,
 } from '../engine/risk';
 import { Position } from '../model/types';
+import { alignPortfolioHistoryWithBenchmark } from '../data/loader';
 
 describe('Portfolio Risk & Analytics Calculations', () => {
+  it('calculates hand-verifiable returns and annualized sample volatility', () => {
+    expect(calculateReturns([100, 110, 99])).toEqual([0.1, -0.1]);
+    expect(calculateAnnualizedVolatility([0.01, -0.01])).toBe(22.45);
+  });
+
+  it('strictly aligns portfolio values with independent SPY closes by date', () => {
+    const history = [
+      { date: '2024-01-03', cash: 121, investedValue: 0, totalValue: 121, dailyPnL: 11, totalPnL: 21 },
+      { date: '2024-01-01', cash: 100, investedValue: 0, totalValue: 100, dailyPnL: 0, totalPnL: 0 },
+      { date: '2024-01-02', cash: 110, investedValue: 0, totalValue: 110, dailyPnL: 10, totalPnL: 10 },
+    ];
+    const spy = [
+      { time: '2024-01-01', open: 200, high: 200, low: 200, close: 200, volume: 1 },
+      { time: '2024-01-03', open: 220, high: 220, low: 220, close: 220, volume: 1 },
+    ];
+
+    const aligned = alignPortfolioHistoryWithBenchmark(history, spy);
+    expect(aligned).toEqual({
+      dates: ['2024-01-01', '2024-01-03'],
+      portfolioValues: [100, 121],
+      benchmarkValues: [200, 220],
+    });
+    expect(aligned.dates.length).toBeLessThan(3);
+  });
+
+  it('calculates exact beta for proportional return series', () => {
+    expect(calculateBeta([0.02, -0.02, 0.04], [0.01, -0.01, 0.02])).toBe(2);
+  });
+
   it('calculates daily returns and annualized volatility accurately', () => {
     const values = [100, 102, 101, 103, 105, 104, 106];
     const returns = calculateReturns(values);
@@ -18,8 +48,7 @@ describe('Portfolio Risk & Analytics Calculations', () => {
     expect(returns[0]).toBeCloseTo(0.02, 3);
 
     const vol = calculateAnnualizedVolatility(returns);
-    expect(vol).toBeGreaterThan(0);
-    expect(typeof vol).toBe('number');
+    expect(vol).toBe(24);
   });
 
   it('calculates beta against a benchmark series', () => {

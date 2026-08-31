@@ -146,8 +146,9 @@ describe('Portfolio & Risk Components', () => {
     expect(screen.getByText('Portfolio Allocation')).toBeInTheDocument();
   });
 
-  it('RiskDashboard without history returns beta 1', () => {
+  it('RiskDashboard renders unavailable beta without enough aligned history', () => {
     render(<RiskDashboard />);
+    expect(screen.getByText('Unavailable')).toBeInTheDocument();
     expect(screen.getByText(/vs S&P 500 benchmark/)).toBeInTheDocument();
   });
 });

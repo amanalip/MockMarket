@@ -1,5 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { usePortfolioStore } from '../../store';
+import { alignPortfolioHistoryWithBenchmark, loadTickerData } from '../../data/loader';
+import { Candle } from '../../model/types';
 import {
   calculateReturns,
   calculateAnnualizedVolatility,
@@ -15,6 +17,19 @@ import styles from './RiskDashboard.module.css';
 
 export const RiskDashboard: React.FC = () => {
   const { positions, cash, startingCash, history } = usePortfolioStore();
+  const [spyCandles, setSpyCandles] = useState<Candle[] | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    loadTickerData('SPY')
+      .then((candles) => {
+        if (active) setSpyCandles(candles);
+      })
+      .catch(() => {
+        if (active) setSpyCandles(null);
+      });
+    return () => { active = false; };
+  }, []);
 
   const diversificationMetrics = useMemo(() => {
     return calculateDiversification(positions, cash);
@@ -33,18 +48,19 @@ export const RiskDashboard: React.FC = () => {
     return calculateReturns(equityValues);
   }, [equityValues]);
 
-  // Mock benchmark returns with S&P 500 baseline
-  const benchmarkReturns = useMemo(() => {
-    return dailyReturns.map((r) => r * 0.85 + 0.0002);
-  }, [dailyReturns]);
-
   const volatility = useMemo(() => {
     return calculateAnnualizedVolatility(dailyReturns);
   }, [dailyReturns]);
 
   const beta = useMemo(() => {
-    return calculateBeta(dailyReturns, benchmarkReturns);
-  }, [dailyReturns, benchmarkReturns]);
+    if (!spyCandles) return null;
+    const aligned = alignPortfolioHistoryWithBenchmark(history, spyCandles);
+    if (aligned.dates.length < 3) return null;
+    return calculateBeta(
+      calculateReturns(aligned.portfolioValues),
+      calculateReturns(aligned.benchmarkValues)
+    );
+  }, [history, spyCandles]);
 
   const maxDrawdown = useMemo(() => {
     const series = history.map((h) => ({ date: h.date, value: h.totalValue }));
@@ -72,7 +88,7 @@ export const RiskDashboard: React.FC = () => {
 
         <div className={styles.riskCard}>
           <span className={styles.riskLabel}>Portfolio Beta</span>
-          <span className={styles.riskValue}>{beta.toFixed(2)}</span>
+          <span className={styles.riskValue}>{beta === null ? 'Unavailable' : beta.toFixed(2)}</span>
           <span className={styles.riskSub}>vs S&P 500 benchmark</span>
         </div>
 

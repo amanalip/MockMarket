@@ -78,10 +78,12 @@ describe('Timeline valuation and rewind invariants', () => {
 
     usePortfolioStore.getState().resetPortfolio(100000);
     usePortfolioStore.setState({ history: [
+      { date: '2024-01-01', cash: 2, investedValue: 0, totalValue: 2, dailyPnL: 0, totalPnL: 0 },
       { date: '2024-01-01', cash: 1, investedValue: 0, totalValue: 1, dailyPnL: 0, totalPnL: 0 },
       { date: '2024-01-05', cash: 1, investedValue: 0, totalValue: 1, dailyPnL: 0, totalPnL: 0 },
     ] });
     expect(useUIStore.getState().setSimulationDate('2024-01-02')).toBe(true);
-    expect(usePortfolioStore.getState().history.map((entry) => entry.date)).toEqual(['2024-01-01']);
+    expect(usePortfolioStore.getState().history.map((entry) => entry.date)).toEqual(['2024-01-01', '2024-01-02']);
+    expect(usePortfolioStore.getState().history[0].cash).toBe(1);
   });
 });

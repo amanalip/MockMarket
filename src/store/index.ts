@@ -44,6 +44,27 @@ interface UIState {
 
 const tradingEngineInstance = new TradingEngine(100000, 0);
 let preparePortfolioRewind = (_targetDate: string): boolean => true;
+let recordPortfolioSnapshot = (_date: string): void => {};
+
+export function upsertPortfolioSnapshot(
+  history: PortfolioSnapshot[],
+  snapshot: PortfolioSnapshot
+): PortfolioSnapshot[] {
+  return normalizePortfolioHistory([...history, snapshot]);
+}
+
+function normalizePortfolioHistory(history: PortfolioSnapshot[]): PortfolioSnapshot[] {
+  const byDate = new Map(history.map((entry) => [entry.date, entry]));
+
+  return [...byDate.values()]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((entry, index, sorted) => ({
+      ...entry,
+      dailyPnL: index === 0
+        ? 0
+        : Number((entry.totalValue - sorted[index - 1].totalValue).toFixed(2)),
+    }));
+}
 
 interface PortfolioState {
   startingCash: number;
@@ -61,6 +82,7 @@ interface PortfolioState {
   processCandleForOrders: (candle: Candle, ticker: string) => Order[];
   updateMarketPrices: (priceMap: Record<string, number>) => void;
   cancelOrder: (orderId: string) => void;
+  recordSnapshot: (date?: string) => void;
   hasAccountActivity: () => boolean;
   prepareRewind: (targetDate: string) => boolean;
 }
@@ -151,6 +173,7 @@ export const useUIStore = create<UIState>((set) => ({
       }
       return { simulationDate };
     });
+    if (accepted) recordPortfolioSnapshot(simulationDate);
     return accepted;
   },
   setIsPlaying: (isPlaying) => set({ isPlaying }),
@@ -204,7 +227,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     if (!Number.isFinite(cash) || cash < 0) return;
     // Sync engine cash to avoid divergence with store
     (tradingEngineInstance as unknown as { state: { cash: number } }).state.cash = cash;
-    set({ cash });
+    // Direct cash changes are external cash flows, so they begin a new history period.
+    set({ cash, history: [] });
   },
   resetPortfolio: (startingCash = 100000) => {
     tradingEngineInstance.setStartingCash(startingCash);
@@ -229,6 +253,7 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
       orders: engineState.orders,
       realizedPnL: engineState.realizedPnL,
     });
+    if (res.filled) get().recordSnapshot(req.date || candle?.time);
     return res;
   },
   processCandleForOrders: (candle, ticker) => {
@@ -242,18 +267,48 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
         orders: engineState.orders,
         realizedPnL: engineState.realizedPnL,
       });
+      get().recordSnapshot(candle.time);
     }
     return filled;
   },
   updateMarketPrices: (priceMap) => {
+    const before = tradingEngineInstance.getState();
     tradingEngineInstance.updatePrices(priceMap);
     const engineState = tradingEngineInstance.getState();
     set({ positions: engineState.positions });
+    const repriced = Object.keys(before.positions).some((ticker) => (
+      Number.isFinite(priceMap[ticker]) && priceMap[ticker] >= 0
+    ));
+    if (repriced) get().recordSnapshot();
   },
   cancelOrder: (orderId) => {
-    tradingEngineInstance.cancelOrder(orderId);
+    const cancelled = tradingEngineInstance.cancelOrder(orderId);
     const engineState = tradingEngineInstance.getState();
     set({ orders: engineState.orders });
+    if (cancelled) get().recordSnapshot();
+  },
+  recordSnapshot: (date = useUIStore.getState().simulationDate) => {
+    if (
+      typeof date !== 'string'
+      || !/^\d{4}-\d{2}-\d{2}$/.test(date)
+      || Number.isNaN(new Date(date).getTime())
+      || new Date(date).toISOString().slice(0, 10) !== date
+    ) return;
+    const state = get();
+    const investedValue = Object.values(state.positions).reduce(
+      (sum, position) => sum + position.currentValue,
+      0
+    );
+    const totalValue = Number((state.cash + investedValue).toFixed(2));
+    const snapshot: PortfolioSnapshot = {
+      date,
+      cash: state.cash,
+      investedValue: Number(investedValue.toFixed(2)),
+      totalValue,
+      dailyPnL: 0,
+      totalPnL: Number((totalValue - state.startingCash).toFixed(2)),
+    };
+    set((current) => ({ history: upsertPortfolioSnapshot(current.history, snapshot) }));
   },
   hasAccountActivity: () => {
     const state = get();
@@ -261,12 +316,17 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   prepareRewind: (targetDate) => {
     if (get().hasAccountActivity()) return false;
-    set((state) => ({ history: state.history.filter((snapshot) => snapshot.date <= targetDate) }));
+    set((state) => ({
+      history: normalizePortfolioHistory(
+        state.history.filter((snapshot) => snapshot.date <= targetDate)
+      ),
+    }));
     return true;
   },
 }));
 
 preparePortfolioRewind = (targetDate) => usePortfolioStore.getState().prepareRewind(targetDate);
+recordPortfolioSnapshot = (date) => usePortfolioStore.getState().recordSnapshot(date);
 
 export const useBacktesterStore = create<BacktesterState>((set) => ({
   config: {

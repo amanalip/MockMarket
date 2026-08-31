@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useRef } from 'react';
 import { useUIStore, usePortfolioStore } from '../../store';
 import { Play, Pause, RotateCcw, Calendar as CalendarIcon } from 'lucide-react';
-import { Candle, PortfolioSnapshot } from '../../model/types';
+import { Candle } from '../../model/types';
 import { loadLatestCandlesOnOrBefore } from '../../data/loader';
 import styles from './SimulationBar.module.css';
 
@@ -69,20 +69,6 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
       addToast(`Price unavailable for ${unavailable.join(', ')} on ${nextDate}; previous marks were preserved.`, 'error');
     }
 
-    const after = usePortfolioStore.getState();
-    const invested = Object.values(after.positions).reduce((sum, position) => sum + position.currentValue, 0);
-    const totalValue = after.cash + invested;
-    const snapshot: PortfolioSnapshot = {
-      date: nextDate,
-      cash: after.cash,
-      investedValue: invested,
-      totalValue,
-      dailyPnL: 0,
-      totalPnL: totalValue - after.startingCash,
-    };
-    usePortfolioStore.setState((state) => ({
-      history: [...state.history.filter((entry) => entry.date !== nextDate), snapshot],
-    }));
   }, [addToast, processCandleForOrders, selectedTicker, setIsPlaying, setSimulationDate, updateMarketPrices]);
 
   const advanceByDays = useCallback((stepCount: number) => {
@@ -116,11 +102,11 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
     transitionId.current += 1;
     resetPortfolio(100000);
     if (candles.length > 0) {
-      setSimulationDate(candles[0].time);
+      useUIStore.setState({ simulationDate: candles[0].time });
       const firstCandle = candles[0];
       updateMarketPrices({ [selectedTicker]: firstCandle.close });
     } else {
-      setSimulationDate('2015-01-02');
+      useUIStore.setState({ simulationDate: '2015-01-02' });
     }
   };
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculatePositionUpdate, revaluePosition } from '../engine/trading/portfolio';
 import { Position } from '../model/types';
+import { TradingEngine } from '../engine/trading/trading-engine';
 
 const basePos: Position = {
   ticker: 'AAPL',
@@ -15,6 +16,40 @@ const basePos: Position = {
 };
 
 describe('Portfolio Position Logic - Edges', () => {
+  it('tracks realized and unrealized P&L through averaging, closure, fees, and reopening', () => {
+    const engine = new TradingEngine(10000, 2);
+    const trade = (side: 'buy' | 'sell', shares: number, price: number, date: string) => {
+      engine.placeOrder(
+        { ticker: 'AAPL', side, type: 'market', shares, date },
+        { time: date, open: price, high: price, low: price, close: price, volume: 1 }
+      );
+      const state = engine.getState();
+      return {
+        realized: state.realizedPnL,
+        unrealized: Object.values(state.positions).reduce((sum, position) => sum + position.unrealizedPnL, 0),
+        position: state.positions.AAPL,
+      };
+    };
+
+    let pnl = trade('buy', 10, 100, '2024-01-01');
+    expect({ realized: pnl.realized, unrealized: pnl.unrealized }).toEqual({ realized: 0, unrealized: -2 });
+
+    pnl = trade('buy', 10, 120, '2024-01-02');
+    expect({ realized: pnl.realized, unrealized: pnl.unrealized }).toEqual({ realized: 0, unrealized: 196 });
+
+    pnl = trade('sell', 5, 130, '2024-01-03');
+    expect({ realized: pnl.realized, unrealized: pnl.unrealized }).toEqual({ realized: 97, unrealized: 297 });
+    expect(pnl.position.realizedPnL).toBe(97);
+
+    pnl = trade('sell', 15, 90, '2024-01-04');
+    expect({ realized: pnl.realized, unrealized: pnl.unrealized }).toEqual({ realized: -208, unrealized: 0 });
+    expect(pnl.position).toBeUndefined();
+
+    pnl = trade('buy', 4, 50, '2024-01-05');
+    expect({ realized: pnl.realized, unrealized: pnl.unrealized }).toEqual({ realized: -208, unrealized: -2 });
+    expect(pnl.position.realizedPnL).toBe(0);
+  });
+
   it('buy new position creates correct avgCost and realizedPnL zero', () => {
     const { updatedPosition, realizedPnL } = calculatePositionUpdate(undefined, 'buy', 10, 50, 0);
     expect(updatedPosition!.shares).toBe(10);

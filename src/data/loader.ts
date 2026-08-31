@@ -1,4 +1,4 @@
-import { Candle, TickerInfo } from '../model/types';
+import { Candle, PortfolioSnapshot, TickerInfo } from '../model/types';
 import { CORE_TICKERS, getTickerInfo } from '../model/tickers';
 
 const candleCache = new Map<string, Candle[]>();
@@ -108,6 +108,26 @@ export function filterCandlesByDate(
     if (validEnd && c.time > endDate!) return false;
     return true;
   });
+}
+
+export function alignPortfolioHistoryWithBenchmark(
+  history: PortfolioSnapshot[],
+  benchmarkCandles: Candle[]
+): { dates: string[]; portfolioValues: number[]; benchmarkValues: number[] } {
+  const benchmarkByDate = new Map(
+    benchmarkCandles
+      .filter((candle) => typeof candle?.time === 'string' && Number.isFinite(candle.close) && candle.close > 0)
+      .map((candle) => [candle.time, candle.close])
+  );
+  const aligned = [...history]
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .filter((snapshot) => Number.isFinite(snapshot.totalValue) && benchmarkByDate.has(snapshot.date));
+
+  return {
+    dates: aligned.map((snapshot) => snapshot.date),
+    portfolioValues: aligned.map((snapshot) => snapshot.totalValue),
+    benchmarkValues: aligned.map((snapshot) => benchmarkByDate.get(snapshot.date)!),
+  };
 }
 
 export function getLatestCandleOnOrBefore(
