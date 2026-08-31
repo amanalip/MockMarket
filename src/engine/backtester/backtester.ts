@@ -58,7 +58,7 @@ export function runBacktest(
   );
 
   if (filteredCandles.length < 5) {
-    throw new Error('Insufficient historical candle data within the requested date range.');
+    throw new Error('Insufficient simulation candle data within the requested date range.');
   }
 
   // Precompute indicators over full series

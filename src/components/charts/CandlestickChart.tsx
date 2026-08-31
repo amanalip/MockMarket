@@ -343,7 +343,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
       <div className={styles.chartContainer} ref={chartContainerRef}>
         {loading && (
           <div className={styles.loadingOverlay}>
-            <span>Loading market data...</span>
+            <span>Loading simulation data...</span>
           </div>
         )}
       </div>

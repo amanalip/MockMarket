@@ -110,7 +110,7 @@ describe('Chart & Stock Screener Extended', () => {
 
   it('CandlestickChart renders loading state', () => {
     render(<CandlestickChart candles={[]} ticker="AAPL" theme="dark" simulationDate="2024-01-01" loading={true} />);
-    expect(screen.getByText(/Loading market data/)).toBeInTheDocument();
+    expect(screen.getByText(/Loading simulation data/)).toBeInTheDocument();
   });
 
   it('CandlestickChart renders without crash empty', () => {

@@ -30,6 +30,17 @@ describe('UI Components - TradePanel, StrategyEditor, Header', () => {
     expect(screen.getAllByText(/Buy AAPL/i).length).toBeGreaterThan(0);
   });
 
+  it('TradePanel displays and sizes buys from available cash', () => {
+    usePortfolioStore.getState().executeTrade({
+      ticker: 'MSFT', side: 'buy', type: 'limit', shares: 60, limitPrice: 100, date: '2024-01-02',
+    });
+    render(<TradePanel currentCandle={candle} />);
+
+    expect(screen.getByText('Available: $4,000.00')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('MAX'));
+    expect(screen.getByPlaceholderText('Number of shares')).toHaveValue(40);
+  });
+
   it('TradePanel switches buy/sell tabs', () => {
     render(<TradePanel currentCandle={candle} />);
     fireEvent.click(screen.getByText(/Sell AAPL/i));
@@ -122,7 +133,7 @@ describe('UI Components - TradePanel, StrategyEditor, Header', () => {
   it('Header renders brand and stats', () => {
     render(<Header />);
     expect(screen.getByText('MockMarket')).toBeInTheDocument();
-    expect(screen.getByText('Real data. Fake money. Real lessons.')).toBeInTheDocument();
+    expect(screen.getByText('Synthetic markets. Fake money. Real lessons.')).toBeInTheDocument();
     expect(screen.getByText('Simulation Date')).toBeInTheDocument();
     expect(screen.getByText('Portfolio Value')).toBeInTheDocument();
   });

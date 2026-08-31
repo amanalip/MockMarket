@@ -1,8 +1,10 @@
 # MockMarket
 
-> Real data. Fake money. Real lessons.
+> Synthetic markets. Fake money. Real lessons.
 
-MockMarket is a zero-latency, high-fidelity historical market simulation and algorithmic backtesting platform built entirely in client-side TypeScript and React. It bundles 10 years of daily historical data (2015 to 2024) across 84+ US equities, sector ETFs, and cryptocurrencies, complete with trading strategy DSL compilers, custom ETF construction, risk analytics, and 20 interactive historical market scenarios.
+MockMarket is a client-side TypeScript and React market simulator and algorithmic backtesting platform. It bundles 10 years of deterministic synthetic daily OHLCV data (2015 to 2024) across 84+ US equities, sector ETFs, and cryptocurrencies, plus trading strategy DSL compilers, custom ETF construction, risk analytics, and 20 educational market scenarios.
+
+> **Data notice:** Bundled prices, volume, benchmark returns, and simulation results are generated or approximate, not actual market history. See [DATA.md](DATA.md) for provenance, methodology, calendars, and limitations. MockMarket is for education only and is not financial advice.
 
 ---
 
@@ -37,7 +39,7 @@ MockMarket is a zero-latency, high-fidelity historical market simulation and alg
    - Custom fund construction with weight sliders, normalization helpers, and equal-weight distribution.
    - Periodic rebalancing simulations: Monthly, Quarterly, Annually, or Never (Drift).
    - Daily Net Asset Value (NAV) computation and Tracking Error analysis.
-   - Stacked Area chart visualizing weight drift over historical market cycles.
+   - Stacked Area chart visualizing weight drift over synthetic market cycles.
 
 6. **Historical Catalyst Timeline & What-If Time Machine**
    - Curated news and macroeconomic catalyst database spanning 10 years of Fed decisions, earnings releases, and black swan events.
@@ -153,7 +155,7 @@ npm run build
 npm run preview
 ```
 
-### Regenerate Historical Datasets
+### Regenerate Synthetic Datasets
 ```bash
 node scripts/generate_data.js
 ```

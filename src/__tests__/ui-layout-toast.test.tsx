@@ -138,7 +138,7 @@ describe('UI Layout & Toast', () => {
 
   it('Layout renders brand tagline', () => {
     render(<Layout><div /></Layout>);
-    expect(screen.getByText(/Real data/)).toBeInTheDocument();
+    expect(screen.getByText(/Synthetic markets/)).toBeInTheDocument();
   });
 
   it('Sidebar contains navigation', () => {

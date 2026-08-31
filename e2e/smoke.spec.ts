@@ -4,5 +4,6 @@ test('app shell loads and displays title', async ({ page }) => {
   await page.goto('/');
   await expect(page).toHaveTitle(/MockMarket/i);
   await expect(page.getByText('MockMarket')).toBeVisible();
-  await expect(page.getByText('Paper Trading')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Paper Trading' })).toBeVisible();
+  await expect(page.getByRole('note', { name: 'Simulation data notice' })).toBeVisible();
 });

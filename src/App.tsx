@@ -19,6 +19,7 @@ import { TimeMachineCalculator } from './components/timemachine/TimeMachineCalcu
 import { ScenarioCatalog } from './components/scenarios/ScenarioCatalog';
 import { ShortcutsModal } from './components/ui/ShortcutsModal';
 import { ToastContainer } from './components/ui/Toast';
+import { SyntheticDataNotice } from './components/ui/SyntheticDataNotice';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
@@ -122,13 +123,15 @@ export const App: React.FC = () => {
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
               {mode === 'trade' && `${selectedTicker} (${selectedInfo?.name || 'Instrument'}) | ${selectedInfo?.sector || ''}`}
-              {mode === 'backtest' && 'Define algorithmic trading rules and test them against historical candles.'}
+              {mode === 'backtest' && 'Define algorithmic trading rules and test them against generated price paths.'}
               {mode === 'etf' && 'Construct custom weighted portfolios and track weight drift.'}
               {mode === 'scenarios' && 'Interactive case studies guiding you through historical market shocks, earnings beats, and short squeezes.'}
               {mode === 'timeline' && 'Explore macroeconomic shocks, calculate what-if investment returns, and browse the catalyst feed.'}
             </p>
           </div>
         </div>
+
+        {mode !== 'scenarios' && <SyntheticDataNotice />}
 
         {mode === 'trade' && (
           <>

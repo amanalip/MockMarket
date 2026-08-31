@@ -38,7 +38,7 @@ export const Header: React.FC = () => {
         <div className={styles.brand}>
           <span className={styles.logoIcon}>📈</span>
           <span>MockMarket</span>
-          <span className={styles.tagline}>Real data. Fake money. Real lessons.</span>
+          <span className={styles.tagline}>Synthetic markets. Fake money. Real lessons.</span>
         </div>
 
         <div className={styles.stats}>
