@@ -13,52 +13,52 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 ## Correctness Blockers
 
 ### Task 1: Prevent stale ticker candles from being traded
-- [ ] Associate loaded candle data with its ticker and disable `TradePanel` unless that ticker matches `selectedTicker`.
+- [x] Associate loaded candle data with its ticker and disable `TradePanel` unless that ticker matches `selectedTicker`.
 - Files: `src/App.tsx`
 - Acceptance: Changing tickers immediately prevents trading against the previous ticker's candle, including when the new request fails.
 
 ### Task 2: Add a regression test for stale ticker data
-- [ ] Add a test that loads ticker A, makes ticker B fail, and confirms ticker A's candle cannot be displayed or traded as ticker B.
+- [x] Add a test that loads ticker A, makes ticker B fail, and confirms ticker A's candle cannot be displayed or traded as ticker B.
 - Files: `src/__tests__/`
 - Acceptance: The test fails against the old behavior and passes with Task 1 implemented.
 
 ### Task 3: Revalue each holding with its own market price
-- [ ] Replace the selected-candle fallback that assigns one ticker's close to every portfolio position.
+- [x] Replace the selected-candle fallback that assigns one ticker's close to every portfolio position.
 - Files: `src/components/timeline/SimulationBar.tsx`
 - Acceptance: Advancing time never changes ticker B's price using ticker A's candle.
 
 ### Task 4: Load held-ticker prices for simulation dates
-- [ ] Add a date-aligned price-loading path that retrieves the latest valid candle for every held ticker when simulation time changes.
+- [x] Add a date-aligned price-loading path that retrieves the latest valid candle for every held ticker when simulation time changes.
 - Files: `src/components/timeline/SimulationBar.tsx`, `src/data/loader.ts`
 - Acceptance: Multi-asset portfolios are revalued from each asset's own candle, with an explicit unavailable-price outcome.
 
 ### Task 5: Test multi-asset portfolio revaluation
-- [ ] Add tests covering two holdings with different prices and different trading calendars.
+- [x] Add tests covering two holdings with different prices and different trading calendars.
 - Files: `src/__tests__/`
 - Acceptance: Tests verify correct per-ticker values and behavior when one ticker has no candle on the selected date.
 
 ### Task 6: Prevent orders from filling before creation
-- [ ] Reject any pending-order evaluation where `candle.time` is earlier than `order.createdAt`.
+- [x] Reject any pending-order evaluation where `candle.time` is earlier than `order.createdAt`.
 - Files: `src/engine/trading/trading-engine.ts`
 - Acceptance: Rewinding the timeline cannot fill an order on a candle preceding its creation date.
 
 ### Task 7: Define and implement portfolio rewind behavior
-- [ ] Choose and implement deterministic rewind semantics, such as restoring a dated account snapshot or disallowing rewind after trading activity.
+- [x] Choose and implement deterministic rewind semantics, such as restoring a dated account snapshot or disallowing rewind after trading activity.
 - Files: `src/components/timeline/SimulationBar.tsx`, `src/store/index.ts`
 - Acceptance: Rewinding cannot leave future trades, orders, cash, and positions mixed with an earlier market date.
 
 ### Task 8: Test timeline rewind invariants
-- [ ] Add integration tests for rewinding with filled trades, pending orders, and portfolio history.
+- [x] Add integration tests for rewinding with filled trades, pending orders, and portfolio history.
 - Files: `src/__tests__/`
 - Acceptance: Tests prove that no future-dated account activity survives under an earlier simulation state unless explicitly supported.
 
 ### Task 9: Track realized P&L in the portfolio model
-- [ ] Add a realized P&L ledger or state field updated from actual sell cost basis rather than deriving it from total cash flows.
+- [x] Add a realized P&L ledger or state field updated from actual sell cost basis rather than deriving it from total cash flows.
 - Files: `src/model/types.ts`, `src/engine/trading/trading-engine.ts`, `src/store/index.ts`
 - Acceptance: Partial and full sales preserve the correct realized gain or loss after a position closes.
 
 ### Task 10: Display realized P&L from the authoritative value
-- [ ] Replace the formula in `PortfolioDashboard` with the realized P&L value maintained by the portfolio model.
+- [x] Replace the formula in `PortfolioDashboard` with the realized P&L value maintained by the portfolio model.
 - Files: `src/components/portfolio/PortfolioDashboard.tsx`
 - Acceptance: A buy alone shows zero realized P&L, and sales show only gains or losses actually realized.
 
