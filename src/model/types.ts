@@ -23,7 +23,7 @@ export interface Candle {
 
 export type OrderType = 'market' | 'limit' | 'stop_loss' | 'take_profit';
 export type OrderSide = 'buy' | 'sell';
-export type OrderStatus = 'pending' | 'filled' | 'cancelled';
+export type OrderStatus = 'pending' | 'filled' | 'cancelled' | 'expired' | 'rejected';
 
 export interface Order {
   id: string;
@@ -34,6 +34,8 @@ export interface Order {
   limitPrice?: number;
   stopPrice?: number;
   createdAt: string;
+  expiresAt?: string;
+  reservedCash: number;
   status: OrderStatus;
   filledAt?: string;
   filledPrice?: number;
@@ -65,6 +67,8 @@ export interface Position {
 
 export interface TradingAccountState {
   cash: number;
+  reservedCash: number;
+  availableCash: number;
   startingCash: number;
   commissionPerTrade: number;
   realizedPnL: number;

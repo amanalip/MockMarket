@@ -13,7 +13,7 @@ export const OrderManagement: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     if (status === 'filled') return styles.badgeFilled;
-    if (status === 'cancelled') return styles.badgeCancelled;
+    if (status !== 'pending') return styles.badgeCancelled;
     return styles.badgePending;
   };
 

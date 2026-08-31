@@ -8,6 +8,7 @@ export interface OrderRequest {
   limitPrice?: number;
   stopPrice?: number;
   date: string;
+  expiresAt?: string;
 }
 
 export interface ExecutionResult {
@@ -31,6 +32,8 @@ export interface OrderRecord {
   limitPrice?: number;
   stopPrice?: number;
   createdAt: string;
+  expiresAt?: string;
+  reservedCash: number;
   status: OrderStatus;
   filledAt?: string;
   filledPrice?: number;

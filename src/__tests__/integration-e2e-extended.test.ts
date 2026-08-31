@@ -59,7 +59,7 @@ describe('Integration E2E Extended', () => {
     const e = new TradingEngine(10000);
     const c: Candle = { time: '2024-01-01', open: 100, high: 100, low: 100, close: 100, volume: 1000 };
     e.executeMarketOrder({ ticker: 'aapl', side: 'buy', type: 'market', shares: 10, date: '2024-01-01' }, c);
-    expect(e.getState().positions['aapl']).toBeDefined();
+    expect(e.getState().positions.AAPL).toBeDefined();
   });
 
   it('backtester filtered candles 5 minimum', () => {

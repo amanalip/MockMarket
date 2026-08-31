@@ -69,6 +69,8 @@ function normalizePortfolioHistory(history: PortfolioSnapshot[]): PortfolioSnaps
 interface PortfolioState {
   startingCash: number;
   cash: number;
+  reservedCash: number;
+  availableCash: number;
   positions: Record<string, Position>;
   history: PortfolioSnapshot[];
   trades: Trade[];
@@ -203,6 +205,8 @@ export const useUIStore = create<UIState>((set) => ({
 export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   startingCash: 100000,
   cash: 100000,
+  reservedCash: 0,
+  availableCash: 100000,
   positions: {},
   history: [],
   trades: [],
@@ -216,6 +220,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     set({
       startingCash,
       cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
       positions: engineState.positions,
       history: [],
       trades: [],
@@ -225,10 +231,15 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   setCash: (cash) => {
     if (!Number.isFinite(cash) || cash < 0) return;
-    // Sync engine cash to avoid divergence with store
-    (tradingEngineInstance as unknown as { state: { cash: number } }).state.cash = cash;
+    tradingEngineInstance.setCash(cash);
+    const engineState = tradingEngineInstance.getState();
     // Direct cash changes are external cash flows, so they begin a new history period.
-    set({ cash, history: [] });
+    set({
+      cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
+      history: [],
+    });
   },
   resetPortfolio: (startingCash = 100000) => {
     tradingEngineInstance.setStartingCash(startingCash);
@@ -236,6 +247,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     set({
       startingCash,
       cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
       positions: engineState.positions,
       history: [],
       trades: [],
@@ -248,6 +261,8 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
     const engineState = tradingEngineInstance.getState();
     set({
       cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
       positions: engineState.positions,
       trades: engineState.trades,
       orders: engineState.orders,
@@ -258,20 +273,25 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   },
   processCandleForOrders: (candle, ticker) => {
     const filled = tradingEngineInstance.processPendingOrders(candle, ticker);
+    const engineState = tradingEngineInstance.getState();
+    set({
+      cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
+      positions: engineState.positions,
+      trades: engineState.trades,
+      orders: engineState.orders,
+      realizedPnL: engineState.realizedPnL,
+    });
     if (filled.length > 0) {
-      const engineState = tradingEngineInstance.getState();
-      set({
-        cash: engineState.cash,
-        positions: engineState.positions,
-        trades: engineState.trades,
-        orders: engineState.orders,
-        realizedPnL: engineState.realizedPnL,
-      });
       get().recordSnapshot(candle.time);
     }
     return filled;
   },
   updateMarketPrices: (priceMap) => {
+    priceMap = Object.fromEntries(
+      Object.entries(priceMap).map(([ticker, price]) => [ticker.trim().toUpperCase(), price])
+    );
     const before = tradingEngineInstance.getState();
     tradingEngineInstance.updatePrices(priceMap);
     const engineState = tradingEngineInstance.getState();
@@ -284,7 +304,12 @@ export const usePortfolioStore = create<PortfolioState>((set, get) => ({
   cancelOrder: (orderId) => {
     const cancelled = tradingEngineInstance.cancelOrder(orderId);
     const engineState = tradingEngineInstance.getState();
-    set({ orders: engineState.orders });
+    set({
+      cash: engineState.cash,
+      reservedCash: engineState.reservedCash,
+      availableCash: engineState.availableCash,
+      orders: engineState.orders,
+    });
     if (cancelled) get().recordSnapshot();
   },
   recordSnapshot: (date = useUIStore.getState().simulationDate) => {

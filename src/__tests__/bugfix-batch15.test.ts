@@ -37,12 +37,12 @@ describe('Bugfix Batch 15 – Volatility/Trading/ETF/Simulation', () => {
     const order: any = { id: 'test', ticker: 'AAPL', side: 'buy', type: 'limit', shares: 10, status: 'pending' };
     (eng as any).state.orders.push(order);
     (eng as any).executeFill(order, NaN as any, '2024-01-01');
-    expect(order.status).toBe('cancelled');
+    expect(order.status).toBe('rejected');
     expect(Number.isFinite(eng.getState().cash)).toBe(true);
     const order2: any = { id: 'test2', ticker: 'AAPL', side: 'buy', type: 'limit', shares: 10, status: 'pending' };
     (eng as any).state.orders.push(order2);
     (eng as any).executeFill(order2, Infinity as any, '2024-01-01');
-    expect(order2.status).toBe('cancelled');
+    expect(order2.status).toBe('rejected');
   });
 
   it('etf simulate guards Infinity NAV', () => {

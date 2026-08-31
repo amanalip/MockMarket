@@ -8,6 +8,8 @@ export class TradingEngine {
   constructor(initialCash = 100000, commissionPerTrade = 0) {
     this.state = {
       cash: initialCash,
+      reservedCash: 0,
+      availableCash: initialCash,
       startingCash: initialCash,
       commissionPerTrade,
       realizedPnL: 0,
@@ -33,10 +35,18 @@ export class TradingEngine {
     this.state.commissionPerTrade = fee;
   }
 
+  setCash(amount: number): void {
+    if (!Number.isFinite(amount) || amount < this.state.reservedCash) return;
+    this.state.cash = amount;
+    this.syncCashBalances();
+  }
+
   setStartingCash(amount: number): void {
     if (!Number.isFinite(amount) || amount < 0) return;
     this.state.startingCash = amount;
     this.state.cash = amount;
+    this.state.reservedCash = 0;
+    this.state.availableCash = amount;
     this.state.realizedPnL = 0;
     this.state.positions = {};
     this.state.trades = [];
@@ -44,6 +54,12 @@ export class TradingEngine {
   }
 
   placeOrder(req: OrderRequest, candle?: Candle): ExecutionResult {
+    const ticker = req.ticker.trim().toUpperCase();
+    if (!ticker) {
+      return { success: false, filled: false, error: 'Ticker is required.' };
+    }
+    req = { ...req, ticker };
+
     if (!Number.isFinite(req.shares) || !Number.isInteger(req.shares) || req.shares <= 0) {
       return { success: false, filled: false, error: 'Share count must be positive integer.' };
     }
@@ -69,19 +85,17 @@ export class TradingEngine {
         return { success: false, filled: false, error: 'Share count must be positive integer.' };
       }
       const requiredCash = req.shares * priceToCheck + fee;
-      if (this.state.cash < requiredCash) {
+      if (this.state.availableCash < requiredCash) {
         return {
           success: false,
           filled: false,
-          error: `Insufficient cash to reserve order. Need $${requiredCash.toFixed(2)}, available: $${this.state.cash.toFixed(2)}.`,
+          error: `Insufficient cash to reserve order. Need $${requiredCash.toFixed(2)}, available: $${this.state.availableCash.toFixed(2)}.`,
         };
       }
     } else {
-      // Sell limit/stop – case-insensitive ticker lookup for positions as well
-      const posKey = Object.keys(this.state.positions).find(k => k.toUpperCase() === req.ticker.toUpperCase());
-      const pos = posKey ? this.state.positions[posKey] : undefined;
+      const pos = this.state.positions[ticker];
       const pendingSellShares = this.state.orders
-        .filter((o) => o.ticker.toUpperCase() === req.ticker.toUpperCase() && o.side === 'sell' && o.status === 'pending')
+        .filter((o) => o.ticker === ticker && o.side === 'sell' && o.status === 'pending')
         .reduce((sum, o) => sum + o.shares, 0);
 
       const availableShares = (pos?.shares || 0) - pendingSellShares;
@@ -104,21 +118,35 @@ export class TradingEngine {
       limitPrice: req.limitPrice,
       stopPrice: req.stopPrice,
       createdAt: req.date || candle?.time || new Date().toISOString().split('T')[0],
+      expiresAt: req.expiresAt,
+      reservedCash: req.side === 'buy'
+        ? req.shares * (req.limitPrice ?? req.stopPrice ?? candle?.close ?? 0) + fee
+        : 0,
       status: 'pending',
     };
 
     this.state.orders.unshift(newOrder);
+    this.syncCashBalances();
 
     // If candle is provided, check if it triggers immediately
     if (candle) {
-      this.checkAndFillOrder(newOrder, candle);
-      if (newOrder.status === 'filled') {
+      const filled = this.checkAndFillOrder(newOrder, candle);
+      if (filled) {
         return {
           success: true,
           filled: true,
           orderId: newOrder.id,
           filledPrice: newOrder.filledPrice,
           shares: newOrder.shares,
+        };
+      }
+      const terminalStatus = newOrder.status as Order['status'];
+      if (terminalStatus === 'rejected' || terminalStatus === 'expired') {
+        return {
+          success: false,
+          filled: false,
+          orderId: newOrder.id,
+          error: `Order ${terminalStatus} at execution.`,
         };
       }
     }
@@ -134,15 +162,18 @@ export class TradingEngine {
     const order = this.state.orders.find((o) => o.id === orderId);
     if (order && order.status === 'pending') {
       order.status = 'cancelled';
+      order.reservedCash = 0;
+      this.syncCashBalances();
       return true;
     }
     return false;
   }
 
   processPendingOrders(candle: Candle, ticker: string): Order[] {
+    ticker = ticker.trim().toUpperCase();
     const filled: Order[] = [];
     const pendingOrders = this.state.orders.filter(
-      (o) => o.status === 'pending' && o.ticker.toUpperCase() === ticker.toUpperCase()
+      (o) => o.status === 'pending' && o.ticker === ticker
     );
 
     for (const order of pendingOrders) {
@@ -156,8 +187,14 @@ export class TradingEngine {
 
   private checkAndFillOrder(order: Order, candle: Candle): boolean {
     if (order.status !== 'pending') return false;
-    if (!candle || !Number.isFinite(candle.low) || !Number.isFinite(candle.high) || !Number.isFinite(candle.open) || !Number.isFinite(candle.close)) return false;
     if (candle.time < order.createdAt) return false;
+    if (order.expiresAt && candle.time > order.expiresAt) {
+      order.status = 'expired';
+      order.reservedCash = 0;
+      this.syncCashBalances();
+      return false;
+    }
+    if (!candle || !Number.isFinite(candle.low) || !Number.isFinite(candle.high) || !Number.isFinite(candle.open) || !Number.isFinite(candle.close)) return false;
 
     let shouldFill = false;
     let fillPrice = candle.close;
@@ -197,25 +234,29 @@ export class TradingEngine {
     }
 
     if (shouldFill) {
-      this.executeFill(order, fillPrice, candle.time);
-      return true;
+      return this.executeFill(order, fillPrice, candle.time);
     }
 
     return false;
   }
 
-  private executeFill(order: Order, fillPrice: number, timestamp: string): void {
+  private executeFill(order: Order, fillPrice: number, timestamp: string): boolean {
     if (!Number.isFinite(fillPrice) || fillPrice <= 0) {
-      order.status = 'cancelled';
-      return;
+      order.status = 'rejected';
+      order.reservedCash = 0;
+      this.syncCashBalances();
+      return false;
     }
     const fee = this.state.commissionPerTrade;
 
     if (order.side === 'buy') {
       const totalCost = order.shares * fillPrice + fee;
-      if (!Number.isFinite(totalCost) || this.state.cash < totalCost) {
-        order.status = 'cancelled';
-        return;
+      const spendableCash = this.state.availableCash + order.reservedCash;
+      if (!Number.isFinite(totalCost) || spendableCash < totalCost) {
+        order.status = 'rejected';
+        order.reservedCash = 0;
+        this.syncCashBalances();
+        return false;
       }
       this.state.cash -= totalCost;
       const currentPos = this.state.positions[order.ticker];
@@ -226,8 +267,10 @@ export class TradingEngine {
       }
 
       order.status = 'filled';
+      order.reservedCash = 0;
       order.filledAt = timestamp;
       order.filledPrice = fillPrice;
+      this.syncCashBalances();
 
       const trade: Trade = {
         id: `trade_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -245,8 +288,10 @@ export class TradingEngine {
       // Sell
       const currentPos = this.state.positions[order.ticker];
       if (!currentPos || currentPos.shares < order.shares) {
-        order.status = 'cancelled';
-        return;
+        order.status = 'rejected';
+        order.reservedCash = 0;
+        this.syncCashBalances();
+        return false;
       }
 
       const grossProceeds = order.shares * fillPrice;
@@ -262,8 +307,10 @@ export class TradingEngine {
       }
 
       order.status = 'filled';
+      order.reservedCash = 0;
       order.filledAt = timestamp;
       order.filledPrice = fillPrice;
+      this.syncCashBalances();
 
       const trade: Trade = {
         id: `trade_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -278,9 +325,15 @@ export class TradingEngine {
       };
       this.state.trades.unshift(trade);
     }
+    return true;
   }
 
   executeMarketOrder(req: OrderRequest, candle: Candle): ExecutionResult {
+    const ticker = req.ticker.trim().toUpperCase();
+    if (!ticker) {
+      return { success: false, filled: false, error: 'Ticker is required.' };
+    }
+    req = { ...req, ticker };
     const fillPrice = candle.close;
     const fee = this.state.commissionPerTrade;
 
@@ -293,15 +346,16 @@ export class TradingEngine {
 
     if (req.side === 'buy') {
       const totalCost = req.shares * fillPrice + fee;
-      if (this.state.cash < totalCost) {
+      if (this.state.availableCash < totalCost) {
         return {
           success: false,
           filled: false,
-          error: `Insufficient cash. Need $${totalCost.toFixed(2)}, available: $${this.state.cash.toFixed(2)}.`,
+          error: `Insufficient cash. Need $${totalCost.toFixed(2)}, available: $${this.state.availableCash.toFixed(2)}.`,
         };
       }
 
       this.state.cash -= totalCost;
+      this.syncCashBalances();
       const currentPos = this.state.positions[req.ticker];
       const { updatedPosition } = calculatePositionUpdate(currentPos, 'buy', req.shares, fillPrice, fee);
       if (updatedPosition) {
@@ -344,6 +398,7 @@ export class TradingEngine {
       const grossProceeds = req.shares * fillPrice;
       const netProceeds = grossProceeds - fee;
       this.state.cash += netProceeds;
+      this.syncCashBalances();
 
       const { updatedPosition, realizedPnL } = calculatePositionUpdate(currentPos, 'sell', req.shares, fillPrice, fee);
       this.state.realizedPnL = Number((this.state.realizedPnL + realizedPnL).toFixed(2));
@@ -379,6 +434,9 @@ export class TradingEngine {
   }
 
   updatePrices(priceMap: Record<string, number>): void {
+    priceMap = Object.fromEntries(
+      Object.entries(priceMap).map(([ticker, price]) => [ticker.trim().toUpperCase(), price])
+    );
     Object.keys(this.state.positions).forEach((ticker) => {
       const newPrice = priceMap[ticker];
       if (newPrice !== undefined && this.state.positions[ticker]) {
@@ -393,5 +451,13 @@ export class TradingEngine {
       0
     );
     return Number((this.state.cash + invested).toFixed(2));
+  }
+
+  private syncCashBalances(): void {
+    this.state.reservedCash = this.state.orders.reduce(
+      (sum, order) => sum + (order.status === 'pending' && order.side === 'buy' ? order.reservedCash : 0),
+      0
+    );
+    this.state.availableCash = this.state.cash - this.state.reservedCash;
   }
 }

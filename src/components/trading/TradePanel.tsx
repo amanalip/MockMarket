@@ -10,7 +10,7 @@ interface TradePanelProps {
 
 export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled = false }) => {
   const { selectedTicker, simulationDate, addToast } = useUIStore();
-  const { cash, positions, executeTrade } = usePortfolioStore();
+  const { availableCash, positions, executeTrade } = usePortfolioStore();
 
   const [side, setSide] = useState<OrderSide>('buy');
   const [orderType, setOrderType] = useState<OrderType>('market');
@@ -30,10 +30,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
 
   const handlePercentageClick = (percent: number) => {
     if (disabled) return;
-    if (!Number.isFinite(targetPrice) || targetPrice <= 0 || !Number.isFinite(cash) || !Number.isFinite(ownedShares)) return;
+    if (!Number.isFinite(targetPrice) || targetPrice <= 0 || !Number.isFinite(availableCash) || !Number.isFinite(ownedShares)) return;
     if (side === 'buy') {
-      if (!Number.isFinite(cash) || cash <= 0) return;
-      const maxShares = Math.floor(cash / targetPrice);
+      if (!Number.isFinite(availableCash) || availableCash <= 0) return;
+      const maxShares = Math.floor(availableCash / targetPrice);
       if (!Number.isFinite(maxShares) || maxShares <= 0) return;
       const target = Math.max(1, Math.floor(maxShares * (percent / 100)));
       if (!Number.isFinite(target) || target <= 0) return;
@@ -58,7 +58,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
       return;
     }
 
-    if (side === 'buy' && estimatedTotal > cash) {
+    if (side === 'buy' && estimatedTotal > availableCash) {
       addToast('Insufficient cash available for this order.', 'error');
       return;
     }
@@ -102,7 +102,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
     <div className={styles.container}>
       <div className={styles.header}>
         <span className={styles.title}>Order Placement</span>
-        <span className={styles.cashBalance}>Available: ${cash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        <span className={styles.cashBalance}>Available: ${availableCash.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
       </div>
 
       <div className={styles.tabs}>
@@ -218,7 +218,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
         <button
           type="submit"
           className={`${styles.submitBtn} ${side === 'buy' ? styles.btnBuy : styles.btnSell}`}
-          disabled={disabled || parsedShares <= 0 || targetPrice <= 0 || (side === 'buy' && estimatedTotal > cash) || (side === 'sell' && parsedShares > ownedShares)}
+          disabled={disabled || parsedShares <= 0 || targetPrice <= 0 || (side === 'buy' && estimatedTotal > availableCash) || (side === 'sell' && parsedShares > ownedShares)}
         >
           {side === 'buy' ? `Submit Buy ${selectedTicker}` : `Submit Sell ${selectedTicker}`}
         </button>

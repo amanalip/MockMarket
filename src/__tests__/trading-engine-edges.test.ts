@@ -58,21 +58,18 @@ describe('Trading Engine - Edge & Bug Cases', () => {
     expect(res.success).toBe(false);
   });
 
-  it('two pending buys exceeding cash second fills cancels', () => {
+  it('rejects a second pending buy that would overcommit available cash', () => {
     const cheap = mkCandle({ open: 100, low: 80, close: 100 });
     const expensiveHigh = mkCandle({ open: 100, high: 110, low: 95, close: 100 });
-    // place two buys that individually pass but together exceed cash
+    // The first order reserves $5,400, leaving only $4,600 available.
     engine.placeOrder({ ticker: 'AAPL', side: 'buy', type: 'limit', shares: 60, limitPrice: 90, date: '2024-01-02' }, expensiveHigh); // pending, low 95 >90 not filled
     const r2 = engine.placeOrder({ ticker: 'TSLA', side: 'buy', type: 'limit', shares: 60, limitPrice: 90, date: '2024-01-02' }, expensiveHigh);
-    expect(r2.success).toBe(true);
-    // now trigger fill for first order, should deduct
+    expect(r2.success).toBe(false);
+    expect(engine.getState()).toMatchObject({ cash: 10000, reservedCash: 5400, availableCash: 4600 });
+
     engine.processPendingOrders(cheap, 'AAPL');
     expect(engine.getState().orders.find(o => o.ticker==='AAPL')?.status).toBe('filled');
-    // second order fill should cancel due to insufficient cash
-    engine.processPendingOrders(cheap, 'TSLA');
-    const tslaOrder = engine.getState().orders.find(o => o.ticker==='TSLA');
-    // either still pending or cancelled depending on fill order; cash check cancels
-    expect(['cancelled','filled','pending']).toContain(tslaOrder?.status);
+    expect(engine.getState()).toMatchObject({ cash: 4600, reservedCash: 0, availableCash: 4600 });
   });
 
   it('cancelOrder idempotence and invalid id', () => {
