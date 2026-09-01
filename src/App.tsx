@@ -1,22 +1,6 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { lazy, Suspense, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Layout } from './components/ui/Layout';
 import { useUIStore, usePortfolioStore } from './store';
-import { StockScreener } from './components/stockpicker/StockScreener';
-import { CandlestickChart } from './components/charts/CandlestickChart';
-import { TradePanel } from './components/trading/TradePanel';
-import { PortfolioDashboard } from './components/portfolio/PortfolioDashboard';
-import { TradeHistory } from './components/portfolio/TradeHistory';
-import { OrderManagement } from './components/trading/OrderManagement';
-import { SimulationBar } from './components/timeline/SimulationBar';
-import { RiskDashboard } from './components/portfolio/RiskDashboard';
-import { BacktestConfigPanel } from './components/backtester/BacktestConfigPanel';
-import { BacktestResults } from './components/backtester/BacktestResults';
-import { ETFBuilderForm } from './components/etf/ETFBuilderForm';
-import { ETFAnalyticsDashboard } from './components/etf/ETFAnalyticsDashboard';
-import { SavedETFsList } from './components/etf/SavedETFsList';
-import { NewsFeed } from './components/timeline/NewsFeed';
-import { TimeMachineCalculator } from './components/timemachine/TimeMachineCalculator';
-import { ScenarioCatalog } from './components/scenarios/ScenarioCatalog';
 import { ShortcutsModal } from './components/ui/ShortcutsModal';
 import { ToastContainer } from './components/ui/Toast';
 import { SyntheticDataNotice } from './components/ui/SyntheticDataNotice';
@@ -26,6 +10,12 @@ import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
 import { Candle, CustomETFConfig } from './model/types';
 import { ETFSimulationResult, simulateETF } from './engine/etf/etf-builder';
 import styles from './App.module.css';
+
+const TradeMode = lazy(() => import('./components/modes/TradeMode'));
+const BacktestMode = lazy(() => import('./components/modes/BacktestMode'));
+const ETFMode = lazy(() => import('./components/modes/ETFMode'));
+const ScenariosMode = lazy(() => import('./components/modes/ScenariosMode'));
+const TimelineMode = lazy(() => import('./components/modes/TimelineMode'));
 
 export const App: React.FC = () => {
   const { mode, theme, selectedTicker, simulationDate, setSimulationDate } = useUIStore();
@@ -152,55 +142,28 @@ export const App: React.FC = () => {
 
         {mode !== 'scenarios' && <SyntheticDataNotice />}
 
-        {mode === 'trade' && (
-          <>
-            <SimulationBar candles={candles} />
+        <Suspense fallback={<div role="status" aria-live="polite">Loading mode...</div>}>
+          {mode === 'trade' && (
+            <TradeMode
+              activeCandle={activeCandle}
+              candles={candles}
+              hasSelectedTickerData={hasSelectedTickerData}
+              loading={loading}
+              onRetry={() => setTickerRetry((value) => value + 1)}
+              selectedTicker={selectedTicker}
+              simulationDate={simulationDate}
+              theme={theme}
+              tickerLoadError={tickerLoadError}
+            />
+          )}
 
-            {tickerLoadError && (
-              <div role="alert" style={{ border: '1px solid var(--down-red)', borderRadius: 8, padding: 12 }}>
-                <strong>Could not load market data for {selectedTicker}.</strong>{' '}
-                <span>{tickerLoadError}</span>{' '}
-                <button type="button" onClick={() => setTickerRetry((value) => value + 1)}>Retry {selectedTicker}</button>
-              </div>
-            )}
+          {mode === 'backtest' && <BacktestMode />}
 
-            <div className={styles.tradeStack}>
-              <div className={styles.tradeGrid}>
-                <CandlestickChart
-                  key={selectedTicker}
-                  candles={candles}
-                  ticker={selectedTicker}
-                  theme={theme}
-                  simulationDate={simulationDate}
-                  loading={loading}
-                />
-                <TradePanel currentCandle={activeCandle} disabled={!hasSelectedTickerData || !activeCandle} />
-              </div>
-
-              <PortfolioDashboard />
-
-              <RiskDashboard />
-
-              <div className={styles.activityGrid}>
-                <OrderManagement />
-                <TradeHistory />
-              </div>
-
-              <StockScreener />
-            </div>
-          </>
-        )}
-
-        {mode === 'backtest' && (
-          <div className={styles.modeStack}>
-            <BacktestConfigPanel />
-            <BacktestResults />
-          </div>
-        )}
-
-        {mode === 'etf' && (
-          <div className={styles.modeStack}>
-            <ETFBuilderForm
+          {mode === 'etf' && (
+            <ETFMode
+              failedETF={failedETF}
+              loadError={etfLoadError}
+              onLoadSavedETF={handleLoadSavedETF}
               onSimulationStart={() => {
                 const operation = ++etfOperationRef.current;
                 setEtfResult(null);
@@ -210,32 +173,13 @@ export const App: React.FC = () => {
               onSimulationComplete={(result, operation) => {
                 if (operation === etfOperationRef.current) setEtfResult(result);
               }}
+              result={etfResult}
             />
-            <SavedETFsList onSelect={handleLoadSavedETF} />
-            {etfLoadError && failedETF && (
-              <div role="alert" style={{ border: '1px solid var(--down-red)', borderRadius: 8, padding: 12 }}>
-                <strong>Could not load saved ETF "{failedETF.name}".</strong>{' '}
-                <span>{etfLoadError}</span>{' '}
-                <button type="button" onClick={() => void handleLoadSavedETF(failedETF)}>Retry ETF load</button>
-              </div>
-            )}
-            {etfResult && <ETFAnalyticsDashboard result={etfResult} />}
-          </div>
-        )}
+          )}
 
-        {mode === 'scenarios' && (
-          <div className={styles.modeStack}>
-            <ScenarioCatalog />
-          </div>
-        )}
-
-        {mode === 'timeline' && (
-          <div className={styles.modeStack}>
-            <SimulationBar candles={candles} />
-            <TimeMachineCalculator />
-            <NewsFeed />
-          </div>
-        )}
+          {mode === 'scenarios' && <ScenariosMode />}
+          {mode === 'timeline' && <TimelineMode candles={candles} />}
+        </Suspense>
       </div>
       <ShortcutsModal
         isOpen={isShortcutsOpen}
