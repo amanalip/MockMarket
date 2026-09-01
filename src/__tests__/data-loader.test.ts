@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { CORE_TICKERS, getTickerInfo, getAllSectors, getAllIndustries } from '../model/tickers';
 import { clearTickerCache, loadLatestCandlesOnOrBefore, loadTickerData, filterCandlesByDate, getLatestCandleOnOrBefore } from '../data/loader';
 import { Candle } from '../model/types';
+import { validateCandles } from '../data/candle-validation';
 
 describe('Ticker Metadata & Data Loader', () => {
   beforeEach(() => {
@@ -84,6 +85,32 @@ describe('Ticker Metadata & Data Loader', () => {
     const cachedResult = await loadTickerData('TEST_TICKER');
     expect(cachedResult).toEqual(mockCandles);
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [{ time: '2024-02-30', open: 1, high: 1, low: 1, close: 1, volume: 0 }, 'invalid time'],
+    [{ time: '2024-01-01', open: 0, high: 1, low: 1, close: 1, volume: 0 }, 'field open'],
+    [{ time: '2024-01-01', open: 2, high: 1, low: 1, close: 1, volume: 0 }, 'high must'],
+    [{ time: '2024-01-01', open: 1, high: 1, low: 1, close: 1, volume: -1 }, 'field volume'],
+  ])('rejects malformed complete candle fields with useful errors', (candle, message) => {
+    expect(() => validateCandles([candle], 'TEST')).toThrow(message);
+  });
+
+  it('rejects duplicate and unsorted candle dates', () => {
+    const candle = (time: string): Candle => ({ time, open: 1, high: 1, low: 1, close: 1, volume: 0 });
+    expect(() => validateCandles([candle('2024-01-01'), candle('2024-01-01')], 'TEST')).toThrow('duplicate time');
+    expect(() => validateCandles([candle('2024-01-02'), candle('2024-01-01')], 'TEST')).toThrow('unsorted time');
+  });
+
+  it('surfaces load-time validation errors instead of filtering malformed candles', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [{ time: '2024-01-01', open: 10, high: 9, low: 8, close: 10, volume: 1 }],
+    } as unknown as Response);
+
+    await expect(loadTickerData('INVALID_TEST')).rejects.toThrow(
+      'Invalid candle data for INVALID_TEST: candle 0 high must be greater than or equal to open and close'
+    );
   });
 
   it('loads each ticker own latest candle and reports unavailable prices', async () => {

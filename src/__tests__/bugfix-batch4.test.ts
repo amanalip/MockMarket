@@ -30,7 +30,11 @@ describe('Bugfix Batch 4 – Indicators, Loader & Parser hardening', () => {
 
   it('loader cache returns copy, mutation does not pollute cache', async () => {
     clearTickerCache();
-    const mockCandles: Candle[] = mkCandles(5, 100).map((c, i) => ({ ...c, close: 100 + i }));
+    const mockCandles: Candle[] = mkCandles(5, 100).map((c, i) => ({
+      ...c,
+      high: Math.max(c.high, 100 + i),
+      close: 100 + i,
+    }));
     // mock fetch to return mockCandles for AAPL
     const origFetch = globalThis.fetch;
     const fetchSpy = vi.fn(async (url: string) => {

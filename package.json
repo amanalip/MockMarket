@@ -11,6 +11,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "data:validate": "node scripts/data-integrity.js",
+    "data:manifest": "node scripts/data-integrity.js --write-manifest",
+    "data:export-tickers": "node scripts/export_tickers_json.js",
+    "data:generate": "node scripts/generate_data.js",
     "preview": "vite preview"
   },
   "dependencies": {

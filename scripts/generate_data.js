@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { isTradingDay } from 'us-equity-market-calendar';
+import { assertSafeDataPath, validateCatalog, writeManifest } from './data-integrity.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,12 +11,25 @@ const publicDataDir = path.resolve(__dirname, '../public/data');
 const stocksDir = path.join(publicDataDir, 'stocks');
 const etfsDir = path.join(publicDataDir, 'etfs');
 const cryptoDir = path.join(publicDataDir, 'crypto');
+const ASSET_FOLDERS = { stock: 'stocks', etf: 'etfs', crypto: 'crypto' };
+const TICKER_PATTERN = /^[A-Z][A-Z0-9]*(?:\.[A-Z0-9]+)?$/;
 
-[publicDataDir, stocksDir, etfsDir, cryptoDir].forEach((dir) => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+export function resolveOutputPath(ticker, assetType, rootDir = publicDataDir) {
+  if (typeof ticker !== 'string' || ticker.length > 10 || !TICKER_PATTERN.test(ticker)) {
+    throw new Error(`Invalid ticker symbol for generation: ${JSON.stringify(ticker)}`);
   }
-});
+  if (typeof assetType !== 'string' || !Object.hasOwn(ASSET_FOLDERS, assetType)) {
+    throw new Error(`Invalid asset type for ${ticker}: ${JSON.stringify(assetType)}`);
+  }
+  const folder = ASSET_FOLDERS[assetType];
+  const resolvedRoot = path.resolve(rootDir);
+  const outputPath = path.resolve(resolvedRoot, folder, `${ticker}.json`);
+  const relative = path.relative(resolvedRoot, outputPath);
+  if (relative.startsWith('..') || path.isAbsolute(relative)) {
+    throw new Error(`Refusing to write outside ${resolvedRoot}: ${outputPath}`);
+  }
+  return outputPath;
+}
 
 // Seeded PRNG for reproducible, realistic OHLCV generation
 function createPRNG(seed) {
@@ -277,21 +291,37 @@ function generateOHLCV(ticker, isCrypto = false, seed = 12345) {
   return series;
 }
 
-// Load all tickers from public/data/tickers.json
-const tickersJsonPath = path.resolve(__dirname, '../public/data/tickers.json');
-const tickersRaw = JSON.parse(fs.readFileSync(tickersJsonPath, 'utf8'));
+export function generateData() {
+  const tickersJsonPath = path.resolve(__dirname, '../public/data/tickers.json');
+  const tickersRaw = validateCatalog(JSON.parse(fs.readFileSync(tickersJsonPath, 'utf8')));
 
-console.log(`Generating 10-year OHLCV datasets for ${tickersRaw.length} tickers...`);
+  // Validate every destination before creating directories or writing any file.
+  const destinations = tickersRaw.map((item) => resolveOutputPath(item?.ticker, item?.assetType));
+  [publicDataDir, stocksDir, etfsDir, cryptoDir].forEach((dir) => {
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    assertSafeDataPath(dir);
+  });
+  destinations.forEach((destination) => assertSafeDataPath(destination, true));
 
-tickersRaw.forEach((item, index) => {
-  const isCrypto = item.assetType === 'crypto';
-  const folder = isCrypto ? 'crypto' : (item.assetType === 'etf' ? 'etfs' : 'stocks');
-  const seed = 1000 + index * 37;
+  console.log(`Generating 10-year OHLCV datasets for ${tickersRaw.length} tickers...`);
+  tickersRaw.forEach((item, index) => {
+    const isCrypto = item.assetType === 'crypto';
+    const seed = 1000 + index * 37;
+    const data = generateOHLCV(item.ticker, isCrypto, seed);
+    const filePath = destinations[index];
+    fs.writeFileSync(filePath, JSON.stringify(data));
+    console.log(`[${index + 1}/${tickersRaw.length}] Saved ${item.ticker} (${data.length} candles) -> ${filePath}`);
+  });
 
-  const data = generateOHLCV(item.ticker, isCrypto, seed);
-  const filePath = path.join(publicDataDir, folder, `${item.ticker}.json`);
-  fs.writeFileSync(filePath, JSON.stringify(data));
-  console.log(`[${index + 1}/${tickersRaw.length}] Saved ${item.ticker} (${data.length} candles) -> ${filePath}`);
-});
+  writeManifest();
+  console.log(`Complete ${tickersRaw.length}-ticker dataset generation complete; integrity manifest updated.`);
+}
 
-console.log(`Complete ${tickersRaw.length}-ticker dataset generation complete.`);
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  try {
+    generateData();
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  }
+}

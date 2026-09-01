@@ -1,5 +1,6 @@
 import { Candle, PortfolioSnapshot, TickerInfo } from '../model/types';
 import { CORE_TICKERS, getTickerInfo } from '../model/tickers';
+import { validateCandles } from './candle-validation';
 
 const candleCache = new Map<string, Candle[]>();
 
@@ -56,39 +57,45 @@ export async function loadTickerData(ticker: string): Promise<Candle[]> {
   const safeBase = cleanBase.replace(/([^:])\/\//g, '$1/').replace(/^\.\//, '/');
   const url = `${safeBase}data/${subfolder}/${encodeURIComponent(upperTicker)}.json`;
 
+  let response: Response | undefined;
   try {
-    const res = await fetch(url);
-    if (res && res.ok) {
-      const rawCandles: Candle[] = await res.json();
-      if (!Array.isArray(rawCandles)) throw new Error(`Data file not found for ticker: ${upperTicker}`);
-      const candles = rawCandles.filter(c => c && typeof c.time === 'string' && Number.isFinite(c.close));
-      if (candles.length === 0) throw new Error(`Data file not found for ticker: ${upperTicker}`);
+    response = await fetch(url);
+  } catch {
+    // A failed request may still be served from the local test dataset below.
+  }
+  if (response?.ok) {
+    let rawCandles: unknown;
+    try {
+      rawCandles = await response.json();
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Invalid candle data for ${upperTicker}: invalid JSON (${reason})`);
+    }
+    const candles = validateCandles(rawCandles, `Invalid candle data for ${upperTicker}`);
+    candleCache.set(upperTicker, candles.map(c => ({ ...c })));
+    return candles.map(c => ({ ...c }));
+  }
+
+  // Attempt local Node fs fallback for testing environments.
+  const globalObj = globalThis as unknown as { process?: { cwd?: () => string; versions?: { node?: string } } };
+  if (globalObj.process?.versions?.node) {
+    const fsModule = 'node:fs';
+    const pathModule = 'node:path';
+    const fs = await import(/* @vite-ignore */ fsModule);
+    const path = await import(/* @vite-ignore */ pathModule);
+    const cwd = globalObj.process.cwd?.() || '.';
+    const filePath = path.resolve(cwd, `public/data/${subfolder}/${upperTicker}.json`);
+    if (fs.existsSync(filePath)) {
+      let rawCandles: unknown;
+      try {
+        rawCandles = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        throw new Error(`Invalid candle data for ${upperTicker}: invalid JSON (${reason})`);
+      }
+      const candles = validateCandles(rawCandles, `Invalid candle data for ${upperTicker}`);
       candleCache.set(upperTicker, candles.map(c => ({ ...c })));
       return candles.map(c => ({ ...c }));
-    }
-  } catch {
-    // Attempt local Node fs fallback for testing environments
-    const globalObj = globalThis as unknown as { process?: { cwd?: () => string; versions?: { node?: string } } };
-    if (globalObj.process?.versions?.node) {
-      try {
-        const fsModule = 'node:fs';
-        const pathModule = 'node:path';
-        const fs = await import(/* @vite-ignore */ fsModule);
-        const path = await import(/* @vite-ignore */ pathModule);
-        const cwd = globalObj.process.cwd?.() || '.';
-        const filePath = path.resolve(cwd, `public/data/${subfolder}/${upperTicker}.json`);
-        if (fs.existsSync(filePath)) {
-          const raw = fs.readFileSync(filePath, 'utf8');
-          const rawCandles: Candle[] = JSON.parse(raw);
-          if (!Array.isArray(rawCandles)) throw new Error(`Data file not found for ticker: ${upperTicker}`);
-          const candles = rawCandles.filter(c => c && typeof c.time === 'string' && Number.isFinite(c.close));
-          if (candles.length === 0) throw new Error(`Data file not found for ticker: ${upperTicker}`);
-          candleCache.set(upperTicker, candles.map(c => ({ ...c })));
-          return candles.map(c => ({ ...c }));
-        }
-      } catch {
-        // Fall through to error
-      }
     }
   }
 

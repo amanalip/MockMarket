@@ -78,7 +78,7 @@ describe('Bugfix Batch 7 – ETF, Scenario, News, Loader', () => {
     const fetchSpy = vi.fn(async () => ({ ok: true, json: async () => [{ time: '2024-01-01', close: 'bad' }] } as any));
     (globalThis as any).fetch = fetchSpy;
     clearTickerCache();
-    await expect(loadTickerData('TESTBAD')).rejects.toThrow(/Data file not found/);
+    await expect(loadTickerData('TESTBAD')).rejects.toThrow(/Invalid candle data for TESTBAD.*field open/);
     (globalThis as any).fetch = origFetch;
     clearTickerCache();
   });

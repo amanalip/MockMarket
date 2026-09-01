@@ -1,0 +1,777 @@
+{
+  "schemaVersion": 1,
+  "generation": {
+    "script": "scripts/generate_data.js",
+    "sha256": "bd40ac5265e06f4baed04418445738f5cff9856b6baa9326a1c31b402a340029",
+    "tickerSourceSha256": "4dcc30a29289dfa5d68f1a6b994ae18c2f015109a97d124d965b97c90581e18b",
+    "startDate": "2015-01-01",
+    "endDate": "2024-12-31",
+    "equityCalendar": "us-equity-market-calendar@1 with listed ad-hoc closures",
+    "adHocEquityClosures": [
+      "2018-12-05"
+    ]
+  },
+  "catalog": {
+    "path": "public/data/tickers.json",
+    "tickers": 84,
+    "sha256": "fd1c0cdb757dd26be7f8eac5808c523120d5ec1e3624e2533fa5d9dfca11ed8b"
+  },
+  "datasets": [
+    {
+      "ticker": "AAPL",
+      "assetType": "stock",
+      "path": "public/data/stocks/AAPL.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "178543efbe3e79f646ef112c540e99fa3b41cfb33c960369c50e86f498b95378"
+    },
+    {
+      "ticker": "ABBV",
+      "assetType": "stock",
+      "path": "public/data/stocks/ABBV.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "ab5e548c17032d51f6ee18c1e6b88f3b7ccdae6d2822d74ffff2e0a08aeb1e08"
+    },
+    {
+      "ticker": "ABT",
+      "assetType": "stock",
+      "path": "public/data/stocks/ABT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "27e1a1e57f4ba5322e1ea313e50acf2774a4e82b9179bae3cdbc5e5c932f522b"
+    },
+    {
+      "ticker": "ADBE",
+      "assetType": "stock",
+      "path": "public/data/stocks/ADBE.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "9077db0eaac8b12cf22a8dec654c917106ec7ff3937473176d69d1ae023fa34e"
+    },
+    {
+      "ticker": "AMD",
+      "assetType": "stock",
+      "path": "public/data/stocks/AMD.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "b1e4276f032c475b6cb9056badfef66bb430d1dc80fcfab9a8d8311acc238fe5"
+    },
+    {
+      "ticker": "AMZN",
+      "assetType": "stock",
+      "path": "public/data/stocks/AMZN.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "c6d26607bf6a09c630e42e1e22198718761af79833a54dee184910f20e3f7269"
+    },
+    {
+      "ticker": "ARKK",
+      "assetType": "etf",
+      "path": "public/data/etfs/ARKK.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "17a0aded90f4e77c3c08f509a026047878ea1ad43684f425cf9bc700f46d3bbd"
+    },
+    {
+      "ticker": "AVGO",
+      "assetType": "stock",
+      "path": "public/data/stocks/AVGO.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "4faad231615bae95b966cab8381ff441ffa5e56ee7dcccfdd914d2a5d47fd95f"
+    },
+    {
+      "ticker": "AXP",
+      "assetType": "stock",
+      "path": "public/data/stocks/AXP.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "065e431950de0ff3ad9e2ab947d98c13db91f02e0186fd99b4a802bd83a13eb4"
+    },
+    {
+      "ticker": "BA",
+      "assetType": "stock",
+      "path": "public/data/stocks/BA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "fbeac873235a68b88ca6d09219dff84915f297a02b89f8cd56135643b7bbf514"
+    },
+    {
+      "ticker": "BAC",
+      "assetType": "stock",
+      "path": "public/data/stocks/BAC.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "629c2ffaaec7c970ddabd8bd9a962c01b68f9a44b6071720a22117e6172e49b1"
+    },
+    {
+      "ticker": "BKNG",
+      "assetType": "stock",
+      "path": "public/data/stocks/BKNG.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d16de18a601d6376c092d86da2d9b9f86541024861977645bc9d92acd2122bd2"
+    },
+    {
+      "ticker": "BLK",
+      "assetType": "stock",
+      "path": "public/data/stocks/BLK.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0131d5edb74d09f706c2b962eec108e33a26b76e071accedb3110460009283b4"
+    },
+    {
+      "ticker": "BMY",
+      "assetType": "stock",
+      "path": "public/data/stocks/BMY.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d9560491ab6b0b7db424f57c14b04abf8f90bd634f0ac090dfcde10b002f38a5"
+    },
+    {
+      "ticker": "BRK.B",
+      "assetType": "stock",
+      "path": "public/data/stocks/BRK.B.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "2a8b3d362fd345e72bd73384480caaf7df16fcb22ceaeea5ed8e16dd0f1d7c2c"
+    },
+    {
+      "ticker": "BTC",
+      "assetType": "crypto",
+      "path": "public/data/crypto/BTC.json",
+      "candles": 3653,
+      "startDate": "2015-01-01",
+      "endDate": "2024-12-31",
+      "sha256": "e4d520d95fb8a9567b2cedbf7a42b6eb90aebb1c076c9afb4995ab749b24ddfb"
+    },
+    {
+      "ticker": "CAT",
+      "assetType": "stock",
+      "path": "public/data/stocks/CAT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "3e5d8584e6e1a2df4a2a4c4f1db836ebac945337077692397fe55a552651fb9b"
+    },
+    {
+      "ticker": "CMCSA",
+      "assetType": "stock",
+      "path": "public/data/stocks/CMCSA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "f9b862cb1b3242420a214a984646d7d88466b8ad49bccfd73259b153d814ea70"
+    },
+    {
+      "ticker": "COP",
+      "assetType": "stock",
+      "path": "public/data/stocks/COP.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "51fd911cd1d9bc8525be4b2203a708f7ab0d4e59a6306a88baa2ccaa875c2739"
+    },
+    {
+      "ticker": "COST",
+      "assetType": "stock",
+      "path": "public/data/stocks/COST.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "1e8b8a56d626702b61c21b9989839248bd7da678d8ebc0a85d20b6cadd84adbd"
+    },
+    {
+      "ticker": "CRM",
+      "assetType": "stock",
+      "path": "public/data/stocks/CRM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "3a338c2d7d668e75092078a8f95b0d7b216e285184a5c77f7424497ea66dc89f"
+    },
+    {
+      "ticker": "CSCO",
+      "assetType": "stock",
+      "path": "public/data/stocks/CSCO.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "f10e08ecd7d20f49081fb74991c697f9479b6528c3c20ae2ef0f2df765db1109"
+    },
+    {
+      "ticker": "CVX",
+      "assetType": "stock",
+      "path": "public/data/stocks/CVX.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "ac8ddb344d81c898385626f0a7c8af915beaa3b2642b544c07952d2dd897003e"
+    },
+    {
+      "ticker": "DHR",
+      "assetType": "stock",
+      "path": "public/data/stocks/DHR.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "8781efc87afd9467d726bf169e4f4fb32f81a8a647b5740c8237a326fb6e403b"
+    },
+    {
+      "ticker": "DIA",
+      "assetType": "etf",
+      "path": "public/data/etfs/DIA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "23757e2d938ded41779d95546a7ecd27717d43414cd17e790266b98a220a718a"
+    },
+    {
+      "ticker": "DIS",
+      "assetType": "stock",
+      "path": "public/data/stocks/DIS.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "e121492ed9dfbe025635119e1147ab940fff5019eab4d95fce53a727f4052b65"
+    },
+    {
+      "ticker": "ETH",
+      "assetType": "crypto",
+      "path": "public/data/crypto/ETH.json",
+      "candles": 3653,
+      "startDate": "2015-01-01",
+      "endDate": "2024-12-31",
+      "sha256": "6673efce1fad0a7667c227cf956a941128cd87124acba92ce57a4eea26350e2c"
+    },
+    {
+      "ticker": "GE",
+      "assetType": "stock",
+      "path": "public/data/stocks/GE.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "214bb93ecb116d2b5262ff90f8ab6b4f3a4cff9abca1d238f52950437f54cee9"
+    },
+    {
+      "ticker": "GLD",
+      "assetType": "etf",
+      "path": "public/data/etfs/GLD.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "43e01070c38595c063859fa169e205ba2415022b6af2686fe8ccc5d17dfb9eaa"
+    },
+    {
+      "ticker": "GOOGL",
+      "assetType": "stock",
+      "path": "public/data/stocks/GOOGL.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "e2e73c6f730151ced425caa99a950341adde5803213dc142232b2d2a44f12817"
+    },
+    {
+      "ticker": "GS",
+      "assetType": "stock",
+      "path": "public/data/stocks/GS.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "a07987998d1bf5040328b070d8951a85d2e5cb10c399086168e79a3851d5677a"
+    },
+    {
+      "ticker": "HD",
+      "assetType": "stock",
+      "path": "public/data/stocks/HD.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "6acec6e125a78295dffe4580ce3ad25ee76cdc8d768a1c8ec779cdc07808bb43"
+    },
+    {
+      "ticker": "HON",
+      "assetType": "stock",
+      "path": "public/data/stocks/HON.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "2e1defd6ea18639d86392031224369d0370c48150268c9e31e32619862ea47cc"
+    },
+    {
+      "ticker": "IBM",
+      "assetType": "stock",
+      "path": "public/data/stocks/IBM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0c185f5b2ed3f95a97a9d8bf2ec8cdfcbbdd46590bf9e4f0f03c3cd33e19001d"
+    },
+    {
+      "ticker": "INTC",
+      "assetType": "stock",
+      "path": "public/data/stocks/INTC.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "a763e7596f0c557d170722423bcc344518730340d8722dcf9fbead7c9e009403"
+    },
+    {
+      "ticker": "IWM",
+      "assetType": "etf",
+      "path": "public/data/etfs/IWM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "c910b73ed25a9f5915a1a6bf7b3d96a1aed64784927422310df4f023e18ff421"
+    },
+    {
+      "ticker": "JNJ",
+      "assetType": "stock",
+      "path": "public/data/stocks/JNJ.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "ab1bda42f54ca5a985c09399f8f28de23a7c3c5e9dd3fcaa14cf6be80de757d7"
+    },
+    {
+      "ticker": "JPM",
+      "assetType": "stock",
+      "path": "public/data/stocks/JPM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0e34041cb2173703f37452cfdef6d0fb57b628bed0a9d05eb1678c6a1878b524"
+    },
+    {
+      "ticker": "KO",
+      "assetType": "stock",
+      "path": "public/data/stocks/KO.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "b1773dd8470dd880b0886b9dee496114b459d882f3bf517c427ebd5bedd22878"
+    },
+    {
+      "ticker": "LLY",
+      "assetType": "stock",
+      "path": "public/data/stocks/LLY.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "f6504a7ee1bb298b872c7f19894161f87d87f9b6d4f72694f94a14d0143f489f"
+    },
+    {
+      "ticker": "LMT",
+      "assetType": "stock",
+      "path": "public/data/stocks/LMT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "5064f6e0eb19a85f86b7c11de7f22364f972bafd3f06a83c60a6ef1655b16784"
+    },
+    {
+      "ticker": "LOW",
+      "assetType": "stock",
+      "path": "public/data/stocks/LOW.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d24dfc642b2c1fee0c631c21e391a1473e475ab806b256061205199af90711c4"
+    },
+    {
+      "ticker": "MA",
+      "assetType": "stock",
+      "path": "public/data/stocks/MA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "08891f00d9c2a9d960fe54c4174f2896ff54b6ccf2d23d6f6b46c4ab48362807"
+    },
+    {
+      "ticker": "MCD",
+      "assetType": "stock",
+      "path": "public/data/stocks/MCD.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "9114b3a361b12c5e915b0197ac8e34988e04367ae23f8956f1976f5f6b032c07"
+    },
+    {
+      "ticker": "MDLZ",
+      "assetType": "stock",
+      "path": "public/data/stocks/MDLZ.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "5194c290a417be7aa9f0cb7602d417b936a8ba3163206cdd7195825b05ddac4f"
+    },
+    {
+      "ticker": "META",
+      "assetType": "stock",
+      "path": "public/data/stocks/META.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "28fef9849f07461944e1eb5c17174d7d79dcdafca3ec29b458ac51bcc6d6141d"
+    },
+    {
+      "ticker": "MRK",
+      "assetType": "stock",
+      "path": "public/data/stocks/MRK.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0f2aacd8add83f62ef34f3909b2ba1b8fe3aa6ea4b9ea93c347c6f51160c42ec"
+    },
+    {
+      "ticker": "MS",
+      "assetType": "stock",
+      "path": "public/data/stocks/MS.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "8ab14a7eec2480ae37e49ea7f43a2cdfae1d00d97e994c36ca7e80449c7c2fb7"
+    },
+    {
+      "ticker": "MSFT",
+      "assetType": "stock",
+      "path": "public/data/stocks/MSFT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "7912dff04ca42ffdce3dc4cc6a850cd2e4013202616fa8117f4968785698ec64"
+    },
+    {
+      "ticker": "NFLX",
+      "assetType": "stock",
+      "path": "public/data/stocks/NFLX.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "29b1fd8e18895bbfa0c52bba9f954fb325b1f70390cc83240eb05e89ff369b3a"
+    },
+    {
+      "ticker": "NKE",
+      "assetType": "stock",
+      "path": "public/data/stocks/NKE.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "c2efc2fed381667f805c0ce77dc592bd65b8f93b2068c44a9509c8a55b06c978"
+    },
+    {
+      "ticker": "NVDA",
+      "assetType": "stock",
+      "path": "public/data/stocks/NVDA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0556705733d881710bbf7f480bc13c5a7a82f98da855ee6d384bbac931c184f3"
+    },
+    {
+      "ticker": "ORCL",
+      "assetType": "stock",
+      "path": "public/data/stocks/ORCL.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "0e08364d07b859d126687b744cc3400f335b9fb0f0f9035d8fac6bef9bd29d7a"
+    },
+    {
+      "ticker": "PEP",
+      "assetType": "stock",
+      "path": "public/data/stocks/PEP.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "8edebebc45456ef5f01fcb0ed5d1ad9f925ca1d3b7c487bc7d2f65b614af9fe0"
+    },
+    {
+      "ticker": "PFE",
+      "assetType": "stock",
+      "path": "public/data/stocks/PFE.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "29c9b589802c63f82abad36ff5396bd034e0f6b4610a9141461d50e22eb3c093"
+    },
+    {
+      "ticker": "PG",
+      "assetType": "stock",
+      "path": "public/data/stocks/PG.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "9df53ce213a4ba3e3ba8039c5f7d883dc6dc054cdfaa228f493ba30818d78ff1"
+    },
+    {
+      "ticker": "PM",
+      "assetType": "stock",
+      "path": "public/data/stocks/PM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "991d2c0377bcbb05f1d476f4d2af07284cf4e7a2b6a8ceb904caefacb47b37b0"
+    },
+    {
+      "ticker": "QCOM",
+      "assetType": "stock",
+      "path": "public/data/stocks/QCOM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "020f573c9cfe6eab32c6de4aac8315c20a03aeaae815aba84f6a97c473b4f7de"
+    },
+    {
+      "ticker": "QQQ",
+      "assetType": "etf",
+      "path": "public/data/etfs/QQQ.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "90d21bd1d624b63bd266956863bc1e34c8826765cae6aeccdd7d0dc82064b6f4"
+    },
+    {
+      "ticker": "RTX",
+      "assetType": "stock",
+      "path": "public/data/stocks/RTX.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "ff02e99c1b1579727522506bae42ce6a9adc16f724231b87d946dd0ec756f260"
+    },
+    {
+      "ticker": "SBUX",
+      "assetType": "stock",
+      "path": "public/data/stocks/SBUX.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "29124da0b6732b5e74defce3e784e999df6823df3c2287d50575542d71dd4539"
+    },
+    {
+      "ticker": "SLB",
+      "assetType": "stock",
+      "path": "public/data/stocks/SLB.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "bd405881e5dfdae2ba41122bda847fe29d5bcbff68ccef1cf62648973189c190"
+    },
+    {
+      "ticker": "SPY",
+      "assetType": "etf",
+      "path": "public/data/etfs/SPY.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d30ddee9f33061821d363c02c0fa34a10ee11a078cc7a0a682ab5278bb5690db"
+    },
+    {
+      "ticker": "T",
+      "assetType": "stock",
+      "path": "public/data/stocks/T.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "2ce93b82bfa617f4ae9878283a328ea569cce71845d2fb2efc57849922124c4d"
+    },
+    {
+      "ticker": "TGT",
+      "assetType": "stock",
+      "path": "public/data/stocks/TGT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "54487ab05da5af343c22047c492dcfb4a0a6e0360475ba848a9290998903f6dd"
+    },
+    {
+      "ticker": "TJX",
+      "assetType": "stock",
+      "path": "public/data/stocks/TJX.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "4f44169e4d5a3aaf22a0f0693986fd394c29419f990041d016c219614aa30f1d"
+    },
+    {
+      "ticker": "TLT",
+      "assetType": "etf",
+      "path": "public/data/etfs/TLT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "406de1f9a421178a852bbfdf6438f3241d2d84894e6b32f6cf8c55b73bbf040c"
+    },
+    {
+      "ticker": "TMO",
+      "assetType": "stock",
+      "path": "public/data/stocks/TMO.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "41f547c4a917bb6e85c06ec2eaf53188395ba0f5f6621cdc112acb96a9103d59"
+    },
+    {
+      "ticker": "TSLA",
+      "assetType": "stock",
+      "path": "public/data/stocks/TSLA.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "7528656de776e81ef204a4c9bd3fdd4e2537e7295a90c9b4d31bd663094d5799"
+    },
+    {
+      "ticker": "TXN",
+      "assetType": "stock",
+      "path": "public/data/stocks/TXN.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d9e1f304e9d2c51bc132613ec667b243d12cdd32b663d3de5174591a260c545a"
+    },
+    {
+      "ticker": "UNH",
+      "assetType": "stock",
+      "path": "public/data/stocks/UNH.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "050058f01c8b6dccdc945bba376a8d6ac648048c0fa30afd0135effd846f570d"
+    },
+    {
+      "ticker": "UNP",
+      "assetType": "stock",
+      "path": "public/data/stocks/UNP.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "ce8647de21c687d81a7e3110f62fc1048d6791ab0f9b77556a632f0ed33fa4dc"
+    },
+    {
+      "ticker": "UPS",
+      "assetType": "stock",
+      "path": "public/data/stocks/UPS.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "2c651376289c2342b962141f36cf7fb3a55ddd882025a1defbbdf84bb8170c66"
+    },
+    {
+      "ticker": "V",
+      "assetType": "stock",
+      "path": "public/data/stocks/V.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "818124be053e322590faa64e11ad6a6e4cfa972283fee59c0a5c575196a1b7f0"
+    },
+    {
+      "ticker": "VOO",
+      "assetType": "etf",
+      "path": "public/data/etfs/VOO.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "5a598bc6e7c1ae0d71bb25c480a10b8bfd0e50d0e6689702558091b1d1453480"
+    },
+    {
+      "ticker": "VTI",
+      "assetType": "etf",
+      "path": "public/data/etfs/VTI.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "c61ffdea917a1933c1cfd4ccd57aad7319c83f0447e07c44ac6a559824aaad95"
+    },
+    {
+      "ticker": "VZ",
+      "assetType": "stock",
+      "path": "public/data/stocks/VZ.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "399cfb389c64393245151ce97d333fe2639a5a42202cb635417c67bc7ab1b000"
+    },
+    {
+      "ticker": "WFC",
+      "assetType": "stock",
+      "path": "public/data/stocks/WFC.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "b10519c94e9cd325196db30a33ec17adf119f4a57c10d1f501f748dcd79d743e"
+    },
+    {
+      "ticker": "WMT",
+      "assetType": "stock",
+      "path": "public/data/stocks/WMT.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "d81af913b2321562695d645bb44a4a017307c54294b64419e051aa5c1f710f0d"
+    },
+    {
+      "ticker": "XLE",
+      "assetType": "etf",
+      "path": "public/data/etfs/XLE.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "960ccecc3364f5bb01c4e03c88d0ab3aad9c25de92a919f71096b40ec6b5aadc"
+    },
+    {
+      "ticker": "XLF",
+      "assetType": "etf",
+      "path": "public/data/etfs/XLF.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "f89804018915e6d6357a1c0a7dfc99b19b875c482bde2f2d15e344938d079c30"
+    },
+    {
+      "ticker": "XLK",
+      "assetType": "etf",
+      "path": "public/data/etfs/XLK.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "82773df3321ea8e05646261d7e78074f518a78ed4b21f80b1e4896c1260e43a5"
+    },
+    {
+      "ticker": "XLV",
+      "assetType": "etf",
+      "path": "public/data/etfs/XLV.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "35d67de7167528da80d4cace3fae611ee72f180eb229b109c026d6f35979c3eb"
+    },
+    {
+      "ticker": "XOM",
+      "assetType": "stock",
+      "path": "public/data/stocks/XOM.json",
+      "candles": 2516,
+      "startDate": "2015-01-02",
+      "endDate": "2024-12-31",
+      "sha256": "e05159910c6568f50a4ae80ed9fbc4de90b05b2e78f713b688792ed8ccdd9c8b"
+    }
+  ]
+}
