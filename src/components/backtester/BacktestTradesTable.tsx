@@ -19,7 +19,7 @@ export const BacktestTradesTable: React.FC<BacktestTradesTableProps> = ({ trades
       <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
         Trade Execution Log ({trades.length} trades)
       </span>
-      <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '6px' }}>
+      <div tabIndex={0} aria-label="Backtest trades table, horizontally scrollable" style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '6px' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
           <thead>
             <tr style={{ backgroundColor: 'var(--bg-card)', color: 'var(--text-secondary)', textAlign: 'left' }}>

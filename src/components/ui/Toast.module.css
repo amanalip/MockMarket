@@ -51,3 +51,16 @@
   color: #eff6ff;
   border: 1px solid #2563eb;
 }
+
+@media (max-width: 480px) {
+  .toastContainer {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+  }
+
+  .toast {
+    min-width: 0;
+    width: 100%;
+  }
+}

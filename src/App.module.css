@@ -1,0 +1,37 @@
+.page,
+.modeStack,
+.tradeStack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.page,
+.tradeStack {
+  gap: 20px;
+}
+
+.modeStack {
+  gap: 24px;
+}
+
+.tradeGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 340px);
+  gap: 20px;
+}
+
+.activityGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .tradeGrid,
+  .activityGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -42,7 +42,7 @@
 }
 
 .runBtn {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   padding: 12px;
   border-radius: 8px;
@@ -62,4 +62,14 @@
 .runBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

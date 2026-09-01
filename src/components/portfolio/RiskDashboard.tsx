@@ -142,6 +142,7 @@ export const RiskDashboard: React.FC = () => {
           <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
             Performance Attribution by Holding
           </span>
+          <div className={styles.tableWrapper} tabIndex={0} aria-label="Performance attribution table, horizontally scrollable">
           <table className={styles.attributionTable}>
             <thead>
               <tr>
@@ -167,6 +168,7 @@ export const RiskDashboard: React.FC = () => {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

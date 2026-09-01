@@ -25,6 +25,7 @@ import { getTickerInfo } from './model/tickers';
 import { loadTickerData, getLatestCandleOnOrBefore } from './data/loader';
 import { Candle, CustomETFConfig } from './model/types';
 import { ETFSimulationResult, simulateETF } from './engine/etf/etf-builder';
+import styles from './App.module.css';
 
 export const App: React.FC = () => {
   const { mode, theme, selectedTicker, simulationDate, setSimulationDate } = useUIStore();
@@ -129,7 +130,7 @@ export const App: React.FC = () => {
 
   return (
     <Layout>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <div className={styles.page}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 700 }}>
@@ -163,8 +164,8 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
+            <div className={styles.tradeStack}>
+              <div className={styles.tradeGrid}>
                 <CandlestickChart
                   key={selectedTicker}
                   candles={candles}
@@ -180,7 +181,7 @@ export const App: React.FC = () => {
 
               <RiskDashboard />
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '20px' }}>
+              <div className={styles.activityGrid}>
                 <OrderManagement />
                 <TradeHistory />
               </div>
@@ -191,14 +192,14 @@ export const App: React.FC = () => {
         )}
 
         {mode === 'backtest' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className={styles.modeStack}>
             <BacktestConfigPanel />
             <BacktestResults />
           </div>
         )}
 
         {mode === 'etf' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className={styles.modeStack}>
             <ETFBuilderForm
               onSimulationStart={() => {
                 const operation = ++etfOperationRef.current;
@@ -223,13 +224,13 @@ export const App: React.FC = () => {
         )}
 
         {mode === 'scenarios' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className={styles.modeStack}>
             <ScenarioCatalog />
           </div>
         )}
 
         {mode === 'timeline' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+          <div className={styles.modeStack}>
             <SimulationBar candles={candles} />
             <TimeMachineCalculator />
             <NewsFeed />

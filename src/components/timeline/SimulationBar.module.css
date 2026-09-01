@@ -45,7 +45,7 @@
 }
 
 .playBtn {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   padding: 8px 14px;
   border-radius: 6px;
@@ -108,4 +108,20 @@
 
 .dateInput:focus {
   border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .container,
+  .controls {
+    align-items: stretch;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .stepGroup > * {
+    flex: 1;
+  }
 }

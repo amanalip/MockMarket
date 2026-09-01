@@ -1,5 +1,5 @@
 .header {
-  height: 60px;
+  min-height: 60px;
   background-color: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
   display: flex;
@@ -82,4 +82,45 @@
 
 .themeBtn {
   font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .tagline {
+    display: none;
+  }
+
+  .stats {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 680px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .stats {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .statItem {
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  .statLabel {
+    font-size: 0.6rem;
+  }
+
+  .statValue {
+    font-size: 0.75rem;
+  }
+
+  .actions {
+    gap: 4px;
+  }
 }

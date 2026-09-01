@@ -149,7 +149,7 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
         <select
           aria-label="Ticker to add"
           className={styles.input}
-          style={{ flex: 1 }}
+          style={{ flex: 1, minWidth: 0 }}
           value={addTickerInput}
           onChange={(e) => setAddTickerInput(e.target.value)}
         >

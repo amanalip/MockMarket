@@ -49,3 +49,13 @@
 .down {
   color: var(--down-red);
 }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .statsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

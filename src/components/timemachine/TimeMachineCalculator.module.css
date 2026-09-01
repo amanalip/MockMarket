@@ -53,7 +53,7 @@
 }
 
 .submitBtn {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   padding: 12px;
   border-radius: 8px;
@@ -150,4 +150,16 @@
 .milestoneDesc {
   font-size: 0.8rem;
   color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .formGrid,
+  .statsGrid,
+  .milestonesList {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

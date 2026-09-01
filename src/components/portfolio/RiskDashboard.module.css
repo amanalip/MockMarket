@@ -59,6 +59,26 @@
   gap: 20px;
 }
 
+.tableWrapper {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .riskGrid,
+  .chartsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .chartCard {
+    padding: 10px;
+  }
+}
+
 .chartCard {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);

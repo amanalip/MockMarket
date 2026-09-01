@@ -88,7 +88,7 @@
 }
 
 .cancelBtn:hover {
-  background: var(--down-red);
+  background: var(--down-solid);
   color: #ffffff;
 }
 

@@ -37,7 +37,7 @@
 }
 
 .navItemActive {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
 }
 
@@ -52,4 +52,27 @@
   font-size: 0.75rem;
   color: var(--text-muted);
   text-align: center;
+}
+
+@media (max-width: 760px) {
+  .sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav {
+    flex: none;
+    flex-flow: row wrap;
+    padding: 8px;
+  }
+
+  .navItem {
+    flex: 1 1 130px;
+    padding: 9px 10px;
+  }
+
+  .footer {
+    display: none;
+  }
 }

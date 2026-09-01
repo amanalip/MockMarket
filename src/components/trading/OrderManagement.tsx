@@ -23,7 +23,7 @@ export const OrderManagement: React.FC = () => {
         <span className={styles.title}>Working Orders ({orders.length})</span>
       </div>
 
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} tabIndex={0} aria-label="Orders table, horizontally scrollable">
         <table className={styles.table}>
           <thead>
             <tr>

@@ -129,7 +129,7 @@
 }
 
 .submitBtn {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   padding: 12px;
   border-radius: 8px;
@@ -149,4 +149,24 @@
 .submitBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .formRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tickerItem {
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+  .weightSlider {
+    flex-basis: 100%;
+    order: 2;
+  }
 }

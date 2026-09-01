@@ -34,7 +34,7 @@ export const AllocationDonut: React.FC<AllocationDonutProps> = ({ metrics }) => 
             <button
               key={vt}
               style={{
-                background: viewType === vt ? 'var(--accent)' : 'var(--bg-card)',
+                background: viewType === vt ? 'var(--accent-solid)' : 'var(--bg-card)',
                 color: viewType === vt ? '#ffffff' : 'var(--text-secondary)',
                 border: '1px solid var(--border)',
                 borderRadius: '4px',
@@ -44,6 +44,7 @@ export const AllocationDonut: React.FC<AllocationDonutProps> = ({ metrics }) => 
                 textTransform: 'capitalize',
               }}
               onClick={() => setViewType(vt)}
+              aria-pressed={viewType === vt}
             >
               {vt}
             </button>
@@ -66,8 +67,12 @@ export const AllocationDonut: React.FC<AllocationDonutProps> = ({ metrics }) => 
                 paddingAngle={3}
                 dataKey="value"
               >
-                {data.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                {data.map((item, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                    aria-label={`${item.name}: ${item.value.toFixed(1)}%`}
+                  />
                 ))}
               </Pie>
               <Tooltip

@@ -47,12 +47,12 @@
 }
 
 .tabBuyActive {
-  background-color: var(--up-green);
+  background-color: var(--up-solid);
   color: #ffffff;
 }
 
 .tabSellActive {
-  background-color: var(--down-red);
+  background-color: var(--down-solid);
   color: #ffffff;
 }
 
@@ -156,9 +156,9 @@
 }
 
 .btnBuy {
-  background-color: var(--up-green);
+  background-color: var(--up-solid);
 }
 
 .btnSell {
-  background-color: var(--down-red);
+  background-color: var(--down-solid);
 }

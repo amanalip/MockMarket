@@ -82,8 +82,9 @@ export const TimeMachineCalculator: React.FC = () => {
 
       <div className={styles.formGrid}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Asset Ticker</label>
+          <label className={styles.label} htmlFor="time-machine-ticker">Asset Ticker</label>
           <select
+            id="time-machine-ticker"
             className={styles.input}
             value={ticker}
             onChange={(e) => setTicker(e.target.value)}
@@ -97,8 +98,9 @@ export const TimeMachineCalculator: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Investment Start Date</label>
+          <label className={styles.label} htmlFor="time-machine-start">Investment Start Date</label>
           <input
+            id="time-machine-start"
             type="date"
             className={styles.input}
             value={startDate}
@@ -107,8 +109,9 @@ export const TimeMachineCalculator: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>End Date</label>
+          <label className={styles.label} htmlFor="time-machine-end">End Date</label>
           <input
+            id="time-machine-end"
             type="date"
             className={styles.input}
             value={endDate}
@@ -117,8 +120,9 @@ export const TimeMachineCalculator: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Initial Capital ($)</label>
+          <label className={styles.label} htmlFor="time-machine-capital">Initial Capital ($)</label>
           <input
+            id="time-machine-capital"
             type="number"
             min="100"
             step="500"
@@ -129,8 +133,9 @@ export const TimeMachineCalculator: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Recurring DCA Amount ($)</label>
+          <label className={styles.label} htmlFor="time-machine-dca-amount">Recurring DCA Amount ($)</label>
           <input
+            id="time-machine-dca-amount"
             type="number"
             min="0"
             step="50"
@@ -141,8 +146,9 @@ export const TimeMachineCalculator: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>DCA Frequency</label>
+          <label className={styles.label} htmlFor="time-machine-dca-frequency">DCA Frequency</label>
           <select
+            id="time-machine-dca-frequency"
             className={styles.input}
             value={dcaInterval}
             onChange={(e) => setDcaInterval(e.target.value as DCAInterval)}

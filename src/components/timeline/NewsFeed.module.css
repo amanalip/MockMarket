@@ -56,7 +56,7 @@
 }
 
 .filterBtnActive {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   border-color: var(--accent);
 }
@@ -195,7 +195,18 @@
 }
 
 .jumpBtn:hover {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .searchInput {
+    width: 100%;
+    min-width: 0;
+  }
 }

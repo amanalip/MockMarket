@@ -68,7 +68,7 @@ export const ETFAnalyticsDashboard: React.FC<ETFAnalyticsDashboardProps> = ({ re
         <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
           Fund Holdings & Weight Comparison
         </span>
-        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '6px' }}>
+        <div tabIndex={0} aria-label="ETF holdings table, horizontally scrollable" style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: '6px' }}>
           <table className={styles.holdingsTable}>
             <thead>
               <tr>

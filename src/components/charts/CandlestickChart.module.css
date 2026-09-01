@@ -74,7 +74,7 @@
 }
 
 .timeframeBtnActive {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
 }
 

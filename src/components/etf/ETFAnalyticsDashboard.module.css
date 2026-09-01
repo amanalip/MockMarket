@@ -74,3 +74,13 @@
   text-align: right;
   font-family: var(--font-mono);
 }
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .statsGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

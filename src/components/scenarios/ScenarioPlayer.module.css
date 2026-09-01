@@ -128,7 +128,7 @@
 }
 
 .nextBtn {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   padding: 10px 20px;
   border-radius: 6px;

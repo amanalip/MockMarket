@@ -24,7 +24,7 @@
 }
 
 .filterBtnActive {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   border-color: var(--accent);
 }
@@ -122,7 +122,13 @@
 }
 
 .launchBtn:hover {
-  background-color: var(--accent);
+  background-color: var(--accent-solid);
   color: #ffffff;
   border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

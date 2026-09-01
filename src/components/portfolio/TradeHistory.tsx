@@ -11,7 +11,7 @@ export const TradeHistory: React.FC = () => {
         <span className={styles.title}>Execution Log ({trades.length})</span>
       </div>
 
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} tabIndex={0} aria-label="Trade history table, horizontally scrollable">
         <table className={styles.table}>
           <thead>
             <tr>

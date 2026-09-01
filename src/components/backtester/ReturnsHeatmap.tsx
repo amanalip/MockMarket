@@ -42,7 +42,7 @@ export const ReturnsHeatmap: React.FC<ReturnsHeatmapProps> = ({ monthlyReturns }
   return (
     <div className={styles.container}>
       <span className={styles.title}>Monthly Returns Heatmap (%)</span>
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} tabIndex={0} aria-label="Monthly returns table, horizontally scrollable">
         <table className={styles.table}>
           <thead>
             <tr>

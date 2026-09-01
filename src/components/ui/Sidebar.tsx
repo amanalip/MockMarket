@@ -29,7 +29,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside className={styles.sidebar}>
-      <nav className={styles.nav}>
+      <nav className={styles.nav} aria-label="Primary navigation">
         {navEntries.map((entry) => {
           const isActive = mode === entry.mode;
           return (
@@ -37,6 +37,7 @@ export const Sidebar: React.FC = () => {
               key={entry.mode}
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
               onClick={() => setMode(entry.mode)}
+              aria-current={isActive ? 'page' : undefined}
             >
               {entry.icon}
               <span>{entry.label}</span>
