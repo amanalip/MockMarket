@@ -2,7 +2,7 @@
 
 > Synthetic markets. Fake money. Real lessons.
 
-MockMarket is a client-side TypeScript and React market simulator and algorithmic backtesting platform. It bundles 10 years of deterministic synthetic daily OHLCV data (2015 to 2024) across 84+ US equities, sector ETFs, and cryptocurrencies, plus trading strategy DSL compilers, custom ETF construction, risk analytics, and 20 educational market scenarios.
+MockMarket is a client-side TypeScript and React market simulator and algorithmic backtesting platform. It bundles 10 years of deterministic synthetic daily OHLCV data (2015 to 2024) across 84 US equities, sector ETFs, and cryptocurrencies, plus trading strategy DSL compilers, custom ETF construction, risk analytics, and 20 educational market scenarios.
 
 > **Data notice:** Bundled prices, volume, benchmark returns, and simulation results are generated or approximate, not actual market history. See [DATA.md](DATA.md) for provenance, methodology, calendars, and limitations. MockMarket is for education only and is not financial advice.
 
@@ -13,7 +13,7 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
 1. **High-Performance Paper Trading**
    - Market orders, limit orders, stop losses, and take profit triggers.
    - Realistic position sizing, average cost basis, and realized/unrealized P&L tracking.
-   - Interactive TradingView-grade Candlestick charts powered by Lightweight-Charts v5.
+   - Interactive candlestick charts powered by Lightweight-Charts v5.
    - Pure TypeScript technical indicator overlays: SMA (20/50/200), EMA (12/26), RSI (14), MACD (12, 26, 9), Bollinger Bands (20, 2), and Volume Moving Average.
 
 2. **Simulation Timeline Engine**
@@ -21,7 +21,7 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
    - Auto-play simulation playback (1x, 2x, 5x, 10x speeds).
    - Strict forward-looking prevention: charts and pricing engines strictly mask future candles past the active simulation date.
 
-3. **Institutional Risk Analytics**
+3. **Portfolio Risk Analytics**
    - Annualized Return & Annualized Volatility.
    - Beta calculation measured against benchmark SPY.
    - Maximum Drawdown (peak-to-trough equity curve analysis).
@@ -55,7 +55,7 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
    - Complete JSON portfolio snapshot export for offline inspection.
 
 9. **Accessibility & Keyboard Shortcuts**
-   - WCAG AA compliant dark and light themes.
+   - Dark and light themes with automated Axe checks for serious and critical accessibility violations in every primary mode.
    - Fast keyboard navigation (`1-5` for mode switching, `Space` for playback, `ArrowRight` for +1D step, `B`/`S` for buy/sell focus, `?` for cheat sheet).
 
 ---
@@ -65,7 +65,7 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
 - **Framework**: React 19 + TypeScript + Vite 6
 - **State Management**: Zustand stores with atomic slices (`useUIStore`, `usePortfolioStore`, `useBacktesterStore`, `useETFStore`)
 - **Charting**: Lightweight-Charts v5, Recharts, SVG/Canvas rendering
-- **Testing**: Vitest + jsdom, with Playwright for browser tests
+- **Testing**: 953 Vitest + jsdom unit tests across 84 files, plus six Playwright browser specifications
 - **Styling**: CSS Modules with design tokens and CSS custom properties
 
 ---
@@ -80,7 +80,7 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
 
 Where:
 - $R_p$ is the annualized portfolio return
-- $R_f$ is the risk-free benchmark rate ($2.0\%$)
+- $R_f$ is the default risk-free benchmark rate ($4.0\%$)
 - $\sigma_p$ is the annualized portfolio volatility ($\sigma_{\text{daily}} \times \sqrt{252}$)
 
 ### Sortino Ratio
@@ -118,7 +118,7 @@ Where $\sigma_{\text{daily}}$ is the standard deviation of daily percentage port
 \text{HHI} = \sum_{i=1}^{N} w_i^2
 ```
 
-Where $w_i$ represents the fractional weight of sector $i$. The portfolio diversification score is computed as $(1 - \text{HHI}) \times 100$.
+Where $w_i$ is the percentage weight of sector $i$, so HHI ranges from 0 to 10,000. The diversification score is `clamp(round((10000 - HHI) / 90), 0, 100)`, where 100 corresponds to an HHI of 1,000 or lower and 0 corresponds to a single-sector portfolio.
 
 ---
 
@@ -134,8 +134,8 @@ Where $w_i$ represents the fractional weight of sector $i$. The portfolio divers
 git clone https://github.com/amanalip/MockMarket.git
 cd MockMarket
 
-# Install dependencies
-npm install
+# Install the locked dependency tree
+npm ci
 ```
 
 ### Development Server
@@ -149,11 +149,23 @@ Open your browser at `http://localhost:5173`.
 npm run test
 ```
 
+### Quality Checks
+```bash
+npm run lint
+npm run typecheck
+npm run test:coverage
+npm run data:validate
+npm run test:e2e
+```
+
 ### Production Build
 ```bash
 npm run build
+npm run build:verify
 npm run preview
 ```
+
+Production deployments can set `VITE_BASE_PATH` to `/` or a project path such as `/repository-name/`. CI derives the GitHub Pages project path from the repository name unless the `VITE_BASE_PATH` repository variable overrides it. The deployed revision appears in the sidebar and in sanitized client error diagnostics.
 
 ### Regenerate Synthetic Datasets
 ```bash

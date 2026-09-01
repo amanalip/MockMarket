@@ -1,6 +1,8 @@
 import React from 'react';
 import { useUIStore } from '../../store';
 import { AppMode } from '../../model/types';
+import { getAppRelease } from '../../engine/reporting/client-reporting';
+import packageMetadata from '../../../package.json';
 import { 
   TrendingUp, 
   Cpu, 
@@ -26,6 +28,8 @@ const navEntries: NavEntry[] = [
 
 export const Sidebar: React.FC = () => {
   const { mode, setMode } = useUIStore();
+  const release = getAppRelease();
+  const releaseLabel = release === 'unreleased' ? release : release.slice(0, 7);
 
   return (
     <aside className={styles.sidebar}>
@@ -46,7 +50,7 @@ export const Sidebar: React.FC = () => {
         })}
       </nav>
       <div className={styles.footer}>
-        <span>v1.0.0 Static Edition</span>
+        <span title={`Release ${release}`}>v{packageMetadata.version} · {releaseLabel}</span>
       </div>
     </aside>
   );

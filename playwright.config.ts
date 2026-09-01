@@ -1,7 +1,11 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const previewPort = Number(process.env.PLAYWRIGHT_PORT || 4173);
-const baseURL = `http://127.0.0.1:${previewPort}/MockMarket/`;
+const configuredBasePath = process.env.VITE_BASE_PATH?.trim();
+const basePath = !configuredBasePath || configuredBasePath === '/'
+  ? '/'
+  : `/${configuredBasePath.replace(/^\/+|\/+$/g, '')}/`;
+const baseURL = `http://127.0.0.1:${previewPort}${basePath}`;
 
 export default defineConfig({
   testDir: './e2e',
