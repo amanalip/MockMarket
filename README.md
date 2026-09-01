@@ -50,9 +50,9 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
    - Multi-step choices with historical feedback and core financial lessons.
 
 8. **Session Sharing & Data Exports**
-   - Compressed URL state serialization for instant sharing of portfolios, backtests, and ETF configurations.
+   - URL state serialization for sharing supported session settings, backtests, and ETF configurations.
    - Tabular CSV exports for trade histories, holdings snapshots, backtest execution logs, and ETF NAV histories.
-   - Complete JSON portfolio snapshot export and import.
+   - Complete JSON portfolio snapshot export for offline inspection.
 
 9. **Accessibility & Keyboard Shortcuts**
    - WCAG AA compliant dark and light themes.
