@@ -124,9 +124,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
 
       <form onSubmit={handleTrade} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Order Type</label>
+          <label className={styles.label} htmlFor="trade-order-type">Order Type</label>
           <div className={styles.inputGroup}>
             <select
+              id="trade-order-type"
               className={styles.input}
               value={orderType}
               onChange={(e) => {
@@ -147,13 +148,14 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
 
         {orderType !== 'market' && (
           <div className={styles.formGroup}>
-            <label className={styles.label}>
+            <label className={styles.label} htmlFor="trade-target-price">
               {orderType === 'limit' && 'Limit Price ($)'}
               {orderType === 'stop_loss' && 'Stop Price ($)'}
               {orderType === 'take_profit' && 'Take Profit Target ($)'}
             </label>
             <div className={styles.inputGroup}>
               <input
+                id="trade-target-price"
                 type="number"
                 step="0.01"
                 min="0.01"
@@ -167,9 +169,10 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
         )}
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Shares</label>
+          <label className={styles.label} htmlFor="trade-shares">Shares</label>
           <div className={styles.inputGroup}>
             <input
+              id="trade-shares"
               type="number"
               min="1"
               step="1"

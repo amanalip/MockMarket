@@ -123,6 +123,7 @@ export const SimulationBar: React.FC<SimulationBarProps> = ({ candles }) => {
           <span className={styles.dateValue}>{simulationDate}</span>
         </div>
         <input
+          aria-label="Simulation date"
           type="date"
           className={styles.dateInput}
           value={simulationDate}
