@@ -35,31 +35,13 @@ jobs:
           npm --version
           npm ci
 
-      - name: Lint codebase
-        run: npm run lint
-
-      - name: Type-check application and tests
-        run: npm run typecheck
-
-      - name: Validate committed market data
-        run: npm run data:validate
-
-      - name: Run unit test suite with coverage
-        run: npm run test:coverage
-
-      - name: Build production bundle
-        env:
-          VITE_APP_RELEASE: ${{ github.sha }}
-        run: npm run build
-
-      - name: Verify build artifact
-        run: npm run build:verify
-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium firefox webkit
 
-      - name: Run production E2E suite
-        run: npm run test:e2e:only
+      - name: Run production-readiness gate
+        env:
+          VITE_APP_RELEASE: ${{ github.sha }}
+        run: npm run validate:release
 
       - name: Upload Playwright diagnostics
         if: failure()

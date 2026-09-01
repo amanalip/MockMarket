@@ -27,6 +27,7 @@
     "data:manifest": "node scripts/data-integrity.js --write-manifest",
     "data:export-tickers": "node scripts/export_tickers_json.js",
     "data:generate": "node scripts/generate_data.js",
+    "validate:release": "node scripts/validate-release.js",
     "preview": "vite preview"
   },
   "dependencies": {

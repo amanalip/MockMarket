@@ -4,6 +4,8 @@
 
 Security fixes are applied to the current `main` branch and the current GitHub Pages deployment. Older commits, local modifications, and forks are not supported. MockMarket is a client-side educational simulator: it has no application backend, user accounts, or payment processing.
 
+See [THREAT_MODEL.md](THREAT_MODEL.md) for trust boundaries, browser storage, deployment controls, and explicitly out-of-scope server controls.
+
 ## Report a Vulnerability
 
 Please report suspected vulnerabilities privately through [GitHub's private vulnerability reporting form](https://github.com/amanalip/MockMarket/security/advisories/new). Include reproduction steps, impact, affected URLs or files, and any suggested remediation. Do not disclose the issue publicly before a fix is available.

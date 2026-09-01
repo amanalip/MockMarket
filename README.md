@@ -136,6 +136,9 @@ cd MockMarket
 
 # Install the locked dependency tree
 npm ci
+
+# Install browser binaries and Linux system dependencies used by E2E tests
+npx playwright install --with-deps chromium firefox webkit
 ```
 
 ### Development Server
@@ -157,6 +160,14 @@ npm run test:coverage
 npm run data:validate
 npm run test:e2e
 ```
+
+The complete production-readiness gate is:
+
+```bash
+npm run validate:release
+```
+
+It runs lint, application/unit/E2E type checks, unit coverage thresholds, data validation, dependency audit, production build and artifact verification, and the production E2E suite.
 
 ### Production Build
 ```bash
@@ -192,6 +203,8 @@ node scripts/generate_data.js
 ## Browser Security Policy
 
 The production HTML defines a Content Security Policy that limits resources to the application origin, disables plugins, restricts form submissions, and permits only the inline styles required by the current React UI. It also applies a `no-referrer` policy. The application uses system font stacks and makes no runtime font requests to third parties.
+
+The complete static application trust boundaries, local storage behavior, deployment assumptions, and out-of-scope server controls are documented in [THREAT_MODEL.md](THREAT_MODEL.md).
 
 GitHub Pages does not provide repository-controlled custom response headers. Consequently, `Permissions-Policy` and protections that require headers, including CSP `frame-ancestors`, cannot be enforced by this deployment. A future host with configurable headers should set an explicit `Permissions-Policy` disabling unused capabilities (including camera, microphone, geolocation, payment, and USB) and deliver CSP as an HTTP response header.
 
