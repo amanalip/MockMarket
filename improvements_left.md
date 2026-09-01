@@ -165,106 +165,106 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 - Acceptance: Equity and ETF datasets exclude weekends and all relevant full-day market holidays.
 
 ### Task 31: Validate complete candle schemas at load time
-- [ ] Validate date format, finite positive OHLC values, nonnegative volume, and valid OHLC relationships for every candle.
+- [x] Validate date format, finite positive OHLC values, nonnegative volume, and valid OHLC relationships for every candle.
 - Files: `src/data/loader.ts`
 - Acceptance: Malformed candles are rejected with a useful error rather than silently entering calculations.
 
 ### Task 32: Enforce candle ordering and uniqueness
-- [ ] Reject or deterministically normalize unsorted and duplicate candle dates at the data boundary.
+- [x] Reject or deterministically normalize unsorted and duplicate candle dates at the data boundary.
 - Files: `src/data/loader.ts`
 - Acceptance: All downstream consumers receive strictly ascending, unique candle dates.
 
 ### Task 33: Validate every committed dataset in CI
-- [ ] Add a script that checks every ticker file for schema, OHLC invariants, ordering, duplicates, expected calendar, and ticker coverage.
+- [x] Add a script that checks every ticker file for schema, OHLC invariants, ordering, duplicates, expected calendar, and ticker coverage.
 - Files: `scripts/`, `package.json`, `.github/workflows/ci.yml`
 - Acceptance: Any invalid committed market-data file fails CI with its path and reason.
 
 ### Task 34: Add deterministic dataset integrity checks
-- [ ] Record and verify generation metadata or checksums so accidental dataset changes are visible and reproducible.
+- [x] Record and verify generation metadata or checksums so accidental dataset changes are visible and reproducible.
 - Files: `scripts/`, `public/data/`, `.github/workflows/ci.yml`
 - Acceptance: CI can distinguish intentional regenerated data from unexplained changes.
 
 ### Task 35: Remove `eval` from ticker export tooling
-- [ ] Parse the ticker source as structured data instead of evaluating source text.
+- [x] Parse the ticker source as structured data instead of evaluating source text.
 - Files: `scripts/export_tickers_json.js`
 - Acceptance: Running the script cannot execute arbitrary JavaScript from the input file.
 
 ### Task 36: Constrain generated ticker output paths
-- [ ] Validate ticker names and verify resolved paths remain inside the intended `public/data` directory.
+- [x] Validate ticker names and verify resolved paths remain inside the intended `public/data` directory.
 - Files: `scripts/generate_data.js`
 - Acceptance: Malicious or malformed ticker values cannot write outside the data directory.
 
 ## Sharing, Persistence, And Error Recovery
 
 ### Task 37: Restore shared URL state on application startup
-- [ ] Read `#share=` at startup, decode it, and atomically apply supported state to the appropriate stores.
+- [x] Read `#share=` at startup, decode it, and atomically apply supported state to the appropriate stores.
 - Files: `src/App.tsx`, `src/engine/export/url-state.ts`, `src/store/index.ts`
 - Acceptance: Opening a generated share link in a fresh browser restores the represented session.
 
 ### Task 38: Strictly validate shared-state payloads
-- [ ] Validate version, mode, ticker allowlist, dates, numeric ranges, collection sizes, and nested object schemas before applying shared state.
+- [x] Validate version, mode, ticker allowlist, dates, numeric ranges, collection sizes, and nested object schemas before applying shared state.
 - Files: `src/engine/export/url-state.ts`
 - Acceptance: Invalid, oversized, unsupported, and partially malicious payloads are rejected without changing application state.
 
 ### Task 39: Add an end-to-end share-link round-trip test
-- [ ] Generate a link in one browser context, open it in a fresh context, and assert restored state.
+- [x] Generate a link in one browser context, open it in a fresh context, and assert restored state.
 - Files: `e2e/`
 - Acceptance: The real user-facing share workflow passes in Playwright.
 
 ### Task 40: Report clipboard copy failures accurately
-- [ ] Await `navigator.clipboard.writeText`, handle rejection, and provide a manual-copy fallback.
+- [x] Await `navigator.clipboard.writeText`, handle rejection, and provide a manual-copy fallback.
 - Files: `src/components/ui/ShareModal.tsx`
 - Acceptance: Success is shown only after a successful copy, and unsupported or denied clipboard access gives actionable feedback.
 
 ### Task 41: Implement portfolio JSON import or remove the claim
-- [ ] Add validated portfolio import matching the documented export format, or explicitly remove import from product documentation.
+- [x] Add validated portfolio import matching the documented export format, or explicitly remove import from product documentation.
 - Files: `src/components/ui/ShareModal.tsx`, `src/engine/export/`, `README.md`
 - Acceptance: Documentation and shipped functionality agree, and imported state is schema-validated.
 
 ### Task 42: Persist saved ETFs or rename the feature
-- [ ] Store saved ETFs across reloads using a versioned local persistence format, or change the UI so it does not imply persistence.
+- [x] Store saved ETFs across reloads using a versioned local persistence format, or change the UI so it does not imply persistence.
 - Files: `src/store/index.ts`, `src/components/etf/`
 - Acceptance: The feature behavior matches its label and handles corrupt or outdated persisted data safely.
 
 ### Task 43: Add user-visible market-data load errors
-- [ ] Replace console-only failures with contextual errors, retry controls, and disabled dependent actions.
+- [x] Replace console-only failures with contextual errors, retry controls, and disabled dependent actions.
 - Files: `src/App.tsx`, relevant data-consuming components
 - Acceptance: Failed ticker and ETF loads cannot leave stale results appearing current.
 
 ### Task 44: Add application-level crash containment
-- [ ] Wrap the application in an error boundary with a recovery action and accessible fallback UI.
+- [x] Wrap the application in an error boundary with a recovery action and accessible fallback UI.
 - Files: `src/main.tsx`, `src/components/ui/`
 - Acceptance: A render exception does not leave users with a blank page.
 
 ### Task 45: Add production client error reporting
-- [ ] Integrate a privacy-conscious error-reporting mechanism with release identifiers and environment filtering.
+- [x] Integrate a privacy-conscious error-reporting mechanism with release identifiers and environment filtering.
 - Files: application bootstrap and deployment configuration
 - Acceptance: Unexpected production errors are observable without collecting financial simulation contents or unnecessary personal data.
 
 ## CI, Deployment, And Security
 
 ### Task 46: Gate deployment on all required quality checks
-- [ ] Make Pages deployment depend on successful lint, type checking, unit tests, dataset validation, E2E tests, and production build.
+- [x] Make Pages deployment depend on successful lint, type checking, unit tests, dataset validation, E2E tests, and production build.
 - Files: `.github/workflows/ci.yml`, `.github/workflows/static.yml`
 - Acceptance: A failing required check makes production deployment impossible.
 
 ### Task 47: Fix the failing Playwright smoke locator
-- [ ] Replace the ambiguous text locator with semantic role-based assertions.
+- [x] Replace the ambiguous text locator with semantic role-based assertions.
 - Files: `e2e/smoke.spec.ts`
 - Acceptance: The smoke test passes without disabling Playwright strict mode.
 
 ### Task 48: Run Playwright against the production bundle
-- [ ] Configure E2E tests to build and serve `vite preview` rather than the development server.
+- [x] Configure E2E tests to build and serve `vite preview` rather than the development server.
 - Files: `playwright.config.ts`, `package.json`
 - Acceptance: E2E tests verify production assets, base paths, and runtime behavior.
 
 ### Task 49: Add critical trading E2E coverage
-- [ ] Add one browser flow covering ticker selection, buy, time advance, repricing, sell, and displayed P&L.
+- [x] Add one browser flow covering ticker selection, buy, time advance, repricing, sell, and displayed P&L.
 - Files: `e2e/`
 - Acceptance: The primary paper-trading journey passes against the production bundle.
 
 ### Task 50: Add critical backtest E2E coverage
-- [ ] Add one browser flow that configures, runs, and validates a deterministic backtest result.
+- [x] Add one browser flow that configures, runs, and validates a deterministic backtest result.
 - Files: `e2e/`
 - Acceptance: Backtest configuration and result rendering work end-to-end.
 
