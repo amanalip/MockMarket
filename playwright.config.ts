@@ -17,6 +17,21 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
+    {
+      name: 'firefox-smoke',
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit-smoke',
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'mobile-chromium-smoke',
+      testMatch: /smoke\.spec\.ts/,
+      use: { ...devices['Pixel 7'] },
+    },
   ],
   webServer: {
     command: 'npm run preview -- --host 127.0.0.1 --port 4173 --strictPort',
