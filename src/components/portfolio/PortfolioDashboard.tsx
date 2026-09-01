@@ -57,7 +57,7 @@ export const PortfolioDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} tabIndex={0} aria-label="Portfolio holdings table, horizontally scrollable">
         <table className={styles.table}>
           <thead>
             <tr>
@@ -85,12 +85,14 @@ export const PortfolioDashboard: React.FC = () => {
                 return (
                   <tr key={pos.ticker}>
                     <td>
-                      <span
+                      <button
+                        type="button"
                         className={styles.tickerCode}
                         onClick={() => setSelectedTicker(pos.ticker)}
+                        aria-label={`View ${pos.ticker} chart`}
                       >
                         {pos.ticker}
-                      </span>
+                      </button>
                       <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                         {info?.name || ''}
                       </div>
@@ -107,8 +109,10 @@ export const PortfolioDashboard: React.FC = () => {
                     </td>
                     <td style={{ textAlign: 'center' }}>
                       <button
+                        type="button"
                         className={styles.quickActionBtn}
                         onClick={() => setSelectedTicker(pos.ticker)}
+                        aria-label={`Trade ${pos.ticker}`}
                       >
                         Trade
                       </button>

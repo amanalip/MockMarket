@@ -82,6 +82,8 @@
   font-weight: 700;
   color: var(--accent);
   cursor: pointer;
+  background: transparent;
+  border-radius: 3px;
 }
 
 .numberCol {
@@ -108,7 +110,17 @@
 }
 
 .quickActionBtn:hover {
-  background: var(--down-red);
+  background: var(--down-solid);
   color: #ffffff;
   border-color: var(--down-red);
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 14px;
+  }
+
+  .summaryCards {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

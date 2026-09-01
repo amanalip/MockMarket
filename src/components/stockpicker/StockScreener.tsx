@@ -67,6 +67,18 @@ export const StockScreener: React.FC = () => {
     return styles.badgeStock;
   };
 
+  const sortHeader = (field: SortField, label: string, numberColumn = false) => (
+    <th
+      className={numberColumn ? styles.numberCol : undefined}
+      aria-sort={sortField === field ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'}
+    >
+      <button type="button" className={styles.sortButton} onClick={() => handleSort(field)}>
+        <span>{label}</span>
+        <ArrowUpDown size={12} aria-hidden="true" />
+      </button>
+    </th>
+  );
+
   return (
     <div className={styles.container}>
       <div className={styles.controls}>
@@ -76,6 +88,7 @@ export const StockScreener: React.FC = () => {
             type="text"
             className={styles.searchInput}
             placeholder="Search ticker or company name..."
+            aria-label="Search instruments"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -123,30 +136,18 @@ export const StockScreener: React.FC = () => {
         </div>
       </div>
 
-      <div className={styles.tableWrapper}>
+      <div className={styles.tableWrapper} tabIndex={0} aria-label="Instrument screener table, horizontally scrollable">
         <table className={styles.table}>
           <thead>
             <tr>
-              <th onClick={() => handleSort('ticker')}>
-                Ticker <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
-              <th onClick={() => handleSort('name')}>
-                Name <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
+              {sortHeader('ticker', 'Ticker')}
+              {sortHeader('name', 'Name')}
               <th>Type</th>
-              <th onClick={() => handleSort('sector')}>
-                Sector <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
+              {sortHeader('sector', 'Sector')}
               <th>Industry</th>
-              <th className={styles.numberCol} onClick={() => handleSort('marketCap')}>
-                Market Cap <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
-              <th className={styles.numberCol} onClick={() => handleSort('peRatio')}>
-                P/E Ratio <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
-              <th className={styles.numberCol} onClick={() => handleSort('dividendYield')}>
-                Div Yield <ArrowUpDown size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </th>
+              {sortHeader('marketCap', 'Market Cap', true)}
+              {sortHeader('peRatio', 'P/E Ratio', true)}
+              {sortHeader('dividendYield', 'Div Yield', true)}
             </tr>
           </thead>
           <tbody>
@@ -163,10 +164,17 @@ export const StockScreener: React.FC = () => {
                   <tr
                     key={item.ticker}
                     className={isSelected ? styles.selectedRow : ''}
-                    onClick={() => setSelectedTicker(item.ticker)}
                   >
                     <td>
-                      <span className={styles.tickerBadge}>{item.ticker}</span>
+                      <button
+                        type="button"
+                        className={styles.tickerBadge}
+                        onClick={() => setSelectedTicker(item.ticker)}
+                        aria-pressed={isSelected}
+                        aria-label={`Select ${item.ticker}`}
+                      >
+                        {item.ticker}
+                      </button>
                     </td>
                     <td><strong>{item.name}</strong></td>
                     <td>
