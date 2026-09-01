@@ -118,8 +118,9 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
 
       <div className={styles.formRow}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Fund Name</label>
+          <label className={styles.label} htmlFor="etf-fund-name">Fund Name</label>
           <input
+            id="etf-fund-name"
             type="text"
             className={styles.input}
             value={name}
@@ -129,8 +130,9 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Rebalancing Schedule</label>
+          <label className={styles.label} htmlFor="etf-rebalance-frequency">Rebalancing Schedule</label>
           <select
+            id="etf-rebalance-frequency"
             className={styles.input}
             value={rebalanceFreq}
             onChange={(e) => setRebalanceFreq(e.target.value as RebalanceFrequency)}
@@ -145,6 +147,7 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
 
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         <select
+          aria-label="Ticker to add"
           className={styles.input}
           style={{ flex: 1 }}
           value={addTickerInput}
@@ -170,6 +173,7 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
               min="1"
               max="100"
               className={styles.weightSlider}
+              aria-label={`${item.ticker} target weight`}
               value={item.targetWeight}
               onChange={(e) => handleWeightChange(item.ticker, Number(e.target.value))}
             />
@@ -178,6 +182,7 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
               type="button"
               className={styles.removeBtn}
               onClick={() => handleRemoveTicker(item.ticker)}
+              aria-label={`Remove ${item.ticker}`}
               title="Remove ticker"
             >
               <Trash2 size={16} />

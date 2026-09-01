@@ -35,6 +35,7 @@ export const SavedETFsList: React.FC<SavedETFsListProps> = ({ onSelect }) => {
                 type="button"
                 className={styles.actionBtn}
                 onClick={() => onSelect(etf)}
+                aria-label={`Load ${etf.name}`}
               >
                 Load
               </button>
@@ -42,6 +43,7 @@ export const SavedETFsList: React.FC<SavedETFsListProps> = ({ onSelect }) => {
                 type="button"
                 className={`${styles.actionBtn} ${styles.deleteBtn}`}
                 onClick={() => deleteETF(etf.id)}
+                aria-label={`Delete ${etf.name}`}
                 title="Delete ETF"
               >
                 <Trash2 size={14} />
