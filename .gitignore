@@ -24,6 +24,7 @@ dist-ssr
 *.sw?
 
 # Test output
+coverage/
 test-results/
 playwright-report/
 blob-report/

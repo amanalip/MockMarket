@@ -122,7 +122,8 @@ describe('Ticker Metadata & Data Loader', () => {
       BBB: [{ time: '2024-01-05', open: 200, high: 200, low: 200, close: 200, volume: 1 }],
       CCC: [{ time: '2024-01-09', open: 300, high: 300, low: 300, close: 300, volume: 1 }],
     };
-    globalThis.fetch = vi.fn(async (url: string) => {
+    globalThis.fetch = vi.fn<typeof fetch>(async (input) => {
+      const url = input instanceof Request ? input.url : String(input);
       const ticker = /([^/]+)\.json$/.exec(url)?.[1] || '';
       return { ok: true, json: async () => data[ticker] } as Response;
     });

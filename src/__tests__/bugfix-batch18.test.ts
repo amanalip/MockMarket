@@ -24,12 +24,12 @@ describe('Bugfix Batch 18 – Export/Tickers/Store', () => {
   it('store handles invalid theme/mode', () => {
     const beforeTheme = useUIStore.getState().theme;
     // @ts-expect-error invalid
-    useUIStore.getState().setTheme('invalid' as any);
+    useUIStore.getState().setTheme('invalid');
     // setTheme does not validate, but we can test it still sets? Actually we didn't fix setTheme to validate, but we fixed setMode
     // For this test, ensure setMode validation still holds
     const beforeMode = useUIStore.getState().mode;
     // @ts-expect-error invalid mode test
-    useUIStore.getState().setMode('bad' as any);
+    useUIStore.getState().setMode('bad');
     expect(useUIStore.getState().mode).toBe(beforeMode);
   });
 

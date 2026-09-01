@@ -41,11 +41,10 @@ describe('Bugfix Batch 11 – Chart/Store/Export final hardening', () => {
     useUIStore.getState().setSelectedTicker('  msft  ');
     expect(useUIStore.getState().selectedTicker).toBe('MSFT');
     const before = useUIStore.getState().selectedTicker;
-    // @ts-expect-error empty
     useUIStore.getState().setSelectedTicker('');
     expect(useUIStore.getState().selectedTicker).toBe(before);
     // @ts-expect-error non-string
-    useUIStore.getState().setSelectedTicker(null as any);
+    useUIStore.getState().setSelectedTicker(null);
     expect(useUIStore.getState().selectedTicker).toBe(before);
     // restore
     useUIStore.getState().setSelectedTicker('AAPL');
@@ -54,10 +53,10 @@ describe('Bugfix Batch 11 – Chart/Store/Export final hardening', () => {
   it('store setMode validates AppMode', () => {
     const before = useUIStore.getState().mode;
     // @ts-expect-error invalid mode
-    useUIStore.getState().setMode('invalid' as any);
+    useUIStore.getState().setMode('invalid');
     expect(useUIStore.getState().mode).toBe(before);
     // @ts-expect-error invalid mode
-    useUIStore.getState().setMode('' as any);
+    useUIStore.getState().setMode('');
     expect(useUIStore.getState().mode).toBe(before);
     useUIStore.getState().setMode('backtest');
     expect(useUIStore.getState().mode).toBe('backtest');

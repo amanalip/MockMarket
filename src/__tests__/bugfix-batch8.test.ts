@@ -66,11 +66,9 @@ describe('Bugfix Batch 8 – Chart, Keyboard, Store, Portfolio, Export', () => {
     const { setPlaybackSpeed } = useUIStore.getState();
     setPlaybackSpeed(500);
     expect(useUIStore.getState().playbackSpeed).toBe(500);
-    // @ts-expect-error test NaN
     setPlaybackSpeed(NaN);
     expect(Number.isFinite(useUIStore.getState().playbackSpeed)).toBe(true);
     expect(useUIStore.getState().playbackSpeed).toBe(500); // unchanged
-    // @ts-expect-error test Infinity
     setPlaybackSpeed(Infinity);
     expect(useUIStore.getState().playbackSpeed).toBe(500);
     setPlaybackSpeed(0);

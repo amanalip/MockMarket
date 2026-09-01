@@ -36,14 +36,14 @@ jobs:
       - name: Lint codebase
         run: npm run lint
 
-      - name: Type-check application
-        run: npx tsc --noEmit
+      - name: Type-check application and tests
+        run: npm run typecheck
 
       - name: Validate committed market data
         run: npm run data:validate
 
-      - name: Run unit test suite
-        run: npm run test
+      - name: Run unit test suite with coverage
+        run: npm run test:coverage
 
       - name: Build production bundle
         env:

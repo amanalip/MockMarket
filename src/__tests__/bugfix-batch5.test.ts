@@ -62,14 +62,11 @@ describe('Bugfix Batch 5 – Export, Tickers & Store hardening', () => {
   it('store handles NaN/Infinity cash safely', () => {
     const { setCash, setStartingCash, resetPortfolio } = usePortfolioStore.getState();
     const beforeCash = usePortfolioStore.getState().cash;
-    // @ts-expect-error intentional invalid type for test
     setCash(NaN);
     expect(Number.isFinite(usePortfolioStore.getState().cash)).toBe(true);
     expect(usePortfolioStore.getState().cash).toBe(beforeCash);
-    // @ts-expect-error intentional invalid type for test
     setCash(Infinity);
     expect(usePortfolioStore.getState().cash).toBe(beforeCash);
-    // @ts-expect-error intentional invalid type for test
     setStartingCash(NaN);
     expect(Number.isFinite(usePortfolioStore.getState().startingCash)).toBe(true);
     // reset works

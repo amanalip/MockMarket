@@ -73,7 +73,7 @@ describe('Bugfix Batch 14 – Store/Keyboard/Tickers final', () => {
   it('store setMode validation still holds', () => {
     const before = useUIStore.getState().mode;
     // @ts-expect-error invalid mode test
-    useUIStore.getState().setMode('invalid' as any);
+    useUIStore.getState().setMode('invalid');
     expect(useUIStore.getState().mode).toBe(before);
   });
 });

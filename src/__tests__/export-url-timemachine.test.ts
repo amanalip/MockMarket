@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { exportTradesToCSV, exportPositionsToCSV, exportBacktestTradesToCSV, exportETFNAVToCSV } from '../engine/export/csv-export';
 import { encodeShareState, decodeShareState, generateShareableLink } from '../engine/export/url-state';
+import type { ShareableStatePayload } from '../engine/export/url-state';
 import { calculateTimeMachine } from '../engine/timemachine/timemachine';
 import { Candle } from '../model/types';
 
@@ -47,7 +48,7 @@ describe('Export / URL / TimeMachine Edges', () => {
   });
 
   it('url-state encode/decode roundtrip', () => {
-    const payload={ version:1, mode:'trade', ticker:'AAPL', cash:10000 };
+    const payload={ version:1, mode:'trade', ticker:'AAPL', cash:10000 } satisfies ShareableStatePayload;
     const encoded=encodeShareState(payload);
     expect(encoded.length).toBeGreaterThan(0);
     const decoded=decodeShareState(encoded);
@@ -55,7 +56,7 @@ describe('Export / URL / TimeMachine Edges', () => {
   });
 
   it('url-state handles etf payload', () => {
-    const payload={ version:1, etf:{ name:'MyETF', tickers:[{ticker:'AAPL',targetWeight:50},{ticker:'MSFT',targetWeight:50}], rebalanceFrequency:'monthly' } };
+    const payload={ version:1, etf:{ name:'MyETF', tickers:[{ticker:'AAPL',targetWeight:50},{ticker:'MSFT',targetWeight:50}], rebalanceFrequency:'monthly' } } satisfies ShareableStatePayload;
     const enc=encodeShareState(payload);
     expect(decodeShareState(enc)).toEqual(payload);
   });
