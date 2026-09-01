@@ -78,6 +78,7 @@ test('320px shell keeps navigation visible without document overflow', async ({ 
     const navButton = page.getByRole('button', { name: mode, exact: true });
     await expect(navButton).toBeVisible();
     await navButton.click();
+    await expect(navButton).toHaveAttribute('aria-current', 'page');
     const overflow = await page.evaluate(() => ({
       documentWidth: document.documentElement.scrollWidth,
       viewportWidth: window.innerWidth,
