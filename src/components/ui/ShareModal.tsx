@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useUIStore, usePortfolioStore } from '../../store';
-import { generateShareableLink } from '../../engine/export/url-state';
+import React, { useEffect, useRef, useState } from 'react';
+import { useBacktesterStore, useETFStore, useUIStore, usePortfolioStore } from '../../store';
+import { generateShareableLink, ShareableStatePayload } from '../../engine/export/url-state';
 import {
   exportTradesToCSV,
   exportPositionsToCSV,
@@ -17,27 +17,64 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
   const { mode, selectedTicker, simulationDate, addToast } = useUIStore();
   const { cash, trades, positions } = usePortfolioStore();
+  const backtestConfig = useBacktesterStore((state) => state.config);
+  const activeETF = useETFStore((state) => state.activeETF);
 
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<'idle' | 'copied' | 'manual'>('idle');
+  const urlInputRef = useRef<HTMLInputElement>(null);
+  const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const copyOperationRef = useRef(0);
+
+  useEffect(() => {
+    if (isOpen) return;
+    copyOperationRef.current += 1;
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+    copyTimerRef.current = null;
+    setCopyState('idle');
+  }, [isOpen]);
+
+  useEffect(() => () => {
+    copyOperationRef.current += 1;
+    if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+  }, []);
 
   if (!isOpen) return null;
 
-  const sharePayload = {
+  const sharePayload: ShareableStatePayload = {
     version: 1,
     mode,
     ticker: selectedTicker,
     date: simulationDate,
     cash,
+    ...(mode === 'backtest' ? { backtest: backtestConfig } : {}),
+    ...(mode === 'etf' && activeETF ? {
+      etf: {
+        name: activeETF.name,
+        tickers: activeETF.tickers,
+        rebalanceFrequency: activeETF.rebalanceFrequency,
+      },
+    } : {}),
   };
 
   const shareableUrl = generateShareableLink(sharePayload);
+  const canShare = shareableUrl.length > 0;
 
-  const handleCopy = () => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(shareableUrl);
-      setCopied(true);
+  const handleCopy = async () => {
+    if (!canShare) return;
+    const operation = ++copyOperationRef.current;
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard access is unavailable');
+      await navigator.clipboard.writeText(shareableUrl);
+      if (operation !== copyOperationRef.current || !isOpen) return;
+      setCopyState('copied');
       addToast('Shareable URL copied to clipboard!', 'success');
-      setTimeout(() => setCopied(false), 2500);
+      copyTimerRef.current = setTimeout(() => setCopyState('idle'), 2500);
+    } catch {
+      if (operation !== copyOperationRef.current || !isOpen) return;
+      setCopyState('manual');
+      urlInputRef.current?.focus();
+      urlInputRef.current?.select();
+      addToast('Clipboard copy failed. Select and copy the highlighted URL manually.', 'error');
     }
   };
 
@@ -79,19 +116,27 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles.section}>
-          <label className={styles.sectionLabel}>Shareable URL (State Encoded)</label>
+          <label htmlFor="share-session-url" className={styles.sectionLabel}>Shareable URL (State Encoded)</label>
           <div className={styles.urlBox}>
             <input
               type="text"
+              id="share-session-url"
+              ref={urlInputRef}
               readOnly
               value={shareableUrl}
               className={styles.urlInput}
             />
-            <button type="button" className={styles.copyBtn} onClick={handleCopy}>
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              <span>{copied ? 'Copied' : 'Copy'}</span>
+            <button type="button" className={styles.copyBtn} disabled={!canShare} onClick={() => void handleCopy()}>
+              {copyState === 'copied' ? <Check size={14} /> : <Copy size={14} />}
+              <span>{copyState === 'copied' ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
+          {copyState === 'manual' && (
+            <p role="alert" className={styles.copyHelp}>Clipboard access failed. The URL is selected; press Ctrl+C or Command+C to copy it.</p>
+          )}
+          {!canShare && (
+            <p role="alert" className={styles.copyHelp}>This session contains values that cannot be shared. Shorten the ETF name or strategy rules and try again.</p>
+          )}
         </div>
 
         <div className={styles.section}>

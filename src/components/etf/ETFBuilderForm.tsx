@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useETFStore, useUIStore } from '../../store';
 import { CORE_TICKERS } from '../../model/tickers';
 import { CustomETFConfig, RebalanceFrequency, Candle } from '../../model/types';
@@ -8,11 +8,12 @@ import { Plus, Trash2, Layers, Shuffle } from 'lucide-react';
 import styles from './ETFBuilderForm.module.css';
 
 interface ETFBuilderFormProps {
-  onSimulationComplete: (result: ETFSimulationResult) => void;
+  onSimulationComplete: (result: ETFSimulationResult, operation?: number) => void;
+  onSimulationStart?: () => number | void;
 }
 
-export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComplete }) => {
-  const { saveETF } = useETFStore();
+export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComplete, onSimulationStart }) => {
+  const { saveETF, activeETF } = useETFStore();
   const { addToast } = useUIStore();
 
   const [name, setName] = useState('My Custom Tech & Growth Fund');
@@ -25,6 +26,14 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
   const [rebalanceFreq, setRebalanceFreq] = useState<RebalanceFrequency>('quarterly');
   const [addTickerInput, setAddTickerInput] = useState('TSLA');
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeETF) return;
+    setName(activeETF.name);
+    setSelectedTickers(activeETF.tickers.map((item) => ({ ...item })));
+    setRebalanceFreq(activeETF.rebalanceFrequency);
+  }, [activeETF]);
 
   const totalWeight = selectedTickers.reduce((sum, t) => sum + t.targetWeight, 0);
 
@@ -63,6 +72,8 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
       return;
     }
 
+    const operation = onSimulationStart?.();
+    setLoadError(null);
     setLoading(true);
     try {
       // Load candle data for all constituent tickers + benchmarks
@@ -85,11 +96,14 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
       };
 
       const result = simulateETF(etfConfig, candlesMap);
-      saveETF(result.config);
-      onSimulationComplete(result);
+      if (!saveETF(result.config)) {
+        throw new Error('The ETF could not be saved in this browser. Check storage permissions and try again.');
+      }
+      onSimulationComplete(result, operation ?? undefined);
       addToast(`Simulated ${name}: Total Return ${result.metrics.totalReturnPercent.toFixed(2)}%`, 'success');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to simulate custom ETF.';
+      setLoadError(msg);
       addToast(msg, 'error');
     } finally {
       setLoading(false);
@@ -191,6 +205,12 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
         </span>
       </div>
 
+      {loadError && (
+        <div role="alert" style={{ color: 'var(--down-red)' }}>
+          Could not load data and simulate "{name}": {loadError}. Use Retry below to try again.
+        </div>
+      )}
+
       <button
         type="button"
         className={styles.submitBtn}
@@ -198,7 +218,7 @@ export const ETFBuilderForm: React.FC<ETFBuilderFormProps> = ({ onSimulationComp
         disabled={loading}
       >
         <Layers size={18} />
-        <span>{loading ? 'Calculating NAV & Weight Drift...' : 'Simulate Custom ETF'}</span>
+        <span>{loading ? 'Calculating NAV & Weight Drift...' : loadError ? 'Retry ETF simulation' : 'Simulate Custom ETF'}</span>
       </button>
     </div>
   );

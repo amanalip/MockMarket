@@ -75,7 +75,7 @@ describe('Security & A11y', () => {
   });
 
   it('encodeShareState unicode emoji preserved', () => {
-    const p: any = { version: 1, etf: { name: 'Test Unicorn <> &' } };
+    const p: any = { version: 1, etf: { name: 'Test Unicorn <> &', tickers: [{ ticker: 'AAPL', targetWeight: 100 }], rebalanceFrequency: 'never' } };
     const dec = decodeShareState(encodeShareState(p)) as any;
     expect(dec.etf.name).toBe('Test Unicorn <> &');
   });

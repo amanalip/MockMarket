@@ -59,9 +59,9 @@ describe('Fuzz & Security', () => {
     expect(dec.backtest.entryRule).toBe('CLOSE < 100 && CLOSE > 50');
   });
 
-  it('url-state handles emoji 4-byte surrogate', () => {
+  it('url-state rejects incomplete nested ETF data', () => {
     const p: any = { version: 1, etf: { name: '🚀🌕💸' } };
-    expect(decodeShareState(encodeShareState(p))?.etf?.name).toBe('🚀🌕💸');
+    expect(decodeShareState(encodeShareState(p))).toBeNull();
   });
 
   it('EMA with period 1 equals close even with volatile', () => {

@@ -45,11 +45,10 @@ describe('Data & Export Extra - Security & Edge', () => {
     (URL as any).revokeObjectURL = origRevoke;
   });
 
-  it('url-state large payload still decodable', () => {
+  it('url-state rejects unrecognized large payload fields', () => {
     const payload: any = { version: 1, mode: 'trade', ticker: 'AAPL', cash: 10000, extra: 'x'.repeat(5000) };
     const enc = encodeShareState(payload);
-    const dec = decodeShareState(enc) as any;
-    expect(dec.extra.length).toBe(5000);
+    expect(decodeShareState(enc)).toBeNull();
   });
 
   it('url-state decode malformed base64 returns null', () => {

@@ -52,7 +52,7 @@ describe('Bugfix Batch 10 – Data/Store hardening', () => {
 
   it('ETF store saveETF deep copy prevents external mutation', () => {
     const store = useETFStore.getState();
-    const obj: any = { id: 'test-id-123', name: 'Original', description: 'd', tickers: [{ ticker: 'AAPL', targetWeight: 100 }], rebalanceFrequency: 'never', createdAt: '2024-01-01' };
+    const obj: any = { id: 'test-id-123', name: 'Original', tickers: [{ ticker: 'AAPL', targetWeight: 100 }], rebalanceFrequency: 'never', createdAt: '2024-01-01' };
     store.saveETF(obj);
     obj.name = 'Mutated';
     obj.tickers[0].targetWeight = 999;

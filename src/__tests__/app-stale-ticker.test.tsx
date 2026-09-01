@@ -50,7 +50,6 @@ describe('App ticker data ownership', () => {
     loadTickerDataMock.mockImplementation((ticker: string) => ticker === 'AAPL'
       ? Promise.resolve([aaplCandle])
       : Promise.reject(new Error('MSFT unavailable')));
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     render(<App />);
 
     await waitFor(() => expect(screen.getByTestId('chart-probe')).toHaveTextContent('AAPL:111.11'));
@@ -65,6 +64,7 @@ describe('App ticker data ownership', () => {
     fireEvent.submit(submit.closest('form')!);
     expect(usePortfolioStore.getState().trades).toHaveLength(0);
     expect(usePortfolioStore.getState().orders).toHaveLength(0);
-    await waitFor(() => expect(consoleError).toHaveBeenCalled());
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load market data for MSFT');
+    expect(screen.getByRole('button', { name: 'Retry MSFT' })).toBeEnabled();
   });
 });

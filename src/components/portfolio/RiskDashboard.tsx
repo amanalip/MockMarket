@@ -18,18 +18,27 @@ import styles from './RiskDashboard.module.css';
 export const RiskDashboard: React.FC = () => {
   const { positions, cash, startingCash, history } = usePortfolioStore();
   const [spyCandles, setSpyCandles] = useState<Candle[] | null>(null);
+  const [benchmarkError, setBenchmarkError] = useState(false);
+  const [benchmarkRetry, setBenchmarkRetry] = useState(0);
 
   useEffect(() => {
     let active = true;
+    setBenchmarkError(false);
     loadTickerData('SPY')
       .then((candles) => {
-        if (active) setSpyCandles(candles);
+        if (active) {
+          setSpyCandles(candles);
+          setBenchmarkError(false);
+        }
       })
       .catch(() => {
-        if (active) setSpyCandles(null);
+        if (active) {
+          setSpyCandles(null);
+          setBenchmarkError(true);
+        }
       });
     return () => { active = false; };
-  }, []);
+  }, [benchmarkRetry]);
 
   const diversificationMetrics = useMemo(() => {
     return calculateDiversification(positions, cash);
@@ -73,6 +82,12 @@ export const RiskDashboard: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {benchmarkError && (
+        <div role="alert">
+          SPY benchmark data could not be loaded, so beta is unavailable.{' '}
+          <button type="button" onClick={() => setBenchmarkRetry((value) => value + 1)}>Retry benchmark</button>
+        </div>
+      )}
       <div className={styles.header}>
         <span className={styles.title}>Portfolio Risk & Analytics</span>
       </div>

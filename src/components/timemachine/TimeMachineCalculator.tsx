@@ -33,9 +33,12 @@ export const TimeMachineCalculator: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<TimeMachineResult | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const handleCalculate = async () => {
     setLoading(true);
+    setResult(null);
+    setLoadError(null);
     try {
       const [tickerCandles, spyCandles] = await Promise.all([
         loadTickerData(ticker),
@@ -56,6 +59,7 @@ export const TimeMachineCalculator: React.FC = () => {
       addToast(`Calculated: $${initialAmount.toLocaleString()} in ${ticker} grew to $${res.finalAssetValue.toLocaleString()} (${res.totalReturnPercent.toFixed(1)}%).`, 'success');
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Calculation error occurred.';
+      setLoadError(msg);
       addToast(msg, 'error');
     } finally {
       setLoading(false);
@@ -66,6 +70,7 @@ export const TimeMachineCalculator: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {loadError && <div role="alert">Time-machine data could not be loaded: {loadError}. Update the inputs or calculate again.</div>}
       <div className={styles.header}>
         <div>
           <span className={styles.title}>Investment Time Machine</span>

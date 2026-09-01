@@ -65,7 +65,7 @@ describe('Export / URL / TimeMachine Edges', () => {
   });
 
   it('url-state handles unicode/emoji', () => {
-    const payload={ version:1, etf:{ name:'🚀 Fund', tickers:[], rebalanceFrequency:'never' } } as any;
+    const payload={ version:1, etf:{ name:'🚀 Fund', tickers:[{ ticker: 'AAPL', targetWeight: 100 }], rebalanceFrequency:'never' } } as any;
     const enc=encodeShareState(payload);
     const dec=decodeShareState(enc);
     expect(dec?.etf?.name).toBe('🚀 Fund');

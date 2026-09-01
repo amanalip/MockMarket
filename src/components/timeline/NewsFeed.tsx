@@ -14,6 +14,7 @@ export const NewsFeed: React.FC = () => {
   const [sentiment, setSentiment] = useState<NewsSentiment | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [tickerFilter, setTickerFilter] = useState('');
+  const [failedJump, setFailedJump] = useState<{ date: string; ticker?: string; message: string } | null>(null);
 
   const allNews = useMemo(() => getAllHistoricalNews(), []);
 
@@ -27,26 +28,34 @@ export const NewsFeed: React.FC = () => {
   }, [allNews, category, sentiment, searchQuery, tickerFilter]);
 
   const handleJumpToDate = async (targetDate: string, tickerHint?: string) => {
-    if (!setSimulationDate(targetDate)) {
-      addToast('Reset the portfolio before rewinding past account activity.', 'error');
-      return;
-    }
     const activeTicker = tickerHint || selectedTicker;
+    setFailedJump(null);
     try {
       const candles = await loadTickerData(activeTicker);
       const candle = getLatestCandleOnOrBefore(candles, targetDate);
-      if (candle) {
-        updateMarketPrices({ [activeTicker]: candle.close });
-        processCandleForOrders(candle, activeTicker);
+      if (!candle) throw new Error(`No ${activeTicker} candle is available on or before ${targetDate}`);
+      if (!setSimulationDate(targetDate)) {
+        addToast('Reset the portfolio before rewinding past account activity.', 'error');
+        return;
       }
+      updateMarketPrices({ [activeTicker]: candle.close });
+      processCandleForOrders(candle, activeTicker);
       addToast(`Jumped simulation timeline to ${targetDate}.`, 'info');
     } catch (err) {
-      console.error('Failed to jump to date', err);
+      const message = err instanceof Error ? err.message : 'Unknown market-data error';
+      setFailedJump({ date: targetDate, ticker: tickerHint, message });
+      addToast(`Could not load ${activeTicker} data for ${targetDate}.`, 'error');
     }
   };
 
   return (
     <div className={styles.container}>
+      {failedJump && (
+        <div role="alert">
+          Timeline data could not be loaded: {failedJump.message}.{' '}
+          <button type="button" onClick={() => void handleJumpToDate(failedJump.date, failedJump.ticker)}>Retry timeline jump</button>
+        </div>
+      )}
       <div className={styles.header}>
         <div>
           <span className={styles.title}>Historical News & Catalyst Timeline</span>

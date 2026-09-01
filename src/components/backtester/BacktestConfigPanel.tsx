@@ -9,7 +9,7 @@ import { compileRule, validateRule } from '../../parser/strategy-dsl';
 import styles from './BacktestConfigPanel.module.css';
 
 export const BacktestConfigPanel: React.FC = () => {
-  const { config, setConfig, setResult, isRunning, setIsRunning, setError } = useBacktesterStore();
+  const { config, setConfig, setResult, isRunning, setIsRunning, error, setError } = useBacktesterStore();
   const { addToast } = useUIStore();
 
   const handleRun = async () => {
@@ -27,6 +27,7 @@ export const BacktestConfigPanel: React.FC = () => {
 
     setIsRunning(true);
     setError(null);
+    setResult(null);
 
     try {
       const [tickerCandles, spyCandles] = await Promise.all([
@@ -51,10 +52,12 @@ export const BacktestConfigPanel: React.FC = () => {
 
   return (
     <div className={styles.container}>
+      {error && <div role="alert">Backtest data could not be loaded: {error}. Adjust the configuration or execute the backtest again.</div>}
       <div className={styles.row}>
         <div className={styles.formGroup}>
-          <label className={styles.label}>Ticker</label>
+          <label className={styles.label} htmlFor="backtest-ticker">Ticker</label>
           <select
+            id="backtest-ticker"
             className={styles.input}
             value={config.ticker}
             onChange={(e) => setConfig({ ticker: e.target.value })}
@@ -68,8 +71,9 @@ export const BacktestConfigPanel: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Start Date</label>
+          <label className={styles.label} htmlFor="backtest-start-date">Start Date</label>
           <input
+            id="backtest-start-date"
             type="date"
             className={styles.input}
             value={config.startDate}
@@ -78,8 +82,9 @@ export const BacktestConfigPanel: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>End Date</label>
+          <label className={styles.label} htmlFor="backtest-end-date">End Date</label>
           <input
+            id="backtest-end-date"
             type="date"
             className={styles.input}
             value={config.endDate}
@@ -88,8 +93,9 @@ export const BacktestConfigPanel: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-          <label className={styles.label}>Starting Capital ($)</label>
+          <label className={styles.label} htmlFor="backtest-starting-capital">Starting Capital ($)</label>
           <input
+            id="backtest-starting-capital"
             type="number"
             min="1000"
             step="1000"

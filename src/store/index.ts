@@ -14,6 +14,7 @@ import {
 import { ThemeMode } from '../theme';
 import { TradingEngine } from '../engine/trading/trading-engine';
 import { OrderRequest, ExecutionResult } from '../engine/trading/order-types';
+import { decodeShareState, ShareableStatePayload, validateSavedETF, validateShareState } from '../engine/export/url-state';
 
 export interface ToastMessage {
   id: string;
@@ -103,9 +104,49 @@ interface BacktesterState {
 interface ETFState {
   savedETFs: CustomETFConfig[];
   activeETF: CustomETFConfig | null;
-  saveETF: (etf: CustomETFConfig) => void;
-  deleteETF: (id: string) => void;
+  saveETF: (etf: CustomETFConfig) => boolean;
+  deleteETF: (id: string) => boolean;
   setActiveETF: (etf: CustomETFConfig | null) => void;
+}
+
+const SAVED_ETFS_KEY = 'mockmarket_saved_etfs';
+const SAVED_ETFS_VERSION = 1;
+const MAX_SAVED_ETFS = 50;
+
+function readSavedETFs(): CustomETFConfig[] {
+  try {
+    if (typeof localStorage === 'undefined') return [];
+    const raw = localStorage.getItem(SAVED_ETFS_KEY);
+    if (!raw || raw.length > 50_000) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (
+      !parsed
+      || typeof parsed !== 'object'
+      || Array.isArray(parsed)
+      || Object.keys(parsed).some((key) => key !== 'version' && key !== 'etfs')
+      || (parsed as { version?: unknown }).version !== SAVED_ETFS_VERSION
+      || !Array.isArray((parsed as { etfs?: unknown }).etfs)
+    ) return [];
+    const etfs = (parsed as { etfs: unknown[] }).etfs;
+    const ids = etfs.map((etf) => (etf as { id?: unknown })?.id);
+    return etfs.length <= MAX_SAVED_ETFS
+      && new Set(ids).size === ids.length
+      && etfs.every(validateSavedETF)
+      ? etfs
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistSavedETFs(etfs: CustomETFConfig[]): boolean {
+  try {
+    if (typeof localStorage === 'undefined') return false;
+    localStorage.setItem(SAVED_ETFS_KEY, JSON.stringify({ version: SAVED_ETFS_VERSION, etfs }));
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 interface ScenarioState {
@@ -396,23 +437,71 @@ export const useBacktesterStore = create<BacktesterState>((set) => ({
 }));
 
 export const useETFStore = create<ETFState>((set) => ({
-  savedETFs: [],
+  savedETFs: readSavedETFs(),
   activeETF: null,
   saveETF: (etf) => {
-    if (!etf || typeof etf !== 'object' || typeof etf.id !== 'string') return;
+    if (!validateSavedETF(etf)) return false;
     const copy = JSON.parse(JSON.stringify(etf));
-    // ensure id collision not silent overwrite in same ms is still intentional, but copy prevents external mutation
-    set((state) => ({
-      savedETFs: [...state.savedETFs.filter((e) => e.id !== copy.id), copy],
-      activeETF: copy,
-    }));
+    let saved = false;
+    set((state) => {
+      const savedETFs = [...state.savedETFs.filter((e) => e.id !== copy.id), copy].slice(-MAX_SAVED_ETFS);
+      saved = persistSavedETFs(savedETFs);
+      return saved ? { savedETFs, activeETF: copy } : state;
+    });
+    return saved;
   },
-  deleteETF: (id) => set((state) => ({
-    savedETFs: state.savedETFs.filter((e) => e.id !== id),
-    activeETF: state.activeETF?.id === id ? null : state.activeETF,
-  })),
-  setActiveETF: (activeETF) => set({ activeETF }),
+  deleteETF: (id) => {
+    let deleted = false;
+    set((state) => {
+      const savedETFs = state.savedETFs.filter((e) => e.id !== id);
+      deleted = persistSavedETFs(savedETFs);
+      return deleted ? {
+        savedETFs,
+        activeETF: state.activeETF?.id === id ? null : state.activeETF,
+      } : state;
+    });
+    return deleted;
+  },
+  setActiveETF: (activeETF) => set({ activeETF: activeETF && validateSavedETF(activeETF) ? activeETF : null }),
 }));
+
+export function applySharedState(payload: ShareableStatePayload): boolean {
+  if (!validateShareState(payload)) return false;
+
+  // Validation is complete before any store or trading-engine mutation occurs.
+  if (payload.cash !== undefined) usePortfolioStore.getState().resetPortfolio(payload.cash);
+  useUIStore.setState((state) => ({
+    ...state,
+    ...(payload.mode !== undefined ? { mode: payload.mode } : {}),
+    ...(payload.ticker !== undefined ? { selectedTicker: payload.ticker } : {}),
+    ...(payload.date !== undefined ? { simulationDate: payload.date } : {}),
+    isPlaying: false,
+  }));
+  if (payload.backtest) {
+    useBacktesterStore.setState((state) => ({
+      config: { ...state.config, ...payload.backtest },
+      result: null,
+      error: null,
+      isRunning: false,
+    }));
+  }
+  if (payload.etf) {
+    useETFStore.setState({
+      activeETF: {
+        ...payload.etf,
+        id: 'etf_shared_session',
+        createdAt: new Date().toISOString().slice(0, 10),
+      },
+    });
+  }
+  return true;
+}
+
+export function restoreSharedStateFromHash(hash = typeof window === 'undefined' ? '' : window.location.hash): boolean {
+  if (!hash.startsWith('#share=')) return false;
+  const payload = decodeShareState(hash.slice('#share='.length));
+  return payload ? applySharedState(payload) : false;
+}
 
 export const useScenarioStore = create<ScenarioState>((set) => ({
   activeScenario: null,

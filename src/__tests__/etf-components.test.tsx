@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { ETFBuilderForm } from '../components/etf/ETFBuilderForm';
 import { ETFAnalyticsDashboard } from '../components/etf/ETFAnalyticsDashboard';
@@ -113,9 +113,7 @@ describe('ETF Components', () => {
     const onComplete = vi.fn();
     render(<ETFBuilderForm onSimulationComplete={onComplete} />);
     fireEvent.click(screen.getByText('Simulate Custom ETF'));
-    await new Promise(r => setTimeout(r, 50));
-    // may complete async
-    expect(screen.getByText('Simulate Custom ETF') || screen.getByText(/Calculating/)).toBeTruthy();
+    await waitFor(() => expect(screen.getByText('Simulate Custom ETF')).toBeInTheDocument());
   });
 
   it('ETFBuilderForm empty name triggers error', async () => {

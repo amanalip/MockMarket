@@ -47,10 +47,9 @@ describe('Bugfix Batch 13 – Loader/Parser/Export/ETF', () => {
     // decode should not pollute and should return null or filtered
     const res = decodeShareState(polluted);
     expect((Object.prototype as any).polluted).toBeUndefined();
-    // valid version 99 should still decode (finite)
+    // Unsupported and non-finite versions are rejected.
     const goodVer = encodeShareState({ version: 99 as any, ticker: 'AAPL' });
-    expect(decodeShareState(goodVer)?.version).toBe(99);
-    // Infinity version should be rejected
+    expect(decodeShareState(goodVer)).toBeNull();
     const badVerInf = encodeShareState({ version: Infinity as any, ticker: 'AAPL' });
     expect(decodeShareState(badVerInf)).toBeNull();
   });

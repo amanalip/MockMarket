@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { Layout } from './components/ui/Layout';
 import { useUIStore, usePortfolioStore } from './store';
 import { StockScreener } from './components/stockpicker/StockScreener';
@@ -33,7 +33,12 @@ export const App: React.FC = () => {
 
   const [loadedData, setLoadedData] = useState<{ ticker: string | null; candles: Candle[] }>({ ticker: null, candles: [] });
   const [loading, setLoading] = useState(false);
+  const [tickerLoadError, setTickerLoadError] = useState<string | null>(null);
+  const [tickerRetry, setTickerRetry] = useState(0);
   const [etfResult, setEtfResult] = useState<ETFSimulationResult | null>(null);
+  const [etfLoadError, setEtfLoadError] = useState<string | null>(null);
+  const [failedETF, setFailedETF] = useState<CustomETFConfig | null>(null);
+  const etfOperationRef = useRef(0);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
   const hasSelectedTickerData = loadedData.ticker === selectedTicker;
@@ -65,6 +70,8 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     let isMounted = true;
+    setLoadedData({ ticker: null, candles: [] });
+    setTickerLoadError(null);
     Promise.resolve().then(() => {
       if (isMounted) setLoading(true);
     });
@@ -82,16 +89,23 @@ export const App: React.FC = () => {
         }
       })
       .catch((err) => {
-        console.error('Error loading candles:', err);
-        if (isMounted) setLoading(false);
+        if (isMounted) {
+          setLoadedData({ ticker: null, candles: [] });
+          setTickerLoadError(err instanceof Error ? err.message : 'Unknown data error');
+          setLoading(false);
+        }
       });
 
     return () => {
       isMounted = false;
     };
-  }, [selectedTicker, simulationDate, updateMarketPrices, processCandleForOrders]);
+  }, [selectedTicker, simulationDate, tickerRetry, updateMarketPrices, processCandleForOrders]);
 
   const handleLoadSavedETF = async (etf: CustomETFConfig) => {
+    const operation = ++etfOperationRef.current;
+    setEtfResult(null);
+    setEtfLoadError(null);
+    setFailedETF(null);
     try {
       const tickerList = etf.tickers.map((t) => t.ticker);
       const candlesMap: Record<string, Candle[]> = {};
@@ -101,9 +115,13 @@ export const App: React.FC = () => {
         })
       );
       const res = simulateETF(etf, candlesMap);
+      if (operation !== etfOperationRef.current) return;
       setEtfResult(res);
     } catch (err) {
-      console.error('Failed to load saved ETF', err);
+      if (operation !== etfOperationRef.current) return;
+      setEtfResult(null);
+      setFailedETF(etf);
+      setEtfLoadError(err instanceof Error ? err.message : 'Unknown data error');
     }
   };
 
@@ -136,6 +154,14 @@ export const App: React.FC = () => {
         {mode === 'trade' && (
           <>
             <SimulationBar candles={candles} />
+
+            {tickerLoadError && (
+              <div role="alert" style={{ border: '1px solid var(--down-red)', borderRadius: 8, padding: 12 }}>
+                <strong>Could not load market data for {selectedTicker}.</strong>{' '}
+                <span>{tickerLoadError}</span>{' '}
+                <button type="button" onClick={() => setTickerRetry((value) => value + 1)}>Retry {selectedTicker}</button>
+              </div>
+            )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 340px', gap: '20px' }}>
@@ -173,8 +199,25 @@ export const App: React.FC = () => {
 
         {mode === 'etf' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <ETFBuilderForm onSimulationComplete={setEtfResult} />
+            <ETFBuilderForm
+              onSimulationStart={() => {
+                const operation = ++etfOperationRef.current;
+                setEtfResult(null);
+                setEtfLoadError(null);
+                return operation;
+              }}
+              onSimulationComplete={(result, operation) => {
+                if (operation === etfOperationRef.current) setEtfResult(result);
+              }}
+            />
             <SavedETFsList onSelect={handleLoadSavedETF} />
+            {etfLoadError && failedETF && (
+              <div role="alert" style={{ border: '1px solid var(--down-red)', borderRadius: 8, padding: 12 }}>
+                <strong>Could not load saved ETF "{failedETF.name}".</strong>{' '}
+                <span>{etfLoadError}</span>{' '}
+                <button type="button" onClick={() => void handleLoadSavedETF(failedETF)}>Retry ETF load</button>
+              </div>
+            )}
             {etfResult && <ETFAnalyticsDashboard result={etfResult} />}
           </div>
         )}

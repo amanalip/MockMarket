@@ -98,6 +98,12 @@
   background-color: var(--accent-hover);
 }
 
+.copyHelp {
+  color: var(--down-red);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
 .buttonGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;

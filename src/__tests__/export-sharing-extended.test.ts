@@ -103,8 +103,8 @@ describe('Export Sharing Extended', () => {
     expect(exportBacktestTradesToCSV(trades)).toContain('"Stop, Loss"');
   });
 
-  it('encodeShareState version', () => {
-    expect(decodeShareState(encodeShareState({ version: 5 } as any))?.version).toBe(5);
+  it('rejects unsupported share-state versions', () => {
+    expect(encodeShareState({ version: 5 } as any)).toBe('');
   });
 
   it('generateShareableLink window fallback', () => {

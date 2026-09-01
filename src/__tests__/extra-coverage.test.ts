@@ -30,9 +30,9 @@ describe('Extra Coverage - Security, Stats & Edge', () => {
     expect(exportBacktestTradesToCSV(t)).toContain('10.12');
   });
 
-  it('url-state version field preserved', () => {
+  it('url-state rejects unsupported versions', () => {
     const p: any = { version: 2, mode: 'backtest', ticker: 'SPY' };
-    expect(decodeShareState(encodeShareState(p))?.version).toBe(2);
+    expect(decodeShareState(encodeShareState(p))).toBeNull();
   });
 
   it('url-state backtest payload roundtrip', () => {
