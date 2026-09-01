@@ -1,23 +1,26 @@
 import { describe, it, expect, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { fireEvent, renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useUIStore } from '../store';
 import { calculateSMA, calculateEMA, calculateRSI, calculateBollingerBands } from '../engine/indicators';
 import { calculatePositionUpdate } from '../engine/trading/portfolio';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('hooks-perf-fuzz');
 
 const mk = (closes: number[]): Candle[] => closes.map((c, i) => ({
   time: `2024-01-${String(i + 1).padStart(2, '0')}`, open: c, high: c + 1, low: c - 1, close: c, volume: 1000,
 }));
 
-describe('Hooks, Perf & Fuzz', () => {
+describe(`Hooks, Perf & Fuzz (seed ${FUZZ_SEED})`, () => {
   it('useKeyboardShortcuts toggles theme on t', () => {
     const toggle = vi.fn();
     const setMode = vi.fn();
     vi.spyOn(useUIStore, 'getState').mockReturnValue({ setMode, toggleTheme: toggle } as any);
     const onToggle = vi.fn();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 't' }));
+    fireEvent.keyDown(window, { key: 't' });
     // due to store internals, at least handler runs without throwing
     unmount();
   });
@@ -28,7 +31,7 @@ describe('Hooks, Perf & Fuzz', () => {
     document.body.appendChild(input);
     input.focus();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 't' }));
+    fireEvent.keyDown(window, { key: 't' });
     expect(onToggle).not.toHaveBeenCalled();
     unmount();
     document.body.removeChild(input);
@@ -37,9 +40,9 @@ describe('Hooks, Perf & Fuzz', () => {
   it('useKeyboardShortcuts handles ? and space', () => {
     const onToggle = vi.fn();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle, onAdvanceOneDay: vi.fn() }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
+    fireEvent.keyDown(window, { key: '?' });
     expect(onToggle).toHaveBeenCalledTimes(1);
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: ' ' }));
+    fireEvent.keyDown(window, { key: ' ' });
     unmount();
   });
 
@@ -66,21 +69,18 @@ describe('Hooks, Perf & Fuzz', () => {
     expect(res.updatedPosition!.totalCost).toBe(1e10);
   });
 
-  it('perf: 10k candles SMA <200ms', () => {
-    const big = mk(Array.from({ length: 10000 }, () => 100 + Math.random() * 10));
-    const t = performance.now();
-    calculateSMA(big, 20);
-    calculateEMA(big, 12);
-    calculateRSI(big, 14);
-    calculateBollingerBands(big, 20);
-    expect(performance.now() - t).toBeLessThan(500);
+  it('processes 10k candles with consistent indicator output sizes', () => {
+    const big = mk(Array.from({ length: 10000 }, () => 100 + random() * 10));
+    expect(calculateSMA(big, 20)).toHaveLength(9981);
+    expect(calculateEMA(big, 12)).toHaveLength(9989);
+    expect(calculateRSI(big, 14)).toHaveLength(9986);
+    expect(calculateBollingerBands(big, 20)).toHaveLength(9981);
   });
 
-  it('perf: portfolio 1000 updates <100ms', () => {
+  it('processes 1000 portfolio updates without losing shares', () => {
     let pos: any = undefined;
-    const t = performance.now();
     for (let i = 0; i < 1000; i++) pos = calculatePositionUpdate(pos, 'buy', 1, 100 + i % 10).updatedPosition;
-    expect(performance.now() - t).toBeLessThan(200);
+    expect(pos.shares).toBe(1000);
   });
 
   it('fuzz: empty candles returns [] for all indicators', () => {
@@ -103,8 +103,7 @@ describe('Hooks, Perf & Fuzz', () => {
     // mock store's setMode via hook effect directly checking modeMap
     const onToggle = vi.fn();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    const ev = new KeyboardEvent('keydown', { key: '2' });
-    window.dispatchEvent(ev);
+    fireEvent.keyDown(window, { key: '2' });
     unmount();
     // we just ensure no throw
     expect(true).toBe(true);

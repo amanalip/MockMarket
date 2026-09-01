@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { act, render, screen, fireEvent } from '@testing-library/react';
 import React from 'react';
 import { SimulationBar } from '../components/timeline/SimulationBar';
 import { PortfolioDashboard } from '../components/portfolio/PortfolioDashboard';
@@ -125,10 +125,11 @@ describe('Extended Components', () => {
   });
 
   it('TradeHistory shows no trades empty then after trade', () => {
-    const { rerender } = render(<TradeHistory />);
+    render(<TradeHistory />);
     expect(screen.getByText(/No trades|No trade history/i) || document.body).toBeTruthy();
-    usePortfolioStore.getState().executeTrade({ ticker: 'AAPL', side: 'buy', type: 'market', shares: 5, date: '2024-01-01' }, candles[0]);
-    rerender(<TradeHistory />);
+    act(() => {
+      usePortfolioStore.getState().executeTrade({ ticker: 'AAPL', side: 'buy', type: 'market', shares: 5, date: '2024-01-01' }, candles[0]);
+    });
     expect(screen.getByText(/AAPL/) || document.body.textContent?.includes('buy')).toBeTruthy();
   });
 

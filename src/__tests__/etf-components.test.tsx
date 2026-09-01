@@ -7,7 +7,6 @@ import { SavedETFsList } from '../components/etf/SavedETFsList';
 import { useETFStore, useUIStore } from '../store';
 import { ETFSimulationResult } from '../engine/etf/etf-builder';
 
-(global as any).ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 vi.mock('../../data/loader', async () => {
   const actual: any = await vi.importActual('../../data/loader');
   return { ...actual, loadTickerData: vi.fn().mockResolvedValue(Array.from({ length: 30 }, (_, i) => ({ time: `2020-01-${String(i + 1).padStart(2, '0')}`, open: 100, high: 105, low: 95, close: 100 + i, volume: 1000 }))) };
@@ -51,8 +50,8 @@ describe('ETF Components', () => {
 
   it('ETFBuilderForm shows tickers and weight sliders', () => {
     render(<ETFBuilderForm onSimulationComplete={vi.fn()} />);
-    expect(screen.getByText('AAPL')).toBeInTheDocument();
-    expect(screen.getByText('MSFT')).toBeInTheDocument();
+    expect(screen.getAllByText('AAPL').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('MSFT').length).toBeGreaterThan(0);
     expect(screen.getAllByRole('slider').length).toBeGreaterThanOrEqual(4);
   });
 
@@ -135,8 +134,8 @@ describe('ETF Components', () => {
 
   it('ETFAnalyticsDashboard holdings table', () => {
     render(<ETFAnalyticsDashboard result={mockResult} />);
-    expect(screen.getByText('AAPL')).toBeInTheDocument();
-    expect(screen.getByText('MSFT')).toBeInTheDocument();
+    expect(screen.getAllByText('AAPL').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('MSFT').length).toBeGreaterThan(0);
     expect(screen.getByText(/Target Weight/)).toBeInTheDocument();
   });
 

@@ -11,7 +11,6 @@ vi.mock('../../data/loader', async () => {
   const actual: any = await vi.importActual('../../data/loader');
   return { ...actual, loadTickerData: vi.fn().mockResolvedValue(Array.from({ length: 100 }, (_, i) => ({ time: `2020-01-${String((i % 30)+1).padStart(2,'0')}`, open: 100, high: 105, low: 95, close: 100, volume: 1000 }))) };
 });
-(global as any).ResizeObserver = class { observe(){} unobserve(){} disconnect(){} };
 
 describe('Backtester UI Extended', () => {
   beforeEach(() => {

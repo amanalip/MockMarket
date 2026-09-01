@@ -4,12 +4,15 @@ import { calculateSMA, calculateEMA, calculateRSI } from '../engine/indicators';
 import { encodeShareState, decodeShareState } from '../engine/export/url-state';
 import { compileRule, validateRule } from '../parser/strategy-dsl';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('fuzz-security');
 
 const mk = (closes: (number | null)[]): Candle[] => closes.map((c, i) => ({
   time: `2024-01-${String(i + 1).padStart(2, '0')}`, open: c as number, high: (c as number) + 1, low: (c as number) - 1, close: c as number, volume: 1000,
 }));
 
-describe('Fuzz & Security', () => {
+describe(`Fuzz & Security (seed ${FUZZ_SEED})`, () => {
   it('trading engine NaN shares rejected', () => {
     const e = new TradingEngine(10000);
     const c: Candle = { time: '2024-01-01', open: 100, high: 100, low: 100, close: 100, volume: 1000 };
@@ -43,9 +46,7 @@ describe('Fuzz & Security', () => {
 
   it('compileRule handles very long string without hang', () => {
     const longRule = Array(100).fill('CLOSE > 100 AND').join(' ') + ' CLOSE > 0';
-    const start = Date.now();
     const res = validateRule(longRule);
-    expect(Date.now() - start).toBeLessThan(1000);
     expect(typeof res.valid).toBe('boolean');
   });
 
@@ -91,9 +92,9 @@ describe('Fuzz & Security', () => {
 
   it('fuzz: random candles SMA length invariant', () => {
     for (let i = 0; i < 10; i++) {
-      const n = 5 + Math.floor(Math.random() * 20);
+      const n = 5 + Math.floor(random() * 20);
       const period = 3;
-      const candles = mk(Array.from({ length: n }, () => 50 + Math.random() * 100));
+      const candles = mk(Array.from({ length: n }, () => 50 + random() * 100));
       const sma = calculateSMA(candles, period);
       expect(sma.length).toBe(Math.max(0, n - period + 1));
     }

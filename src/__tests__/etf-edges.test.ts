@@ -1,10 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { normalizeWeights, simulateETF } from '../engine/etf/etf-builder';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('etf-edges');
 
 const mk = (dates:string[], price:number): Candle[] => dates.map(d=>({ time:d, open:price, high:price, low:price, close:price, volume:1000 }));
 
-describe('ETF Builder - Edges', () => {
+describe(`ETF Builder - Edges (seed ${FUZZ_SEED})`, () => {
   it('normalize sum 0 -> equal weights sum to 100 (fixed rounding)', () => {
     const res=normalizeWeights([{ticker:'A',targetWeight:0},{ticker:'B',targetWeight:0},{ticker:'C',targetWeight:0}]);
     const sum=res.reduce((s,c)=>s+c.targetWeight,0);
@@ -54,8 +57,8 @@ describe('ETF Builder - Edges', () => {
 
   it('simulateETF metrics annualized reasonable', () => {
     const dates=Array.from({length:30},(_,i)=>{ const d=new Date('2020-01-01'); d.setDate(d.getDate()+i); return d.toISOString().split('T')[0]; });
-    const map={ AAPL: dates.map(d=>({ time:d, open:100, high:105, low:95, close:100+Math.random()*5, volume:1000 })),
-                MSFT: dates.map(d=>({ time:d, open:100, high:105, low:95, close:100+Math.random()*5, volume:1000 })) };
+    const map={ AAPL: dates.map(d=>({ time:d, open:100, high:105, low:95, close:100+random()*5, volume:1000 })),
+                MSFT: dates.map(d=>({ time:d, open:100, high:105, low:95, close:100+random()*5, volume:1000 })) };
     const res=simulateETF({ id:'1', name:'Test', tickers:[{ticker:'AAPL',targetWeight:50},{ticker:'MSFT',targetWeight:50}], rebalanceFrequency:'never', createdAt:'2020-01-01' }, map);
     expect(res.metrics.annualizedVolatility).toBeGreaterThanOrEqual(0);
     expect(res.metrics.maxDrawdownPercent).toBeGreaterThanOrEqual(0);

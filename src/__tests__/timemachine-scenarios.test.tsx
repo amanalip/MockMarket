@@ -6,13 +6,12 @@ import { ScenarioCatalog } from '../components/scenarios/ScenarioCatalog';
 import { calculateTimeMachine } from '../engine/timemachine/timemachine';
 import { Candle } from '../model/types';
 
-(global as any).ResizeObserver = class { observe(){} unobserve(){} disconnect(){} };
 vi.mock('recharts', async () => {
   const actual: any = await vi.importActual('recharts');
   return { ...actual, ResponsiveContainer: ({ children }: any) => <div>{children}</div>, LineChart: ({ children }: any) => <div>{children}</div>, Line: () => null, XAxis: () => null, YAxis: () => null, Tooltip: () => null, Legend: () => null, CartesianGrid: () => null };
 });
-vi.mock('../../data/loader', async () => {
-  const actual: any = await vi.importActual('../../data/loader');
+vi.mock('../data/loader', async () => {
+  const actual: any = await vi.importActual('../data/loader');
   return { ...actual, loadTickerData: vi.fn().mockResolvedValue(Array.from({ length: 20 }, (_, i) => ({ time: `2020-01-${String(i + 1).padStart(2,'0')}`, open: 100, high: 105, low: 95, close: 100 + i, volume: 1000 }))) };
 });
 
@@ -61,9 +60,7 @@ describe('TimeMachine & Scenarios Components', () => {
   it('TimeMachineCalculator calculate success shows result', async () => {
     render(<TimeMachineCalculator />);
     fireEvent.click(screen.getByText('Run Time Machine Simulation'));
-    await new Promise(r => setTimeout(r, 50));
-    // may show loading then result, just check no crash
-    expect(document.body.textContent).toBeTruthy();
+    expect(await screen.findByText('Final Portfolio Value')).toBeInTheDocument();
   });
 
   it('ScenarioCatalog renders filters', () => {

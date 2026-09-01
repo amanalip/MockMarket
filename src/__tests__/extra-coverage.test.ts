@@ -7,8 +7,11 @@ import { calculateMaxDrawdown } from '../engine/risk/drawdown';
 import { calculateDiversification } from '../engine/risk/diversification';
 import { filterCandlesByTimeframe } from '../components/charts/chart-utils';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
 
-describe('Extra Coverage - Security, Stats & Edge', () => {
+const random = createTestRandom('extra-coverage');
+
+describe(`Extra Coverage - Security, Stats & Edge (seed ${FUZZ_SEED})`, () => {
   it('exportPositions handles multiple positions and empty', () => {
     const pos: any = {
       AAPL: { ticker: 'AAPL', shares: 10, avgCost: 100, totalCost: 1000, currentPrice: 120, currentValue: 1200, unrealizedPnL: 200, unrealizedPnLPercent: 20, realizedPnL: 0 },
@@ -138,7 +141,7 @@ describe('Extra Coverage - Security, Stats & Edge', () => {
   });
 
   it('risk large numbers not overflow', () => {
-    const big = Array.from({ length: 100 }, () => 1e6 + Math.random() * 1000);
+    const big = Array.from({ length: 100 }, () => 1e6 + random() * 1000);
     const rets = calculateReturns(big);
     expect(rets.every(v => Number.isFinite(v))).toBe(true);
   });

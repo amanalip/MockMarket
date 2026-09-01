@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useBacktesterStore, useUIStore } from '../store';
 import { CORE_TICKERS, searchTickers } from '../model/tickers';
-import { renderHook } from '@testing-library/react';
+import { act, fireEvent, renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 describe('Bugfix Batch 14 – Store/Keyboard/Tickers final', () => {
@@ -29,13 +29,14 @@ describe('Bugfix Batch 14 – Store/Keyboard/Tickers final', () => {
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle, onAdvanceOneDay: onAdvance }));
     // repeat should be ignored
     const repeatEvent = new KeyboardEvent('keydown', { key: 'ArrowRight', repeat: true });
-    window.dispatchEvent(repeatEvent);
+    fireEvent(window, repeatEvent);
     expect(onAdvance).not.toHaveBeenCalled();
     // nested contentEditable: span inside div
     const parent = document.createElement('div');
-    parent.contentEditable = 'true';
+    parent.setAttribute('contenteditable', 'true');
     const child = document.createElement('span');
     child.textContent = 'hello';
+    child.tabIndex = 0;
     parent.appendChild(child);
     document.body.appendChild(parent);
     child.focus();
@@ -44,8 +45,8 @@ describe('Bugfix Batch 14 – Store/Keyboard/Tickers final', () => {
     const tEvent = new KeyboardEvent('keydown', { key: 't' });
     const toggleSpy = vi.fn();
     const origToggle = useUIStore.getState().toggleTheme;
-    useUIStore.setState({ toggleTheme: toggleSpy } as any);
-    window.dispatchEvent(tEvent);
+    act(() => useUIStore.setState({ toggleTheme: toggleSpy } as any));
+    fireEvent(window, tEvent);
     // should be ignored due to nested editable, but JSDOM may not support closest correctly for activeElement
     // At least ensure not throwing and that repeat is ignored
     expect(toggleSpy).not.toHaveBeenCalled(); // if nested detection works, otherwise this may fail in JSDOM

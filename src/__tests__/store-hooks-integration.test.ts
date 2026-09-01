@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { fireEvent, renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useUIStore, usePortfolioStore, useBacktesterStore, useETFStore } from '../store';
 import { Candle } from '../model/types';
@@ -81,7 +81,7 @@ describe('Store Hooks Integration', () => {
     document.body.appendChild(input);
     input.focus();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 't' }));
+    fireEvent.keyDown(window, { key: 't' });
     expect(onToggle).not.toHaveBeenCalled();
     unmount();
     document.body.removeChild(input);
@@ -91,7 +91,7 @@ describe('Store Hooks Integration', () => {
     const onToggle = vi.fn();
     const before = useUIStore.getState().theme;
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 't' }));
+    fireEvent.keyDown(window, { key: 't' });
     expect(useUIStore.getState().theme).not.toBe(before);
     unmount();
   });
@@ -99,7 +99,7 @@ describe('Store Hooks Integration', () => {
   it('useKeyboardShortcuts ? opens modal', () => {
     const onToggle = vi.fn();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }));
+    fireEvent.keyDown(window, { key: '?' });
     expect(onToggle).toHaveBeenCalled();
     unmount();
   });
@@ -142,7 +142,7 @@ describe('Store Hooks Integration', () => {
   it('useKeyboardShortcuts ArrowRight advances', () => {
     const onAdvance = vi.fn();
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: vi.fn(), onAdvanceOneDay: onAdvance }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
     expect(onAdvance).toHaveBeenCalled();
     unmount();
   });
@@ -163,7 +163,7 @@ describe('Store Hooks Integration', () => {
 
   it('useKeyboardShortcuts mode 1-5', () => {
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: vi.fn() }));
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: '1' }));
+    fireEvent.keyDown(window, { key: '1' });
     expect(useUIStore.getState().mode).toBe('trade');
     unmount();
   });

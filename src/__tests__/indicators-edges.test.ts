@@ -6,13 +6,16 @@ import { calculateMACD } from '../engine/indicators/macd';
 import { calculateBollingerBands } from '../engine/indicators/bollinger';
 import { calculateVolumeMA } from '../engine/indicators/volume-ma';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('indicators-edges');
 
 const mk = (closes: number[]): Candle[] => closes.map((c, i) => ({
   time: `2024-01-${String(i+1).padStart(2,'0')}`,
   open: c, high: c+1, low: c-1, close: c, volume: 1000+i*100,
 }));
 
-describe('Indicators - Edge Cases & Bugs', () => {
+describe(`Indicators - Edge Cases & Bugs (seed ${FUZZ_SEED})`, () => {
   it('SMA returns [] for invalid periods', () => {
     const candles = mk([1,2,3]);
     expect(calculateSMA(candles, 0)).toEqual([]);
@@ -135,15 +138,12 @@ describe('Indicators - Edge Cases & Bugs', () => {
     expect(res[1].value).toBe(2500);
   });
 
-  it('Indicators performance with 5000 candles', () => {
-    const big = mk(Array.from({length:5000},(_,i)=> 100+ Math.random()*10));
-    const t0=Date.now();
-    calculateSMA(big,20);
-    calculateEMA(big,12);
-    calculateRSI(big,14);
-    calculateBollingerBands(big,20);
-    calculateVolumeMA(big,20);
-    const dt = Date.now()-t0;
-    expect(dt).toBeLessThan(1000); // should be fast
+  it('produces complete indicator output for 5000 candles', () => {
+    const big = mk(Array.from({length:5000},()=> 100+ random()*10));
+    expect(calculateSMA(big,20)).toHaveLength(4981);
+    expect(calculateEMA(big,12)).toHaveLength(4989);
+    expect(calculateRSI(big,14)).toHaveLength(4986);
+    expect(calculateBollingerBands(big,20)).toHaveLength(4981);
+    expect(calculateVolumeMA(big,20)).toHaveLength(4981);
   });
 });

@@ -5,7 +5,7 @@ import { exportBacktestTradesToCSV } from '../engine/export/csv-export';
 import { generateShareableLink } from '../engine/export/url-state';
 import { getTickerInfo } from '../model/tickers';
 import { useUIStore } from '../store';
-import { renderHook } from '@testing-library/react';
+import { act, fireEvent, renderHook } from '@testing-library/react';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { Candle } from '../model/types';
 
@@ -37,7 +37,7 @@ describe('Bugfix Batch 8 – Chart, Keyboard, Store, Portfolio, Export', () => {
     const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: onToggle }));
     // Ctrl+T should not trigger
     const ctrlT = new KeyboardEvent('keydown', { key: 't', ctrlKey: true });
-    window.dispatchEvent(ctrlT);
+    fireEvent(window, ctrlT);
     expect(toggleThemeSpy).not.toHaveBeenCalled();
     // contenteditable should be ignored
     const editable = document.createElement('div');
@@ -46,16 +46,16 @@ describe('Bugfix Batch 8 – Chart, Keyboard, Store, Portfolio, Export', () => {
     editable.focus();
     // JSDOM may not set activeElement to contentEditable, so test via isContentEditable guard
     const tEvent = new KeyboardEvent('keydown', { key: 't' });
-    window.dispatchEvent(tEvent);
+    fireEvent(window, tEvent);
     // Since we are not in input, but isContentEditable check should still allow? Actually activeElement is editable, so should ignore
     // We can't fully simulate in JSDOM but we check that our code checks isContentEditable
     // functional isPlaying: rapid toggle via Space
     const setIsPlaying = useUIStore.getState().setIsPlaying;
-    useUIStore.setState({ isPlaying: false });
+    act(() => useUIStore.setState({ isPlaying: false }));
     const space = new KeyboardEvent('keydown', { key: ' ' });
-    window.dispatchEvent(space);
+    fireEvent(window, space);
     expect(useUIStore.getState().isPlaying).toBe(true);
-    window.dispatchEvent(space);
+    fireEvent(window, space);
     expect(useUIStore.getState().isPlaying).toBe(false);
     unmount();
     document.body.removeChild(editable);

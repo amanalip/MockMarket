@@ -8,7 +8,6 @@ import { TradeHistory } from '../components/portfolio/TradeHistory';
 import { usePortfolioStore } from '../store';
 import { Candle } from '../model/types';
 
-(global as any).ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 
 const candle: Candle = { time: '2024-01-01', open: 100, high: 110, low: 90, close: 100, volume: 1000 };
 

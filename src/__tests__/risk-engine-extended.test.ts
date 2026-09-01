@@ -7,10 +7,13 @@ import { calculateMaxDrawdown } from '../engine/risk/drawdown';
 import { simulateETF, normalizeWeights } from '../engine/etf/etf-builder';
 import { calculateTrackingError } from '../engine/etf/tracking-error';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('risk-engine-extended');
 
 const mk = (closes: number[]): Candle[] => closes.map((c, i) => ({ time: `2024-01-${String(i + 1).padStart(2, '0')}`, open: c, high: c + 2, low: c - 2, close: c, volume: 1000 }));
 
-describe('Risk & Engine Extended', () => {
+describe(`Risk & Engine Extended (seed ${FUZZ_SEED})`, () => {
   it('SMA period equals length', () => {
     expect(calculateSMA(mk([10, 20, 30]), 3)[0].value).toBe(20);
   });
@@ -96,12 +99,12 @@ describe('Risk & Engine Extended', () => {
   });
 
   it('RSI bounded 0-100', () => {
-    const rsi = calculateRSI(mk(Array.from({ length: 30 }, () => 100 + (Math.random() - 0.5) * 10)), 14);
+    const rsi = calculateRSI(mk(Array.from({ length: 30 }, () => 100 + (random() - 0.5) * 10)), 14);
     rsi.forEach(r => { expect(r.value).toBeGreaterThanOrEqual(0); expect(r.value).toBeLessThanOrEqual(100); });
   });
 
   it('Bollinger upper >= lower', () => {
-    const bb = calculateBollingerBands(mk(Array.from({ length: 30 }, () => 100 + Math.random() * 10)), 20);
+    const bb = calculateBollingerBands(mk(Array.from({ length: 30 }, () => 100 + random() * 10)), 20);
     bb.forEach(b => expect(b.upper).toBeGreaterThanOrEqual(b.lower));
   });
 

@@ -6,6 +6,9 @@ import { simulateETF } from '../engine/etf/etf-builder';
 import { calculateTimeMachine } from '../engine/timemachine/timemachine';
 import { calculateTrackingError } from '../engine/etf/tracking-error';
 import { Candle } from '../model/types';
+import { createTestRandom, FUZZ_SEED } from './test-random';
+
+const random = createTestRandom('integration-flows');
 
 const mkCandles = (n: number, base = 100): Candle[] =>
   Array.from({ length: n }, (_, i) => {
@@ -14,7 +17,7 @@ const mkCandles = (n: number, base = 100): Candle[] =>
     return { time: d.toISOString().split('T')[0], open: price, high: price + 2, low: price - 2, close: price, volume: 1_000_000 };
   });
 
-describe('Integration Flows - End-to-End', () => {
+describe(`Integration Flows - End-to-End (seed ${FUZZ_SEED})`, () => {
   it('trading engine buy -> pending sell -> fill -> portfolio value invariant', () => {
     const engine = new TradingEngine(10000, 5);
     const c = mkCandles(1)[0];
@@ -66,7 +69,7 @@ describe('Integration Flows - End-to-End', () => {
     };
     const etf = simulateETF({ id: '1', name: 'Test', tickers: [{ ticker: 'AAPL', targetWeight: 50 }, { ticker: 'MSFT', targetWeight: 50 }], rebalanceFrequency: 'never', createdAt: '2020-01-01' }, map);
     const benchNAV = etf.navHistory.map(p => p.nav);
-    const customNAV = etf.navHistory.map(p => p.nav * 0.99 + Math.random() * 0.5);
+    const customNAV = etf.navHistory.map(p => p.nav * 0.99 + random() * 0.5);
     const te = calculateTrackingError(customNAV, benchNAV);
     expect(te.correlation).toBeGreaterThanOrEqual(-1);
     expect(te.correlation).toBeLessThanOrEqual(1);
@@ -114,8 +117,8 @@ describe('Integration Flows - End-to-End', () => {
   it('ETF rebalance quarterly vs never diverge', () => {
     const dates = Array.from({ length: 90 }, (_, i) => { const d = new Date('2020-01-01'); d.setDate(d.getDate() + i); return d.toISOString().split('T')[0]; });
     const map = {
-      AAPL: dates.map(d => ({ time: d, open: 100, high: 100, low: 100, close: 100 + Math.random() * 10, volume: 1000 })),
-      MSFT: dates.map(d => ({ time: d, open: 100, high: 100, low: 100, close: 100 + Math.random() * 10, volume: 1000 })),
+      AAPL: dates.map(d => ({ time: d, open: 100, high: 100, low: 100, close: 100 + random() * 10, volume: 1000 })),
+      MSFT: dates.map(d => ({ time: d, open: 100, high: 100, low: 100, close: 100 + random() * 10, volume: 1000 })),
     };
     const never = simulateETF({ id: '1', name: 'N', tickers: [{ ticker: 'AAPL', targetWeight: 50 }, { ticker: 'MSFT', targetWeight: 50 }], rebalanceFrequency: 'never', createdAt: '2020-01-01' }, map);
     const quarterly = simulateETF({ id: '2', name: 'Q', tickers: [{ ticker: 'AAPL', targetWeight: 50 }, { ticker: 'MSFT', targetWeight: 50 }], rebalanceFrequency: 'quarterly', createdAt: '2020-01-01' }, map);
