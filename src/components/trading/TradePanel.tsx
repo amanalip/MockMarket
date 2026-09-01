@@ -107,6 +107,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
 
       <div className={styles.tabs}>
         <button
+          id="trade-buy-tab"
           type="button"
           className={`${styles.tab} ${side === 'buy' ? styles.tabBuyActive : ''}`}
           onClick={() => setSide('buy')}
@@ -114,6 +115,7 @@ export const TradePanel: React.FC<TradePanelProps> = ({ currentCandle, disabled 
           Buy {selectedTicker}
         </button>
         <button
+          id="trade-sell-tab"
           type="button"
           className={`${styles.tab} ${side === 'sell' ? styles.tabSellActive : ''}`}
           onClick={() => setSide('sell')}

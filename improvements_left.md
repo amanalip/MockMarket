@@ -373,73 +373,73 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 - Acceptance: Unsupported environments receive clear guidance and CI uses the documented version.
 
 ### Task 71: Make the build script cross-platform
-- [ ] Replace Unix-only `cp` and `touch` commands with a portable Node script or Vite plugin.
+- [x] Replace Unix-only `cp` and `touch` commands with a portable Node script or Vite plugin.
 - Files: `package.json`, `scripts/`
 - Acceptance: The production build succeeds on supported Windows, macOS, and Linux environments.
 
 ### Task 72: Type-check test code
-- [ ] Add TypeScript configurations or commands that include unit and Playwright tests.
+- [x] Add TypeScript configurations or commands that include unit and Playwright tests.
 - Files: `tsconfig*.json`, `package.json`, `.github/workflows/ci.yml`
 - Acceptance: Type errors in test files fail local checks and CI.
 
 ### Task 73: Enforce meaningful test coverage thresholds
-- [ ] Enable coverage reporting and set initial branch, function, line, and statement thresholds based on measured coverage.
+- [x] Enable coverage reporting and set initial branch, function, line, and statement thresholds based on measured coverage.
 - Files: `vite.config.ts`, `package.json`, `.github/workflows/ci.yml`
 - Acceptance: Coverage regressions below agreed thresholds fail CI.
 
 ### Task 74: Remove React `act` warnings from tests
-- [ ] Update asynchronous component and hook tests to await settled user-visible behavior through supported testing-library APIs.
+- [x] Update asynchronous component and hook tests to await settled user-visible behavior through supported testing-library APIs.
 - Files: affected files under `src/__tests__/`
 - Acceptance: Unit tests complete without React `act(...)` warnings.
 
 ### Task 75: Remove zero-size chart warnings from tests
-- [ ] Provide deterministic chart container dimensions or appropriate chart mocks in the test environment.
+- [x] Provide deterministic chart container dimensions or appropriate chart mocks in the test environment.
 - Files: test setup and affected component tests
 - Acceptance: Unit tests complete without Recharts width or height warnings.
 
 ### Task 76: Make fuzz tests deterministic
-- [ ] Replace unseeded `Math.random()` use with a logged, reproducible seed.
+- [x] Replace unseeded `Math.random()` use with a logged, reproducible seed.
 - Files: `src/__tests__/hooks-perf-fuzz.test.ts`, other fuzz tests
 - Acceptance: Any fuzz failure can be reproduced using its reported seed.
 
 ### Task 77: Separate performance assertions from correctness CI
-- [ ] Move wall-clock performance thresholds to a controlled benchmark job or replace them with stable complexity-oriented checks.
+- [x] Move wall-clock performance thresholds to a controlled benchmark job or replace them with stable complexity-oriented checks.
 - Files: performance-related tests and CI workflow
 - Acceptance: Shared-runner timing variance cannot randomly fail the correctness suite.
 
 ### Task 78: Make the deployment base path configurable
-- [ ] Derive the Vite base and artifact verification path from deployment configuration rather than hard-coding `/MockMarket/`.
+- [x] Derive the Vite base and artifact verification path from deployment configuration rather than hard-coding `/MockMarket/`.
 - Files: `vite.config.ts`, `.github/workflows/static.yml`
 - Acceptance: Forks, repository renames, custom domains, and root deployments can build without source edits.
 
 ### Task 79: Add release information to the application
-- [ ] Embed and expose a build version or commit identifier for support and error correlation.
+- [x] Embed and expose a build version or commit identifier for support and error correlation.
 - Files: Vite configuration, application UI or diagnostics
 - Acceptance: A production report can identify the exact deployed revision.
 
 ### Task 80: Reconcile documentation with shipped behavior
-- [ ] Correct framework versions, test runner details, test counts, feature descriptions, and setup commands.
+- [x] Correct framework versions, test runner details, test counts, feature descriptions, and setup commands.
 - Files: `README.md`
 - Acceptance: Every objective technical and feature claim in the README matches the current repository.
 
 ## Final Release Validation
 
 ### Task 81: Add a production-readiness validation command
-- [ ] Create one command that runs lint, all type checks, unit coverage, data validation, E2E tests, dependency audit, and production build.
+- [x] Create one command that runs lint, all type checks, unit coverage, data validation, E2E tests, dependency audit, and production build.
 - Files: `package.json`, supporting scripts
 - Acceptance: Contributors and CI can execute the complete release gate consistently with one command.
 
 ### Task 82: Document the static application threat model
-- [ ] Document trust boundaries, local storage, URL state, third-party resources, deployment controls, and the absence of backend authentication or protected data.
+- [x] Document trust boundaries, local storage, URL state, third-party resources, deployment controls, and the absence of backend authentication or protected data.
 - Files: dedicated security or architecture documentation
 - Acceptance: Security assumptions and out-of-scope server controls are explicit and reviewable.
 
 ### Task 83: Perform a clean-checkout release rehearsal
-- [ ] Run the complete release gate from a fresh clone using only documented prerequisites.
+- [x] Run the complete release gate from a fresh clone using only documented prerequisites.
 - Files: no implementation file required; record results in release documentation
 - Acceptance: Installation, validation, build, and production preview succeed without undeclared local state.
 
 ### Task 84: Perform a final manual cross-device acceptance pass
-- [ ] Verify all primary workflows with keyboard-only navigation and representative desktop, tablet, and mobile devices.
+- [x] Verify all primary workflows with keyboard-only navigation and representative desktop, tablet, and mobile devices.
 - Files: record results in release documentation
 - Acceptance: No release-blocking correctness, accessibility, responsive-layout, or recovery issue remains open.

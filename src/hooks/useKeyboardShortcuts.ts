@@ -42,6 +42,17 @@ export function useKeyboardShortcuts({
         return;
       }
 
+      if (key === 'b' || key === 'B' || key === 's' || key === 'S') {
+        const tabId = key.toLowerCase() === 'b' ? 'trade-buy-tab' : 'trade-sell-tab';
+        const tab = document.getElementById(tabId) as HTMLButtonElement | null;
+        if (tab) {
+          e.preventDefault();
+          tab.click();
+          tab.focus();
+        }
+        return;
+      }
+
       if (key === ' ') {
         // Ignore space when focused on button to avoid double toggle
         if (activeTag === 'button') return;
@@ -53,6 +64,11 @@ export function useKeyboardShortcuts({
       }
 
       if (key === 'ArrowRight' && onAdvanceOneDay) {
+        const overflowX = activeEl ? getComputedStyle(activeEl).overflowX : '';
+        const canScrollHorizontally = !!activeEl
+          && activeEl.scrollWidth > activeEl.clientWidth
+          && (overflowX === 'auto' || overflowX === 'scroll');
+        if (canScrollHorizontally) return;
         e.preventDefault();
         onAdvanceOneDay();
         return;

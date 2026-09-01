@@ -36,8 +36,13 @@ export default defineConfig({
     },
     {
       name: 'mobile-chromium-smoke',
-      testMatch: /smoke\.spec\.ts/,
+      testMatch: /(smoke|acceptance)\.spec\.ts/,
       use: { ...devices['Pixel 7'] },
+    },
+    {
+      name: 'tablet-chromium-acceptance',
+      testMatch: /acceptance\.spec\.ts/,
+      use: { browserName: 'chromium', viewport: { width: 834, height: 1112 } },
     },
   ],
   webServer: {

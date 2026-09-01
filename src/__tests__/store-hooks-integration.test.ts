@@ -147,6 +147,44 @@ describe('Store Hooks Integration', () => {
     unmount();
   });
 
+  it('useKeyboardShortcuts preserves ArrowRight for horizontal scrolling', () => {
+    const onAdvance = vi.fn();
+    const region = document.createElement('div');
+    region.tabIndex = 0;
+    region.style.overflowX = 'auto';
+    Object.defineProperties(region, {
+      clientWidth: { value: 100 },
+      scrollWidth: { value: 200 },
+    });
+    document.body.appendChild(region);
+    region.focus();
+    const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: vi.fn(), onAdvanceOneDay: onAdvance }));
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(onAdvance).not.toHaveBeenCalled();
+    unmount();
+    region.remove();
+  });
+
+  it('useKeyboardShortcuts activates buy and sell tabs', () => {
+    const buy = document.createElement('button');
+    const sell = document.createElement('button');
+    buy.id = 'trade-buy-tab';
+    sell.id = 'trade-sell-tab';
+    const buyClick = vi.fn();
+    const sellClick = vi.fn();
+    buy.addEventListener('click', buyClick);
+    sell.addEventListener('click', sellClick);
+    document.body.append(buy, sell);
+    const { unmount } = renderHook(() => useKeyboardShortcuts({ onToggleShortcutsModal: vi.fn() }));
+    fireEvent.keyDown(window, { key: 's' });
+    expect(sellClick).toHaveBeenCalledOnce();
+    fireEvent.keyDown(window, { key: 'b' });
+    expect(buyClick).toHaveBeenCalledOnce();
+    unmount();
+    buy.remove();
+    sell.remove();
+  });
+
   it('UI getInitialTheme dark default', () => {
     expect(['dark', 'light']).toContain(useUIStore.getState().theme);
   });
