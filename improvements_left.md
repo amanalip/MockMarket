@@ -269,106 +269,106 @@ This file is the ordered implementation backlog for taking MockMarket from a pol
 - Acceptance: Backtest configuration and result rendering work end-to-end.
 
 ### Task 51: Add critical ETF E2E coverage
-- [ ] Add one browser flow that constructs, simulates, saves, reloads, and validates an ETF.
+- [x] Add one browser flow that constructs, simulates, saves, reloads, and validates an ETF.
 - Files: `e2e/`
 - Acceptance: The primary ETF workflow passes against the production bundle.
 
 ### Task 52: Expand browser and viewport coverage
-- [ ] Run smoke tests on Chromium, Firefox, WebKit, and at least one mobile viewport.
+- [x] Run smoke tests on Chromium, Firefox, WebKit, and at least one mobile viewport.
 - Files: `playwright.config.ts`, `.github/workflows/ci.yml`
 - Acceptance: CI reports browser-specific failures and mobile layout regressions.
 
 ### Task 53: Pin GitHub Actions to commit SHAs
-- [ ] Replace mutable major-version action tags with reviewed full commit SHAs and retain version comments.
+- [x] Replace mutable major-version action tags with reviewed full commit SHAs and retain version comments.
 - Files: `.github/workflows/*.yml`
 - Acceptance: Workflow dependencies cannot change without a repository diff.
 
 ### Task 54: Apply least-privilege workflow permissions
-- [ ] Set read-only defaults and grant Pages and OIDC write permissions only to the deployment job that needs them.
+- [x] Set read-only defaults and grant Pages and OIDC write permissions only to the deployment job that needs them.
 - Files: `.github/workflows/*.yml`
 - Acceptance: CI jobs cannot write repository, Pages, or identity resources unnecessarily.
 
 ### Task 55: Add CI timeouts and cancellation behavior
-- [ ] Add job timeouts and cancel superseded CI runs while preserving safe deployment concurrency.
+- [x] Add job timeouts and cancel superseded CI runs while preserving safe deployment concurrency.
 - Files: `.github/workflows/*.yml`
 - Acceptance: Hung and obsolete jobs do not consume runners indefinitely.
 
 ### Task 56: Add automated dependency update configuration
-- [ ] Configure Dependabot or Renovate for npm and GitHub Actions with a controlled schedule.
+- [x] Configure Dependabot or Renovate for npm and GitHub Actions with a controlled schedule.
 - Files: `.github/dependabot.yml` or equivalent
 - Acceptance: Dependency and action updates are proposed automatically with lockfile changes.
 
 ### Task 57: Add a vulnerability reporting policy
-- [ ] Create `SECURITY.md` with supported versions, private reporting instructions, and response expectations.
+- [x] Create `SECURITY.md` with supported versions, private reporting instructions, and response expectations.
 - Files: `SECURITY.md`
 - Acceptance: Security researchers have a documented non-public reporting path.
 
 ### Task 58: Add browser security policy metadata
-- [ ] Define the strongest practical CSP, referrer policy, and permissions policy supported by the static hosting approach.
+- [x] Define the strongest practical CSP, referrer policy, and permissions policy supported by the static hosting approach.
 - Files: `index.html`, deployment documentation or hosting configuration
 - Acceptance: Production behavior is tested under the policy and unnecessary browser capabilities are disabled.
 
 ### Task 59: Remove runtime Google Fonts dependence
-- [ ] Self-host required font files or use a system-font stack.
+- [x] Self-host required font files or use a system-font stack.
 - Files: `index.html`, CSS, `public/`
 - Acceptance: The application renders as intended without contacting Google or depending on third-party font availability.
 
 ## Accessibility And Responsive Design
 
 ### Task 60: Restore visible keyboard focus for buttons
-- [ ] Remove the global focus-outline suppression or add a high-contrast `:focus-visible` replacement.
+- [x] Remove the global focus-outline suppression or add a high-contrast `:focus-visible` replacement.
 - Files: `src/index.css`
 - Acceptance: Every button has a clearly visible keyboard focus indicator in both themes.
 
 ### Task 61: Implement complete modal semantics
-- [ ] Give each modal a labelled dialog role, `aria-modal`, accessible close name, initial focus, focus trap, Escape handling, and focus restoration.
+- [x] Give each modal a labelled dialog role, `aria-modal`, accessible close name, initial focus, focus trap, Escape handling, and focus restoration.
 - Files: `src/components/ui/ShareModal.tsx`, `src/components/ui/ShortcutsModal.tsx`
 - Acceptance: Both modals are fully operable and correctly announced using keyboard and screen-reader navigation.
 
 ### Task 62: Make stock table sorting keyboard accessible
-- [ ] Replace clickable table-header behavior with semantic controls and expose sort direction through `aria-sort`.
+- [x] Replace clickable table-header behavior with semantic controls and expose sort direction through `aria-sort`.
 - Files: `src/components/stockpicker/StockScreener.tsx`
 - Acceptance: Every sortable column can be operated without a pointer.
 
 ### Task 63: Make stock row selection keyboard accessible
-- [ ] Replace mouse-only row selection with a semantic link or button for each ticker.
+- [x] Replace mouse-only row selection with a semantic link or button for each ticker.
 - Files: `src/components/stockpicker/StockScreener.tsx`
 - Acceptance: Keyboard and assistive-technology users can select every listed ticker.
 
 ### Task 64: Make portfolio ticker selection semantic
-- [ ] Replace clickable non-interactive ticker text with a button or link.
+- [x] Replace clickable non-interactive ticker text with a button or link.
 - Files: `src/components/portfolio/PortfolioDashboard.tsx`
 - Acceptance: Ticker navigation is focusable, named, and keyboard operable.
 
 ### Task 65: Implement a responsive application shell
-- [ ] Add a mobile navigation pattern and prevent the fixed sidebar from consuming inaccessible viewport width.
+- [x] Add a mobile navigation pattern and prevent the fixed sidebar from consuming inaccessible viewport width.
 - Files: `src/components/ui/Sidebar.module.css`, layout components
 - Acceptance: Primary navigation remains reachable at 320 CSS pixels and 200% zoom.
 
 ### Task 66: Make trading and analytics grids responsive
-- [ ] Replace fixed-width content grids with tested single-column or scroll-safe layouts at narrow widths.
+- [x] Replace fixed-width content grids with tested single-column or scroll-safe layouts at narrow widths.
 - Files: `src/App.tsx`, component CSS modules
 - Acceptance: Trading controls, tables, and charts remain reachable without clipped horizontal content.
 
 ### Task 67: Run and fix an automated accessibility audit
-- [ ] Add an Axe-based accessibility test for each primary application mode and resolve serious or critical violations.
+- [x] Add an Axe-based accessibility test for each primary application mode and resolve serious or critical violations.
 - Files: test dependencies, `src/__tests__/` or `e2e/`
 - Acceptance: Automated audits pass in trade, backtest, ETF, scenario, and timeline modes.
 
 ## Performance, Tooling, And Maintainability
 
 ### Task 68: Split the production JavaScript bundle
-- [ ] Lazy-load major application modes and heavy charting dependencies.
+- [x] Lazy-load major application modes and heavy charting dependencies.
 - Files: `src/App.tsx`, component imports, Vite configuration
 - Acceptance: The initial production chunk is below the configured 500 kB warning threshold without hiding the warning.
 
 ### Task 69: Remove confirmed unused dependencies
-- [ ] Verify and remove packages with no runtime or tooling use, including unused CodeMirror, table, image, and compression packages.
+- [x] Verify and remove packages with no runtime or tooling use, including unused CodeMirror, table, image, and compression packages.
 - Files: `package.json`, `package-lock.json`
 - Acceptance: `npm ls`, tests, and build pass with a smaller dependency surface.
 
 ### Task 70: Declare supported Node and package-manager versions
-- [ ] Add `engines` and `packageManager` metadata matching local and CI requirements.
+- [x] Add `engines` and `packageManager` metadata matching local and CI requirements.
 - Files: `package.json`, `README.md`
 - Acceptance: Unsupported environments receive clear guidance and CI uses the documented version.
 
