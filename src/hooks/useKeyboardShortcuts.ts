@@ -15,6 +15,7 @@ export function useKeyboardShortcuts({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
       // Ignore auto-repeat
       if (e.repeat) return;
       // Ignore if user is currently typing in an input, textarea, select, or contenteditable (including nested)

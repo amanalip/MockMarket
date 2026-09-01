@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useBacktesterStore, useETFStore, useUIStore, usePortfolioStore } from '../../store';
 import { generateShareableLink, ShareableStatePayload } from '../../engine/export/url-state';
 import {
@@ -8,6 +8,7 @@ import {
 } from '../../engine/export/csv-export';
 import { X, Copy, Check, Download, Share2 } from 'lucide-react';
 import styles from './ShareModal.module.css';
+import { useModalFocus } from '../../hooks/useModalFocus';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -22,8 +23,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
 
   const [copyState, setCopyState] = useState<'idle' | 'copied' | 'manual'>('idle');
   const urlInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const copyOperationRef = useRef(0);
+
+  useModalFocus(isOpen, dialogRef, closeButtonRef, onClose);
 
   useEffect(() => {
     if (isOpen) return;
@@ -103,14 +109,21 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <div className={styles.overlay} onClick={(event) => event.target === event.currentTarget && onClose()}>
+      <div
+        ref={dialogRef}
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+      >
         <div className={styles.header}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Share2 size={18} color="var(--accent)" />
-            <span className={styles.title}>Share & Export Session</span>
+            <h2 id={titleId} className={styles.title}>Share &amp; Export Session</h2>
           </div>
-          <button type="button" className={styles.closeBtn} onClick={onClose}>
+          <button ref={closeButtonRef} type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close share and export dialog">
             <X size={18} />
           </button>
         </div>
@@ -140,7 +153,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className={styles.section}>
-          <label className={styles.sectionLabel}>Data Exports</label>
+          <h3 className={styles.sectionLabel}>Data Exports</h3>
           <div className={styles.buttonGrid}>
             <button type="button" className={styles.exportBtn} onClick={handleExportTradesCSV}>
               <Download size={14} />

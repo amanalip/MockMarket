@@ -10,11 +10,15 @@
   --border-subtle: #1e293b;
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
+  --text-muted: #94a3b8;
+  --accent: #60a5fa;
+  --accent-solid: #2563eb;
+  --accent-hover: #1d4ed8;
   --up-green: #10b981;
-  --down-red: #ef4444;
+  --down-red: #f87171;
+  --up-solid: #047857;
+  --down-solid: #b91c1c;
+  --focus-ring: #fbbf24;
 }
 
 [data-theme="light"] {
@@ -26,11 +30,15 @@
   --border-subtle: #cbd5e1;
   --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --accent: #2563eb;
+  --text-muted: #52647a;
+  --accent: #1d4ed8;
+  --accent-solid: #1d4ed8;
   --accent-hover: #1d4ed8;
-  --up-green: #059669;
-  --down-red: #dc2626;
+  --up-green: #047857;
+  --down-red: #b91c1c;
+  --up-solid: #047857;
+  --down-solid: #b91c1c;
+  --focus-ring: #7c3aed;
 }
 
 * {
@@ -47,7 +55,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  overflow-x: hidden;
 }
 
 code, pre, .mono {
@@ -62,7 +69,11 @@ button, input, select, textarea {
 button {
   cursor: pointer;
   border: none;
-  outline: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 
 a {

@@ -24,6 +24,8 @@
   flex-direction: column;
   gap: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
 
 .header {
@@ -81,4 +83,24 @@
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  .overlay {
+    padding: 10px;
+  }
+
+  .modal {
+    padding: 16px;
+    max-height: calc(100vh - 20px);
+  }
+
+  .item {
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .kbd {
+    flex: none;
+  }
 }
