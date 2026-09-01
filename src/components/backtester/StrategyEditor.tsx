@@ -45,8 +45,9 @@ export const StrategyEditor: React.FC = () => {
       </div>
 
       <div className={styles.editorGroup}>
-        <label className={styles.label}>Entry Condition</label>
+        <label className={styles.label} htmlFor="backtest-entry-condition">Entry Condition</label>
         <input
+          id="backtest-entry-condition"
           type="text"
           className={styles.editorInput}
           value={config.entryRule}
@@ -61,8 +62,9 @@ export const StrategyEditor: React.FC = () => {
       </div>
 
       <div className={styles.editorGroup}>
-        <label className={styles.label}>Exit Condition</label>
+        <label className={styles.label} htmlFor="backtest-exit-condition">Exit Condition</label>
         <input
+          id="backtest-exit-condition"
           type="text"
           className={styles.editorInput}
           value={config.exitRule}
@@ -78,8 +80,9 @@ export const StrategyEditor: React.FC = () => {
 
       <div className={styles.paramsRow}>
         <div className={styles.paramCard}>
-          <label className={styles.label}>Position Size (%)</label>
+          <label className={styles.label} htmlFor="backtest-position-size">Position Size (%)</label>
           <input
+            id="backtest-position-size"
             type="number"
             min="10"
             max="100"
@@ -91,8 +94,9 @@ export const StrategyEditor: React.FC = () => {
         </div>
 
         <div className={styles.paramCard}>
-          <label className={styles.label}>Stop Loss (%)</label>
+          <label className={styles.label} htmlFor="backtest-stop-loss">Stop Loss (%)</label>
           <input
+            id="backtest-stop-loss"
             type="number"
             min="0"
             max="50"
@@ -104,8 +108,9 @@ export const StrategyEditor: React.FC = () => {
         </div>
 
         <div className={styles.paramCard}>
-          <label className={styles.label}>Take Profit (%)</label>
+          <label className={styles.label} htmlFor="backtest-take-profit">Take Profit (%)</label>
           <input
+            id="backtest-take-profit"
             type="number"
             min="0"
             max="100"

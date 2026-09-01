@@ -13,9 +13,9 @@ export const BacktestResults: React.FC = () => {
   const isPos = stats.totalReturnPercent >= 0;
 
   return (
-    <div className={styles.container}>
+    <section className={styles.container} aria-labelledby="backtest-results-heading">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '1.1rem', fontWeight: 700 }}>Backtest Results</span>
+        <h2 id="backtest-results-heading" style={{ margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>Backtest Results</h2>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
           {result.config.ticker} | {result.config.startDate} to {result.config.endDate}
         </span>
@@ -70,6 +70,6 @@ export const BacktestResults: React.FC = () => {
       <ReturnsHeatmap monthlyReturns={monthlyReturns} />
 
       <BacktestTradesTable trades={trades} />
-    </div>
+    </section>
   );
 };
