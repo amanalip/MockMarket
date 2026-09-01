@@ -62,10 +62,10 @@ MockMarket is a client-side TypeScript and React market simulator and algorithmi
 
 ## Technical Architecture
 
-- **Framework**: React 19 + TypeScript + Vite 8
+- **Framework**: React 19 + TypeScript + Vite 6
 - **State Management**: Zustand stores with atomic slices (`useUIStore`, `usePortfolioStore`, `useBacktesterStore`, `useETFStore`)
 - **Charting**: Lightweight-Charts v5, Recharts, SVG/Canvas rendering
-- **Testing**: Vitest + Happy-DOM (20 test suites, 78+ unit tests)
+- **Testing**: Vitest + jsdom, with Playwright for browser tests
 - **Styling**: CSS Modules with design tokens and CSS custom properties
 
 ---
@@ -125,8 +125,8 @@ Where $w_i$ represents the fractional weight of sector $i$. The portfolio divers
 ## Getting Started
 
 ### Prerequisites
-- Node.js 20+
-- npm 10+
+- Node.js 22.x
+- npm 10.x (10.9.4 recommended and used by CI)
 
 ### Installation
 ```bash
