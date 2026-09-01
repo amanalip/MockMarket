@@ -177,6 +177,14 @@ node scripts/generate_data.js
 
 ---
 
+## Browser Security Policy
+
+The production HTML defines a Content Security Policy that limits resources to the application origin, disables plugins, restricts form submissions, and permits only the inline styles required by the current React UI. It also applies a `no-referrer` policy. The application uses system font stacks and makes no runtime font requests to third parties.
+
+GitHub Pages does not provide repository-controlled custom response headers. Consequently, `Permissions-Policy` and protections that require headers, including CSP `frame-ancestors`, cannot be enforced by this deployment. A future host with configurable headers should set an explicit `Permissions-Policy` disabling unused capabilities (including camera, microphone, geolocation, payment, and USB) and deliver CSP as an HTTP response header.
+
+---
+
 ## License
 
 MIT License. Open source and built for financial education.

@@ -101,7 +101,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
         background: { type: ColorType.Solid, color: colors.chartBackground },
         textColor: colors.chartText,
         fontSize: 12,
-        fontFamily: 'JetBrains Mono, monospace',
+        fontFamily: "ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace",
       },
       grid: {
         vertLines: { color: colors.chartGrid },
